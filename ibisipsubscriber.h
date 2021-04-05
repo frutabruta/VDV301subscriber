@@ -4,7 +4,8 @@
 #include <QObject>
 #include <QtHttpServer>
 #include <QtXml>
-#include "../newhttpserver.h"
+#include "VDV301subscriber/newhttpserver.h"
+#include "qzeroconf.h"
 
 class IbisIpSubscriber : public QObject
 {
@@ -14,6 +15,11 @@ public:
 
     IbisIpSubscriber(QString nazevSluzby, QString typSluzby, int cisloPortu);
     QByteArray vyrobHlavickuOk();
+    void hledejSluzby(QString typsluzby, int start);
+    void addService(QZeroConfService zcs);
+    QString vytvorSubscribeRequest(QHostAddress ipadresa, int port);
+    bool odebirano=false;
+
 private:
     NewHttpServer InstanceNovehoServeru;
     int cisloPortuInterni=0;
@@ -21,7 +27,11 @@ private:
     QString obsahInterni="";
     QString hlavickaInterni="";
     QString typSluzbyInterni="_ibisip_http._tcp";
+    QZeroConf zeroConf;
 
+    int najdiSluzbu(QString hledanaSluzba, QString hledanaVerze, QZeroConfService zcs);
+    QHostAddress projedAdresy();
+    void PostSubscribe(QUrl adresaDispleje, QString dataDoPostu);
 signals:
     int dataNahrana (QString vysledek);
 
