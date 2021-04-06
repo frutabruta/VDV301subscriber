@@ -105,7 +105,9 @@ int NewHttpServer::route(QString &intObsahGet,  QMap<QString,QString> &obsahyBod
         qDebug()<<"request HEAD "<<request.headers();
         qDebug()<<"request BODY "<<request.body();
         emit prijemDat(request.body());
-        return this->obsahRoot;
+        QString okResponse="HTTP/1.1 200 OK";
+        //return this->obsahRoot;
+        return "";
         //return intObsahGet;
     });
 

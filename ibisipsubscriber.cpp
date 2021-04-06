@@ -1,12 +1,14 @@
 #include "ibisipsubscriber.h"
 
 
-IbisIpSubscriber::IbisIpSubscriber(QString nazevSluzby,QString typSluzby, int cisloPortu) : InstanceNovehoServeru(cisloPortu)
+IbisIpSubscriber::IbisIpSubscriber(QString nazevSluzby,QString struktura,QString verze,QString typSluzby, int cisloPortu) : InstanceNovehoServeru(cisloPortu)
 {
 qDebug()<<"HttpSluzba::HttpSluzba";
 cisloPortuInterni=cisloPortu;
 nazevSluzbyInterni=nazevSluzby;
 typSluzbyInterni=typSluzby;
+strukturaInterni=struktura;
+verzeInterni=verze;
 connect(&InstanceNovehoServeru,&NewHttpServer::prijemDat,this,&IbisIpSubscriber::vypisObsahRequestu);
 connect(&zeroConf, &QZeroConf::serviceAdded, this, &IbisIpSubscriber::addService);
 this->projedAdresy();
@@ -107,12 +109,13 @@ void IbisIpSubscriber::addService(QZeroConfService zcs)
    // setFixedSize(table.horizontalHeader()->length() + 60, table.verticalHeader()->length() + 100);
     #endif
 
-    QString strukturaKodberu="/CustomerInformationService/SubscribeAllData";
-    QString adresaCileString="http://"+zcs->ip().toString()+":"+QString::number(zcs->port())+strukturaKodberu;
+    //QString strukturaKodberu="/CustomerInformationService/SubscribeAllData";
+    QString adresaZaLomitkem="/"+nazevSluzbyInterni+"/Subscribe"+strukturaInterni;
+    QString adresaCileString="http://"+zcs->ip().toString()+":"+QString::number(zcs->port())+adresaZaLomitkem;
     qDebug()<<"adresaCile string "<<adresaCileString;
     QUrl adresaKamPostovatSubscirbe=QUrl(adresaCileString);
 
-    if (najdiSluzbu("CustomerInformationService","1.0",zcs)&&(this->odebirano==false))
+    if (najdiSluzbu(nazevSluzbyInterni,verzeInterni,zcs)&&(this->odebirano==false))
     {
         PostSubscribe(adresaKamPostovatSubscirbe,this->vytvorSubscribeRequest(projedAdresy(),cisloPortuInterni));
         qDebug()<<"odesilam subscribe na "<<ipadresa<<":"<<QString::number(port)<<" sluzba "<<nazev;
@@ -161,7 +164,7 @@ QString IbisIpSubscriber::vytvorSubscribeRequest(QHostAddress ipadresa, int port
 
 
     //stopProperty.appendChild(xmlko.createTextNode(hodnota));
-    qDebug()<<"obsah xml subscribe request"<<xmlko.toString();
+    //qDebug()<<"obsah xml subscribe request"<<xmlko.toString();
     return xmlko.toString();
 }
 

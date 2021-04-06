@@ -13,7 +13,7 @@ class IbisIpSubscriber : public QObject
 public:
     explicit IbisIpSubscriber(QObject *parent = nullptr);
 
-    IbisIpSubscriber(QString nazevSluzby, QString typSluzby, int cisloPortu);
+    IbisIpSubscriber(QString nazevSluzby, QString struktura, QString verze, QString typSluzby, int cisloPortu);
     QByteArray vyrobHlavickuOk();
     void hledejSluzby(QString typsluzby, int start);
     void addService(QZeroConfService zcs);
@@ -26,6 +26,8 @@ private:
     QString nazevSluzbyInterni="";
     QString obsahInterni="";
     QString hlavickaInterni="";
+    QString strukturaInterni="";
+    QString verzeInterni="";
     QString typSluzbyInterni="_ibisip_http._tcp";
     QZeroConf zeroConf;
 
