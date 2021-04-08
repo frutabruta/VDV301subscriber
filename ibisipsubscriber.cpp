@@ -87,7 +87,7 @@ void IbisIpSubscriber::hledejSluzby(QString typsluzby, int start)
 
 void IbisIpSubscriber::addService(QZeroConfService zcs)
 {
-    //qint32 row;
+
    // QTableWidgetItem *cell;
    // qDebug() << "Added service: " << zcs;
     QString nazev=zcs->name();
@@ -120,7 +120,16 @@ void IbisIpSubscriber::addService(QZeroConfService zcs)
         PostSubscribe(adresaKamPostovatSubscirbe,this->vytvorSubscribeRequest(projedAdresy(),cisloPortuInterni));
         qDebug()<<"odesilam subscribe na "<<ipadresa<<":"<<QString::number(port)<<" sluzba "<<nazev;
     }
+    emit nalezenaSluzba( zcs);
 }
+
+
+
+
+
+
+
+
 
 int IbisIpSubscriber::najdiSluzbu(QString hledanaSluzba,QString hledanaVerze, QZeroConfService zcs)
 {

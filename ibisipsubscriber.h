@@ -36,6 +36,7 @@ private:
     void PostSubscribe(QUrl adresaDispleje, QString dataDoPostu);
 signals:
     int dataNahrana (QString vysledek);
+    void nalezenaSluzba(QZeroConfService zcs);
 
 public slots:
     //void vypisObsahRequestu();
