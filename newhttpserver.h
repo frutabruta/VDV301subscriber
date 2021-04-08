@@ -24,6 +24,7 @@ public:
     QString obsahRoot="";
 
 
+
     int nastavObsahTela(QMap<QString, QString> vstup);
 private:
     QString vyrobHlavickuOk();

@@ -19,7 +19,8 @@ public:
     void addService(QZeroConfService zcs);
     QString vytvorSubscribeRequest(QHostAddress ipadresa, int port);
     bool odebirano=false;
-
+    QTimer *timer = new QTimer(this);
+     int defaultniCasovac=120000;
 private:
     NewHttpServer InstanceNovehoServeru;
     int cisloPortuInterni=0;
@@ -30,6 +31,7 @@ private:
     QString verzeInterni="";
     QString typSluzbyInterni="_ibisip_http._tcp";
     QZeroConf zeroConf;
+
 
     int najdiSluzbu(QString hledanaSluzba, QString hledanaVerze, QZeroConfService zcs);
     QHostAddress projedAdresy();
@@ -42,6 +44,8 @@ public slots:
     //void vypisObsahRequestu();
     void vypisObsahRequestu(QString vysledek);
 
+private slots:
+    void casovacVyprsel();
 };
 
 #endif // IBISIPSUBSCRIBER_H

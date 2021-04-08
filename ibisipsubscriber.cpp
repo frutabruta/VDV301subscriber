@@ -12,11 +12,22 @@ verzeInterni=verze;
 connect(&InstanceNovehoServeru,&NewHttpServer::prijemDat,this,&IbisIpSubscriber::vypisObsahRequestu);
 connect(&zeroConf, &QZeroConf::serviceAdded, this, &IbisIpSubscriber::addService);
 this->projedAdresy();
+
+connect(timer, &QTimer::timeout, this, &IbisIpSubscriber::casovacVyprsel);
+timer->start(defaultniCasovac);
 }
 
+void IbisIpSubscriber::casovacVyprsel()
+{
+qDebug()<<"IbisIpSubscriber::casovacVyprsel";
+odebirano=false;
+hledejSluzby(typSluzbyInterni,0);
+hledejSluzby(typSluzbyInterni,1);
+}
 
 void IbisIpSubscriber::vypisObsahRequestu(QString vysledek)
 {
+
     qDebug()<<"IbisIpSubscriber::vypisObsahRequestu";
     QByteArray posledniRequest=InstanceNovehoServeru.bodyPozadavku;
     QDomDocument xmlrequest;
@@ -30,6 +41,7 @@ void IbisIpSubscriber::vypisObsahRequestu(QString vysledek)
     QUrl adresaurl=kompletadresa;
     //emit pridejSubscribera(adresaurl);
     //qDebug()<<obsahBody;
+    timer->start(defaultniCasovac);
     emit dataNahrana(vysledek);
 }
 /*
@@ -79,7 +91,8 @@ void IbisIpSubscriber::hledejSluzby(QString typsluzby, int start)
         {
         //	zeroConf.startBrowser("_qtzeroconf_test._tcp");
             qDebug()<<"prohledavam";
-            zeroConf.startBrowser("_ibisip_http._tcp.");
+            zeroConf.startBrowser(typSluzbyInterni);
+            //zeroConf.startBrowser("_ibisip_http._tcp.");
         }
 
     }
