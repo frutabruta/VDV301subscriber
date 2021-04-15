@@ -4,8 +4,8 @@
 #include <QObject>
 #include <QtHttpServer>
 #include <QtXml>
-#include "VDV301subscriber/newhttpserver.h"
-#include "qzeroconf.h"
+#include "newhttpserver.h"
+#include "QtZeroConf/qzeroconf.h"
 
 class IbisIpSubscriber : public QObject
 {
