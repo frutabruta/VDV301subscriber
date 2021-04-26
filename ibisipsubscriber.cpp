@@ -3,26 +3,26 @@
 
 IbisIpSubscriber::IbisIpSubscriber(QString nazevSluzby,QString struktura,QString verze,QString typSluzby, int cisloPortu) : InstanceNovehoServeru(cisloPortu)
 {
-qDebug()<<"HttpSluzba::HttpSluzba";
-cisloPortuInterni=cisloPortu;
-nazevSluzbyInterni=nazevSluzby;
-typSluzbyInterni=typSluzby;
-strukturaInterni=struktura;
-verzeInterni=verze;
-connect(&InstanceNovehoServeru,&NewHttpServer::prijemDat,this,&IbisIpSubscriber::vypisObsahRequestu);
-connect(&zeroConf, &QZeroConf::serviceAdded, this, &IbisIpSubscriber::addService);
-this->projedAdresy();
+    qDebug()<<"HttpSluzba::HttpSluzba";
+    cisloPortuInterni=cisloPortu;
+    nazevSluzbyInterni=nazevSluzby;
+    typSluzbyInterni=typSluzby;
+    strukturaInterni=struktura;
+    verzeInterni=verze;
+    connect(&InstanceNovehoServeru,&NewHttpServer::prijemDat,this,&IbisIpSubscriber::vypisObsahRequestu);
+    connect(&zeroConf, &QZeroConf::serviceAdded, this, &IbisIpSubscriber::addService);
+    this->projedAdresy();
 
-connect(timer, &QTimer::timeout, this, &IbisIpSubscriber::casovacVyprsel);
-timer->start(defaultniCasovac);
+    connect(timer, &QTimer::timeout, this, &IbisIpSubscriber::casovacVyprsel);
+    timer->start(defaultniCasovac);
 }
 
 void IbisIpSubscriber::casovacVyprsel()
 {
-qDebug()<<"IbisIpSubscriber::casovacVyprsel";
-odebirano=false;
-hledejSluzby(typSluzbyInterni,0);
-hledejSluzby(typSluzbyInterni,1);
+    qDebug()<<"IbisIpSubscriber::casovacVyprsel";
+    odebirano=false;
+    hledejSluzby(typSluzbyInterni,0);
+    hledejSluzby(typSluzbyInterni,1);
 }
 
 void IbisIpSubscriber::vypisObsahRequestu(QString vysledek)
@@ -89,7 +89,7 @@ void IbisIpSubscriber::hledejSluzby(QString typsluzby, int start)
 
         if (!zeroConf.browserExists())
         {
-        //	zeroConf.startBrowser("_qtzeroconf_test._tcp");
+            //	zeroConf.startBrowser("_qtzeroconf_test._tcp");
             qDebug()<<"prohledavam";
             zeroConf.startBrowser(typSluzbyInterni);
             //zeroConf.startBrowser("_ibisip_http._tcp.");
@@ -101,8 +101,8 @@ void IbisIpSubscriber::hledejSluzby(QString typsluzby, int start)
 void IbisIpSubscriber::addService(QZeroConfService zcs)
 {
 
-   // QTableWidgetItem *cell;
-   // qDebug() << "Added service: " << zcs;
+    // QTableWidgetItem *cell;
+    // qDebug() << "Added service: " << zcs;
     QString nazev=zcs->name();
     QString ipadresa=zcs->ip().toString();
     QString verze=zcs.data()->txt().value("ver");
@@ -112,15 +112,15 @@ void IbisIpSubscriber::addService(QZeroConfService zcs)
 
 
     //row = table.rowCount();
-   // table.insertRow(row);
-   // cell = new QTableWidgetItem(zcs->name());
-   // table.setItem(row, 0, cell);
-   // cell = new QTableWidgetItem(zcs->ip().toString());
-   // table.setItem(row, 1, cell);
-   // table.resizeColumnsToContents();
-    #if !(defined(Q_OS_IOS) || defined(Q_OS_ANDROID))
-   // setFixedSize(table.horizontalHeader()->length() + 60, table.verticalHeader()->length() + 100);
-    #endif
+    // table.insertRow(row);
+    // cell = new QTableWidgetItem(zcs->name());
+    // table.setItem(row, 0, cell);
+    // cell = new QTableWidgetItem(zcs->ip().toString());
+    // table.setItem(row, 1, cell);
+    // table.resizeColumnsToContents();
+#if !(defined(Q_OS_IOS) || defined(Q_OS_ANDROID))
+    // setFixedSize(table.horizontalHeader()->length() + 60, table.verticalHeader()->length() + 100);
+#endif
 
     //QString strukturaKodberu="/CustomerInformationService/SubscribeAllData";
     QString adresaZaLomitkem="/"+nazevSluzbyInterni+"/Subscribe"+strukturaInterni;
@@ -214,19 +214,29 @@ QHostAddress IbisIpSubscriber::projedAdresy()
 {
     qDebug()<<"IbisIpSubscriber::projedAdresy()";
     QList<QHostAddress> list = QNetworkInterface::allAddresses();
+    bool ipSet=false;
+    int ipindex=0;
+    for(int nIter=0; nIter<list.count(); nIter++)
 
-     for(int nIter=0; nIter<list.count(); nIter++)
+    {
+        qDebug() <<nIter<<" "<< list[nIter].toString();
+        if(!list[nIter].isLoopback())
+        {
+            if (list[nIter].protocol() == QAbstractSocket::IPv4Protocol )
+            {
+                qDebug() <<nIter<<" not loopback"<< list[nIter].toString();
+                if(ipSet==false)
+                {
+                  ipindex=nIter;
+                  ipSet=true;
+                }
+            }
+        }
 
-      {
-          if(!list[nIter].isLoopback())
-              if (list[nIter].protocol() == QAbstractSocket::IPv4Protocol )
-            qDebug() << list[nIter].toString();
 
 
-
-
-      }
-     return list[0];
+    }
+    return list[ipSet];
 
 }
 
