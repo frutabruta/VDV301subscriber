@@ -215,7 +215,7 @@ QHostAddress IbisIpSubscriber::projedAdresy()
     qDebug()<<"IbisIpSubscriber::projedAdresy()";
     QList<QHostAddress> list = QNetworkInterface::allAddresses();
     bool ipSet=false;
-    int ipindex=0;
+    int ipIndex=0;
     for(int nIter=0; nIter<list.count(); nIter++)
 
     {
@@ -227,7 +227,7 @@ QHostAddress IbisIpSubscriber::projedAdresy()
                 qDebug() <<nIter<<" not loopback"<< list[nIter].toString();
                 if(ipSet==false)
                 {
-                  ipindex=nIter;
+                  ipIndex=nIter;
                   ipSet=true;
                 }
             }
@@ -236,7 +236,7 @@ QHostAddress IbisIpSubscriber::projedAdresy()
 
 
     }
-    return list[ipSet];
+    return list[ipIndex];
 
 }
 
