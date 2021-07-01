@@ -37,7 +37,7 @@ int NewHttpServer::route(QString &intObsahGet,  QMap<QString,QString> &obsahyBod
     {
         qDebug()<<"request "<<"/CustomerInformationService/SubscribeAllData";
         //qDebug()<<request.headers()["Connection"].isNull();
-        qDebug()<<request.body();
+        //qDebug()<<request.body();
         qDebug()<<"tady se mel spustit emit";
 
         QString textVysledek="true";
@@ -61,7 +61,7 @@ int NewHttpServer::route(QString &intObsahGet,  QMap<QString,QString> &obsahyBod
     {
         //qDebug()<<request.headers()["Connection"].isNull();
         qDebug()<<"request "<<"/CustomerInformationService/SubscribeCurrentDisplayContent";
-        qDebug()<<request.body();
+        //qDebug()<<request.body();
 
         qDebug()<<"tady se mel spustit emit";
 
@@ -102,8 +102,8 @@ int NewHttpServer::route(QString &intObsahGet,  QMap<QString,QString> &obsahyBod
     httpServer.route("/", [this](const QHttpServerRequest &request)
     {
         //this->obsahRoot;
-        qDebug()<<"request HEAD "<<request.headers();
-        qDebug()<<"request BODY "<<request.body();
+      //  qDebug()<<"request HEAD "<<request.headers();
+      //  qDebug()<<"request BODY "<<request.body();
         emit prijemDat(request.body());
         QString okResponse="HTTP/1.1 200 OK";
         //return this->obsahRoot;

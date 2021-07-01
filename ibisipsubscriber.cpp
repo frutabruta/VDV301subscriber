@@ -35,8 +35,8 @@ void IbisIpSubscriber::vypisObsahRequestu(QString vysledek)
     QString adresa= xmlrequest.elementsByTagName("Client-IP-Address").at(0).toElement().firstChildElement().text() ;
     QString port= xmlrequest.elementsByTagName("ReplyPort").at(0).toElement().firstChildElement().text() ;
     qDebug()<<"prvni element "<<adresa<<" "<<port;
-    qDebug()<<"body pozadavku"<<posledniRequest;
-    qDebug()<<"vysledek"<<vysledek;
+    //qDebug()<<"body pozadavku"<<posledniRequest;
+    //qDebug()<<"vysledek"<<vysledek;
     QString kompletadresa="http://"+adresa+":"+port;
     QUrl adresaurl=kompletadresa;
     //emit pridejSubscribera(adresaurl);
