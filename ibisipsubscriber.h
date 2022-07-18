@@ -15,12 +15,16 @@ public:
 
     IbisIpSubscriber(QString nazevSluzby, QString struktura, QString verze, QString typSluzby, int cisloPortu);
     QByteArray vyrobHlavickuOk();
-    void hledejSluzby(QString typsluzby, int start);
-    void addService(QZeroConfService zcs);
+    void hledejSluzby(QString typSluzby, int start);
+
     QString vytvorSubscribeRequest(QHostAddress ipadresa, int port);
     bool odebirano=false;
+    bool existujeKandidat=false;
+
     QTimer *timer = new QTimer(this);
-     int defaultniCasovac=120000;
+    int defaultniCasovac=120000;
+    QVector<QZeroConfService> seznamSluzeb;
+    void novePrihlaseniOdberu();
 private:
     NewHttpServer InstanceNovehoServeru;
     int cisloPortuInterni=0;
@@ -33,19 +37,33 @@ private:
     QZeroConf zeroConf;
 
 
-    int najdiSluzbu(QString hledanaSluzba, QString hledanaVerze, QZeroConfService zcs);
+
+    QZeroConfService aktualniSluzbaMdns;
+    QZeroConfService kandidatSluzbaMdns;
+
+
+
+    int jeSluzbaHledanaVerze(QString hledanaSluzba, QString hledanaVerze, QZeroConfService zcs);
     QHostAddress projedAdresy();
     void PostSubscribe(QUrl adresaDispleje, QString dataDoPostu);
+    int vymazSluzbuZeSeznamu(QVector<QZeroConfService> &intSeznamSluzeb, QZeroConfService sluzba);
+
 signals:
     int dataNahrana (QString vysledek);
     void nalezenaSluzba(QZeroConfService zcs);
+    void aktualizaceSeznamu();
+    void signalZtrataOdberu();
 
 public slots:
     //void vypisObsahRequestu();
     void vypisObsahRequestu(QString vysledek);
 
+
 private slots:
-    void casovacVyprsel();
+    void slotCasovacVyprsel();
+    void slotOdstranenaSluzba(QZeroConfService zcs);
+    void slotAddService(QZeroConfService zcs);
+    void slotSubscribeOdeslan(QNetworkReply *rep);
 };
 
 #endif // IBISIPSUBSCRIBER_H
