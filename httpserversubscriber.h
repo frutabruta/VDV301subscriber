@@ -1,16 +1,16 @@
-#ifndef NEWHTTPSERVER_H
-#define NEWHTTPSERVER_H
+#ifndef HTTPSERVERSUBSCRIBER_H
+#define HTTPSERVERSUBSCRIBER_H
 
 #include <QObject>
 #include <QWidget>
 
 #include <QtHttpServer>
 
-class NewHttpServer: public QObject
+class HttpServerSubscriber: public QObject
 {
     Q_OBJECT
 public:
-    NewHttpServer(quint16 ppp);
+    HttpServerSubscriber(quint16 ppp);
     QHttpServer httpServer;
     int proved();
     quint16 cisloPortu=0;
@@ -35,4 +35,4 @@ signals:
     //void zmenaObsahu() ;
 };
 
-#endif // NEWHTTPSERVER_H
+#endif // HTTPSERVERSUBSCRIBER_H

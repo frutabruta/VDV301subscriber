@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QtHttpServer>
 #include <QtXml>
-#include "newhttpserver.h"
+#include "httpserversubscriber.h"
 #include "QtZeroConf/qzeroconf.h"
 
 class IbisIpSubscriber : public QObject
@@ -26,7 +26,7 @@ public:
     QVector<QZeroConfService> seznamSluzeb;
     void novePrihlaseniOdberu();
 private:
-    NewHttpServer InstanceNovehoServeru;
+    HttpServerSubscriber InstanceNovehoServeru;
     int cisloPortuInterni=0;
     QString nazevSluzbyInterni="";
     QString obsahInterni="";

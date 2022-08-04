@@ -11,7 +11,7 @@ IbisIpSubscriber::IbisIpSubscriber(QString nazevSluzby,QString struktura,QString
     verzeInterni=verze;
 
 
-    connect(&InstanceNovehoServeru,&NewHttpServer::prijemDat,this,&IbisIpSubscriber::vypisObsahRequestu);
+    connect(&InstanceNovehoServeru,&HttpServerSubscriber::prijemDat,this,&IbisIpSubscriber::vypisObsahRequestu);
     connect(&zeroConf, &QZeroConf::serviceAdded, this, &IbisIpSubscriber::slotAddService);
     connect(&zeroConf, &QZeroConf::serviceRemoved, this, &IbisIpSubscriber::slotOdstranenaSluzba);
     connect(timer, &QTimer::timeout, this, &IbisIpSubscriber::slotCasovacVyprsel);
@@ -266,6 +266,7 @@ QByteArray bts = rep->readAll();
  qDebug()<<"odpoved na subscribe:"<<str;
 
  aktualniSluzbaMdns=kandidatSluzbaMdns;
+
  this->odebirano=true;
 }
 

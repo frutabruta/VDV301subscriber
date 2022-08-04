@@ -1,6 +1,6 @@
-#include "newhttpserver.h"
+#include "httpserversubscriber.h"
 
-NewHttpServer::NewHttpServer(quint16 ppp)
+HttpServerSubscriber::HttpServerSubscriber(quint16 ppp)
 {
     cisloPortu=ppp;
     obsahRoot=vyrobHlavickuOk();
@@ -11,7 +11,7 @@ NewHttpServer::NewHttpServer(quint16 ppp)
 
 
 
-int NewHttpServer::proved()
+int HttpServerSubscriber::proved()
 {
     qDebug()<<"NewHttpServer::proved()";
 
@@ -29,7 +29,7 @@ test.setAddress("127.0.0.1:47474");*/
 
 
 
-int NewHttpServer::route(QString &intObsahGet,  QMap<QString,QString> &obsahyBody)
+int HttpServerSubscriber::route(QString &intObsahGet,  QMap<QString,QString> &obsahyBody)
 {
 
     qDebug() <<"NewHttpServer::route";
@@ -121,7 +121,7 @@ int NewHttpServer::route(QString &intObsahGet,  QMap<QString,QString> &obsahyBod
 }
 
 
-int NewHttpServer::listen()
+int HttpServerSubscriber::listen()
 {
     qDebug() <<"NewHttpServer::listen";
     const auto port = httpServer.listen(QHostAddress::Any,cisloPortu);
@@ -144,20 +144,20 @@ int NewHttpServer::listen()
 }
 
 
-void NewHttpServer::zapisDoPromenneGet(QString vstup)
+void HttpServerSubscriber::zapisDoPromenneGet(QString vstup)
 {
     qDebug() <<"NewHttpServer::zapisDoPromenneGet";
     this->obsahGet=vstup;
 
 }
 
-void NewHttpServer::zapisDoSubscribe(QString vstup)
+void HttpServerSubscriber::zapisDoSubscribe(QString vstup)
 {
     qDebug() << "NewHttpServer::zapisDoSubscribe";
     this->obsahSubscribe=vstup;
 }
 
-int NewHttpServer::nastavObsahTela(QMap<QString,QString> vstup )
+int HttpServerSubscriber::nastavObsahTela(QMap<QString,QString> vstup )
 {
     qDebug()<<"NewHttpServer::nastavObsahTela";
     obsahTelaPole=vstup;
@@ -169,7 +169,7 @@ int NewHttpServer::nastavObsahTela(QMap<QString,QString> vstup )
 }
 
 
-QString NewHttpServer::vyrobHlavickuOk()
+QString HttpServerSubscriber::vyrobHlavickuOk()
 {
     qDebug()<<"HttpSluzba::vyrobHlavicku()";
     QString hlavicka;
