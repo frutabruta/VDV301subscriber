@@ -3,19 +3,23 @@
 
 IbisIpSubscriber::IbisIpSubscriber(QString nazevSluzby,QString struktura,QString verze,QString typSluzby, int cisloPortu) : InstanceNovehoServeru(cisloPortu)
 {
-    qDebug()<<"HttpSluzba::HttpSluzba";
+    qDebug() <<  Q_FUNC_INFO;
     cisloPortuInterni=cisloPortu;
     nazevSluzbyInterni=nazevSluzby;
     typSluzbyInterni=typSluzby;
     strukturaInterni=struktura;
     verzeInterni=verze;
-
+    adresaZarizeni=projedAdresy();
 
     connect(&InstanceNovehoServeru,&HttpServerSubscriber::prijemDat,this,&IbisIpSubscriber::vypisObsahRequestu);
     connect(&zeroConf, &QZeroConf::serviceAdded, this, &IbisIpSubscriber::slotAddService);
     connect(&zeroConf, &QZeroConf::serviceRemoved, this, &IbisIpSubscriber::slotOdstranenaSluzba);
-    connect(timer, &QTimer::timeout, this, &IbisIpSubscriber::slotCasovacVyprsel);
-   // this->projedAdresy();
+    //  connect(timer, &QTimer::timeout, this, &IbisIpSubscriber::slotCasovacVyprsel);
+    //  connect(&manager2,SIGNAL(finished(QNetworkReply*)),this,SLOT(slotSubscribeOdeslan(QNetworkReply*)),Qt::DirectConnection);
+    //connect(&manager2,SIGNAL(finished(QNetworkReply*)),&manager2,SLOT(deleteLater()));
+
+
+    // this->projedAdresy();
 
 
     timer->start(defaultniCasovac);
@@ -23,7 +27,7 @@ IbisIpSubscriber::IbisIpSubscriber(QString nazevSluzby,QString struktura,QString
 
 void IbisIpSubscriber::slotCasovacVyprsel()
 {
-    qDebug()<<"IbisIpSubscriber::casovacVyprsel";
+    qDebug() <<  Q_FUNC_INFO;
     emit signalZtrataOdberu();
     novePrihlaseniOdberu();
 
@@ -31,7 +35,7 @@ void IbisIpSubscriber::slotCasovacVyprsel()
 
 void IbisIpSubscriber::novePrihlaseniOdberu()
 {
-    qDebug()<<"IbisIpSubscriber::novePrihlaseniOdberu()";
+    qDebug() <<  Q_FUNC_INFO;
     odebirano=false;
     existujeKandidat=false;
     hledejSluzby(typSluzbyInterni,1);
@@ -39,9 +43,8 @@ void IbisIpSubscriber::novePrihlaseniOdberu()
 
 void IbisIpSubscriber::vypisObsahRequestu(QString vysledek)
 {
-
-    qDebug()<<"IbisIpSubscriber::vypisObsahRequestu";
-    QByteArray posledniRequest=InstanceNovehoServeru.bodyPozadavku;
+    qDebug() <<  Q_FUNC_INFO;
+   // QByteArray posledniRequest=InstanceNovehoServeru.bodyPozadavku;
     QDomDocument xmlrequest;
     xmlrequest.setContent(vysledek);
     timer->start(defaultniCasovac);
@@ -53,7 +56,7 @@ void IbisIpSubscriber::vypisObsahRequestu(QString vysledek)
 
 QByteArray IbisIpSubscriber::vyrobHlavickuOk()
 {
-    qDebug()<<"HttpSluzba::vyrobHlavicku()";
+    qDebug() <<  Q_FUNC_INFO;
     QByteArray hlavicka;
     this->hlavickaInterni="";
     QByteArray argumentXMLserveru = "";
@@ -68,7 +71,7 @@ QByteArray IbisIpSubscriber::vyrobHlavickuOk()
 
 void IbisIpSubscriber::hledejSluzby(QString typSluzby, int start)
 {
-    qDebug()<<"IbisIpSubscriber::hledejSluzby";
+    qDebug() <<  Q_FUNC_INFO;
     if (start == 0 )
     {
         zeroConf.stopBrowser();
@@ -86,7 +89,7 @@ void IbisIpSubscriber::hledejSluzby(QString typSluzby, int start)
 void IbisIpSubscriber::slotAddService(QZeroConfService zcs)
 {
 
-    qDebug()<<"IbisIpSubscriber::addService";
+    qDebug() <<  Q_FUNC_INFO;
     // QTableWidgetItem *cell;
     // qDebug() << "Added service: " << zcs;
     QString nazev=zcs->name();
@@ -95,29 +98,37 @@ void IbisIpSubscriber::slotAddService(QZeroConfService zcs)
     int port=zcs->port();
     qDebug() <<"nazev sluzby "<<nazev<<" ip adresa "<<ipadresa<<" port "<<QString::number(port)<<" data" <<verze ;
 
-    //QString strukturaKodberu="/CustomerInformationService/SubscribeAllData";
-    QString adresaZaLomitkem="/"+nazevSluzbyInterni+"/Subscribe"+strukturaInterni;
-    QString adresaCileString="http://"+zcs->ip().toString()+":"+QString::number(zcs->port())+adresaZaLomitkem;
-    qDebug()<<"adresaCile string "<<adresaCileString;
-    QUrl adresaKamPostovatSubscribe=QUrl(adresaCileString);
+
+
+
+    seznamSluzeb.append(zcs);
+    emit aktualizaceSeznamu();
 
     if (jeSluzbaHledanaVerze(nazevSluzbyInterni,verzeInterni,zcs)&&(this->existujeKandidat==false)&&(this->odebirano==false))
     {
         qDebug()<<"odesilam subscribe na "<<ipadresa<<":"<<QString::number(port)<<" sluzba "<<nazev;
+
+
+
+        QString adresaZaLomitkem="/"+nazevSluzbyInterni+"/Subscribe"+strukturaInterni;
+        QString adresaCileString="http://"+zcs->ip().toString()+":"+QString::number(zcs->port())+adresaZaLomitkem;
+        qDebug()<<"adresaCile string "<<adresaCileString;
+        QUrl adresaKamPostovatSubscribe=QUrl(adresaCileString);
         existujeKandidat=true;
         kandidatSluzbaMdns=zcs;
-        PostSubscribe(adresaKamPostovatSubscribe,this->vytvorSubscribeRequest(projedAdresy(),cisloPortuInterni));
+        PostSubscribe(adresaKamPostovatSubscribe,this->vytvorSubscribeRequest(adresaZarizeni,cisloPortuInterni));
+
     }
-    seznamSluzeb.append(zcs);
-    emit nalezenaSluzba( zcs);
-    emit aktualizaceSeznamu();
+
+   // emit nalezenaSluzba( zcs);
+
 }
 
 
 
 int IbisIpSubscriber::vymazSluzbuZeSeznamu(QVector<QZeroConfService> &intSeznamSluzeb, QZeroConfService sluzba)
 {
-    qDebug()<<"";
+    qDebug() <<  Q_FUNC_INFO;
     if(    intSeznamSluzeb.removeOne(sluzba))
     {
         qDebug()<<"sluzbu se podarilo odstranit";
@@ -126,7 +137,7 @@ int IbisIpSubscriber::vymazSluzbuZeSeznamu(QVector<QZeroConfService> &intSeznamS
     }
     else
     {
-         qDebug()<<"sluzbu se nepodarilo odstranit";
+        qDebug()<<"sluzbu se nepodarilo odstranit";
     }
     return 0;
 }
@@ -136,7 +147,7 @@ int IbisIpSubscriber::vymazSluzbuZeSeznamu(QVector<QZeroConfService> &intSeznamS
 
 int IbisIpSubscriber::jeSluzbaHledanaVerze(QString hledanaSluzba,QString hledanaVerze, QZeroConfService zcs)
 {
-    qDebug()<<"IbisIpSubscriber::jeSluzbaHledanaVerze";
+    qDebug() <<  Q_FUNC_INFO;
     if (zcs->name().startsWith(hledanaSluzba))
     {
         qDebug()<<"sluzba "<<hledanaSluzba<<" Nalezena";
@@ -199,12 +210,11 @@ Connection: Keep-Alive
 
 QHostAddress IbisIpSubscriber::projedAdresy()
 {
-    qDebug()<<"IbisIpSubscriber::projedAdresy()";
+    qDebug() <<  Q_FUNC_INFO;
     QList<QHostAddress> list = QNetworkInterface::allAddresses();
     bool ipSet=false;
     int ipIndex=0;
     for(int nIter=0; nIter<list.count(); nIter++)
-
     {
         qDebug() <<nIter<<" "<< list[nIter].toString();
         if(!list[nIter].isLoopback())
@@ -214,14 +224,11 @@ QHostAddress IbisIpSubscriber::projedAdresy()
                 qDebug() <<nIter<<" not loopback"<< list[nIter].toString();
                 if(ipSet==false)
                 {
-                  ipIndex=nIter;
-                  ipSet=true;
+                    ipIndex=nIter;
+                    ipSet=true;
                 }
             }
         }
-
-
-
     }
     return list[ipIndex];
 
@@ -230,49 +237,94 @@ QHostAddress IbisIpSubscriber::projedAdresy()
 void IbisIpSubscriber::PostSubscribe(QUrl adresaDispleje, QString dataDoPostu)
 {
 
-    qDebug()<<"IbisIpSubscriber::PostSubscribe";
+    qDebug() <<  Q_FUNC_INFO;
     qDebug()<<"postuju na adresu "<<adresaDispleje<<" "<<dataDoPostu;
- //   QByteArray postDataSize = QByteArray::number(dataDoPostu.size());
+    //   QByteArray postDataSize = QByteArray::number(dataDoPostu.size());
     QNetworkRequest pozadavekPOST(adresaDispleje);
     qDebug()<<"A";
     //pozadavekPOST.setRawHeader("Content-Length", postDataSize );
 
-    QNetworkAccessManager *manager2 = new QNetworkAccessManager(); // https://stackoverflow.com/a/53556560
-    connect(manager2,SIGNAL(finished(QNetworkReply*)),this,SLOT(slotSubscribeOdeslan(QNetworkReply*)));
-    connect(manager2,SIGNAL(finished(QNetworkReply*)),manager2,SLOT(deleteLater()));
+    // https://stackoverflow.com/a/53556560
 
 
     pozadavekPOST.setTransferTimeout(30000);
     pozadavekPOST.setRawHeader("Content-Type", "text/xml");
-    pozadavekPOST.setRawHeader("Expect", "100-continue");
-    pozadavekPOST.setRawHeader("Connection", "keep-Alive");
-    qDebug()<<"B";
+    //pozadavekPOST.setRawHeader("Expect", "100-continue");
+    //pozadavekPOST.setRawHeader("Connection", "keep-Alive");
+
 
     //pozadavekPOST.setRawHeader("Accept-Encoding", "gzip, deflate");
 
     QByteArray dataDoPostuQByte=dataDoPostu.toUtf8() ;
+
+
+
+
+
+    qDebug()<<"B";
+
+
+    //QNetworkAccessManager *manager2 = new QNetworkAccessManager();
+
+
+    //   connect(manager2,SIGNAL( (QNetworkReply*)),this,SLOT(slotSubscribeOdeslan(QNetworkReply*)),Qt::DirectConnection);
+    //    connect(manager2,SIGNAL(finished(QNetworkReply*)),this,SLOT(slotSubscribeOdeslan(QNetworkReply*)),Qt::DirectConnection);
+
+    reply=manager2.post(pozadavekPOST,dataDoPostuQByte);
+    connect(reply, &QNetworkReply::finished, this, &IbisIpSubscriber::httpFinished);
+
+
+    //  connect(manager2,SIGNAL(finished(QNetworkReply*)),manager2,SLOT(deleteLater()),Qt::DirectConnection);
+
     qDebug()<<"C";
-    manager2->post(pozadavekPOST,dataDoPostuQByte);
+
+
+
+
+    connect(reply, &QNetworkReply::finished, this, &IbisIpSubscriber::httpFinished);
 
     qDebug()<<"D";
 
+
+
+    qDebug()<<"E";
+
+
+
+}
+
+
+
+void IbisIpSubscriber::httpFinished()
+{
+    qDebug() <<  Q_FUNC_INFO;
+
+    QByteArray bts = reply->readAll();
+    QString str(bts);
+    qDebug()<<"odpoved na subscribe:"<<str;
+
+    aktualniSluzbaMdns=kandidatSluzbaMdns;
+
+    this->odebirano=true;
+    reply->deleteLater();
+    //reply = nullptr;
 }
 
 void IbisIpSubscriber::slotSubscribeOdeslan(QNetworkReply *rep)
 {
-qDebug()<<"IbisIpSubscriber::slotSubscribeOdeslan";
-QByteArray bts = rep->readAll();
+    qDebug() <<  Q_FUNC_INFO;
+    QByteArray bts = rep->readAll();
     QString str(bts);
- qDebug()<<"odpoved na subscribe:"<<str;
+    qDebug()<<"odpoved na subscribe:"<<str;
 
- aktualniSluzbaMdns=kandidatSluzbaMdns;
+    aktualniSluzbaMdns=kandidatSluzbaMdns;
 
- this->odebirano=true;
+    this->odebirano=true;
 }
 
 void IbisIpSubscriber::slotOdstranenaSluzba(QZeroConfService zcs)
 {
-    qDebug()<<"IbisIpSubscriber::slotOdstranenaSluzba()";
+    qDebug() <<  Q_FUNC_INFO;
     vymazSluzbuZeSeznamu(seznamSluzeb,zcs);
     if(zcs==aktualniSluzbaMdns)
     {

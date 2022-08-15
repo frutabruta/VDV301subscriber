@@ -25,8 +25,16 @@ public:
     int defaultniCasovac=120000;
     QVector<QZeroConfService> seznamSluzeb;
     void novePrihlaseniOdberu();
+
+     QNetworkAccessManager manager2;
+     QNetworkReply *reply;
+
+     QHostAddress adresaZarizeni;
+
 private:
     HttpServerSubscriber InstanceNovehoServeru;
+    // QNetworkAccessManager *manager2 = new QNetworkAccessManager();
+  //  QNetworkAccessManager manager2;
     int cisloPortuInterni=0;
     QString nazevSluzbyInterni="";
     QString obsahInterni="";
@@ -64,6 +72,7 @@ private slots:
     void slotOdstranenaSluzba(QZeroConfService zcs);
     void slotAddService(QZeroConfService zcs);
     void slotSubscribeOdeslan(QNetworkReply *rep);
+    void httpFinished();
 };
 
 #endif // IBISIPSUBSCRIBER_H
