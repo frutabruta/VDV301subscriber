@@ -11,68 +11,92 @@ class IbisIpSubscriber : public QObject
 {
     Q_OBJECT
 public:
-    explicit IbisIpSubscriber(QObject *parent = nullptr);
 
+    //konstruktor a destruktor
+    explicit IbisIpSubscriber(QObject *parent = nullptr);
     IbisIpSubscriber(QString nazevSluzby, QString struktura, QString verze, QString typSluzby, int cisloPortu);
+
+    //instance knihoven
+    QNetworkAccessManager manager2;
+    QNetworkReply *reply;
+
+    //promenne
+    QVector<QZeroConfService> seznamSluzeb;
+    QHostAddress adresaZarizeni;
+
+    //funkce
     QByteArray vyrobHlavickuOk();
     void hledejSluzby(QString typSluzby, int start);
-
+  //  void novePrihlaseniOdberu();
     QString vytvorSubscribeRequest(QHostAddress ipadresa, int port);
-    bool odebirano=false;
-    bool existujeKandidat=false;
 
-    QTimer *timer = new QTimer(this);
-    int defaultniCasovac=120000;
-    QVector<QZeroConfService> seznamSluzeb;
-    void novePrihlaseniOdberu();
 
-     QNetworkAccessManager manager2;
-     QNetworkReply *reply;
-
-     QHostAddress adresaZarizeni;
-
+    //nezarazeno
 private:
-    HttpServerSubscriber InstanceNovehoServeru;
-    // QNetworkAccessManager *manager2 = new QNetworkAccessManager();
-  //  QNetworkAccessManager manager2;
-    int cisloPortuInterni=0;
-    QString nazevSluzbyInterni="";
-    QString obsahInterni="";
+
+    //instance knihoven
+
+
+    //promenne
+
+
+
+
+    //funkce
+    QHostAddress projedAdresy();
+
+
+    void vsechnyConnecty();
+
+    //nezarazeno
+
+
+protected:
+
+    //instance knihoven
+      HttpServerSubscriber InstanceNovehoServeru;
+
+    //promenne
+    QZeroConf zeroConf;
+    QString typSluzbyInterni="_ibisip_http._tcp";
+
+        int cisloPortuInterni=0;
     QString hlavickaInterni="";
+    QString nazevSluzbyInterni="";
+  //  QString obsahInterni="";
     QString strukturaInterni="";
     QString verzeInterni="";
-    QString typSluzbyInterni="_ibisip_http._tcp";
-    QZeroConf zeroConf;
 
 
 
-    QZeroConfService aktualniSluzbaMdns;
-    QZeroConfService kandidatSluzbaMdns;
-
-
-
+    //funkce
     int jeSluzbaHledanaVerze(QString hledanaSluzba, QString hledanaVerze, QZeroConfService zcs);
-    QHostAddress projedAdresy();
     void PostSubscribe(QUrl adresaDispleje, QString dataDoPostu);
     int vymazSluzbuZeSeznamu(QVector<QZeroConfService> &intSeznamSluzeb, QZeroConfService sluzba);
 
+
+    //ostatni
+
+
+
+
 signals:
     int dataNahrana (QString vysledek);
-    void nalezenaSluzba(QZeroConfService zcs);
+ //   void nalezenaSluzba(QZeroConfService zcs);
     void aktualizaceSeznamu();
     void signalZtrataOdberu();
 
 public slots:
     //void vypisObsahRequestu();
-    void vypisObsahRequestu(QString vysledek);
+ //   void vypisObsahRequestu(QString vysledek);
 
 
 private slots:
-    void slotCasovacVyprsel();
-    void slotOdstranenaSluzba(QZeroConfService zcs);
-    void slotAddService(QZeroConfService zcs);
-    void slotSubscribeOdeslan(QNetworkReply *rep);
-    void httpFinished();
+
+  //  void slotOdstranenaSluzba(QZeroConfService zcs);
+  //  void slotAddService(QZeroConfService zcs);
+  //  void slotSubscribeOdeslan(QNetworkReply *rep);
+  //  void httpFinished();
 };
 
 #endif // IBISIPSUBSCRIBER_H
