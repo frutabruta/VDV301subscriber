@@ -83,7 +83,7 @@ protected:
 signals:
     int dataNahrana (QString vysledek);
  //   void nalezenaSluzba(QZeroConfService zcs);
-    void aktualizaceSeznamu();
+    void signalAktualizaceSeznamu();
     void signalZtrataOdberu();
 
 public slots:

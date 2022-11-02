@@ -20,7 +20,8 @@ public:
     QString serialNumber;
 
 
-    bool operator ==(const DevMgmtPublisherStruct &node);
+
+    bool operator ==(const DevMgmtPublisherStruct &node) const;
 private:
 
 };

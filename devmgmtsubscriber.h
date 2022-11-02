@@ -43,6 +43,7 @@ private:
 public slots:
 
     void slotNewDnsSd(QZeroConfService zcs);
+    void slotRemoveDnsSd(QZeroConfService zcs);
     void slotZpracujData(QString vstup);
     QByteArray slotRequestReceived(QNetworkReply *reply);
 private slots:
@@ -51,6 +52,7 @@ private slots:
 signals:
     //void aktualizaceSeznamu();
     void stazeniHotovo(QString vystup);
+
 
 };
 

@@ -98,7 +98,7 @@ void IbisIpSubscriberOnePublisher::slotAddService(QZeroConfService zcs)
     qDebug() <<"nazev sluzby "<<nazev<<" ip adresa "<<ipadresa<<" port "<<QString::number(port)<<" data" <<verze;
 
     seznamSluzeb.append(zcs);
-    emit aktualizaceSeznamu();
+    emit signalAktualizaceSeznamu();
 
     if (jeSluzbaHledanaVerze(nazevSluzbyInterni,verzeInterni,zcs)&&(this->existujeKandidat==false)&&(this->odebirano==false))
     {

@@ -65,7 +65,7 @@ int IbisIpSubscriber::vymazSluzbuZeSeznamu(QVector<QZeroConfService> &intSeznamS
     if(    intSeznamSluzeb.removeOne(sluzba))
     {
         qDebug()<<"sluzbu se podarilo odstranit";
-        emit aktualizaceSeznamu();
+        emit signalAktualizaceSeznamu();
         return 1;
     }
     else

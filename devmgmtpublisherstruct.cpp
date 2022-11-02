@@ -15,7 +15,9 @@ DevMgmtPublisherStruct::DevMgmtPublisherStruct()
 }
 
 
-bool DevMgmtPublisherStruct::operator==(const DevMgmtPublisherStruct &node)
+
+
+bool DevMgmtPublisherStruct::operator==(const DevMgmtPublisherStruct &node) const
 {
 return port == node.port &&
 adresa == node.adresa;

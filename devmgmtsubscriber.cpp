@@ -13,6 +13,7 @@ void DevMgmtSubscriber::vsechnyConnecty()
 {
     qDebug()<<Q_FUNC_INFO;
     connect(&zeroConf, &QZeroConf::serviceAdded, this, &DevMgmtSubscriber::slotNewDnsSd);
+    connect(&zeroConf, &QZeroConf::serviceRemoved, this, &DevMgmtSubscriber::slotRemoveDnsSd);
     connect(manager,SIGNAL(finished(QNetworkReply*)),this,SLOT(slotRequestReceived(QNetworkReply*)));
     connect(this,&DevMgmtSubscriber::stazeniHotovo,this,&DevMgmtSubscriber::slotZpracujData);
 
@@ -25,7 +26,7 @@ bool DevMgmtSubscriber::getDeviceInformation(DevMgmtPublisherStruct &zarizeni, Q
     qDebug()<<Q_FUNC_INFO;
 
     //   QString adresa=zarizeni.adresa.toString()+":"+QString::number(zarizeni.port)+
-     QString adresa = "http://"+zcs->ip().toString()+":"+QString::number(zcs->port())+"/DeviceManagementService/GetDeviceInformation";
+    QString adresa = "http://"+zcs->ip().toString()+":"+QString::number(zcs->port())+"/DeviceManagementService/GetDeviceInformation";
     qDebug()<<adresa;
     QNetworkRequest pozadavek;
     pozadavek.setUrl(QUrl(adresa));
@@ -55,7 +56,7 @@ QByteArray DevMgmtSubscriber::slotRequestReceived(QNetworkReply* reply)
 
 
     QString textData(rawData);
-    qDebug() << textData;
+    //  qDebug() << textData;
 
     emit stazeniHotovo(textData);
 
@@ -65,44 +66,57 @@ QByteArray DevMgmtSubscriber::slotRequestReceived(QNetworkReply* reply)
     QDomDocument dokument;
     dokument.setContent(textData);
 
-    zarizeni.adresa=QHostAddress("192.168.0.131");//reply->request().url()
+    //   zarizeni.adresa=QHostAddress("192.168.0.131");//reply->request().url()
+    zarizeni.adresa=QHostAddress( reply->request().url().host());
     zarizeni.port=reply->request().url().port();
 
 
-     int index=seznamZarizeni.indexOf(zarizeni);
+
+
+    int index=seznamZarizeni.indexOf(zarizeni);
     if((index>=0)&&(index<seznamZarizeni.count()))
     {
-
-
-
-      //  zarizeni.hostname=seznamZarizeni.at(index).hostname;
-     //   zarizeni.serviceName=seznamZarizeni.at(index).serviceName;
-     //   zarizeni.ibisIpVersion=seznamZarizeni.at(index).ibisIpVersion;
-     //   seznamZarizeni.replace(index, zarizeni);
+        //  zarizeni.hostname=seznamZarizeni.at(index).hostname;
+        //   zarizeni.serviceName=seznamZarizeni.at(index).serviceName;
+        //   zarizeni.ibisIpVersion=seznamZarizeni.at(index).ibisIpVersion;
+        //   seznamZarizeni.replace(index, zarizeni);
 
         if(dokument.firstChildElement().nodeName()=="DeviceManagementService.GetDeviceConfigurationResponse")
         {
             qDebug()<<"ano, hledam Configuration";
-            seznamZarizeni[index].deviceId=dokument.elementsByTagName("DeviceID").at(0).firstChildElement("Value").firstChild().nodeValue();
+            zarizeni.deviceId=dokument.elementsByTagName("DeviceID").at(0).firstChildElement("Value").firstChild().nodeValue();
+            seznamZarizeni[index].deviceId=zarizeni.deviceId;
+            qDebug()<<"device id je: "<< zarizeni.deviceId<<" index na seznamu"<<index<<" adresa:"<<zarizeni.adresa<<" port:"<<zarizeni.port;
+
         }
 
         if(dokument.firstChildElement().nodeName()=="DeviceManagementService.GetDeviceInformationResponse")
         {
-            qDebug()<<"ano, hledam Information";
-            seznamZarizeni[index].deviceClass=dokument.elementsByTagName("DeviceClass").at(0).firstChildElement("Value").firstChild().nodeValue();
-            seznamZarizeni[index].deviceName=dokument.elementsByTagName("DeviceName").at(0).firstChildElement("Value").firstChild().nodeValue();
-            seznamZarizeni[index].manufacturer=dokument.elementsByTagName("Manufacturer").at(0).firstChildElement("Value").firstChild().nodeValue();
-            seznamZarizeni[index].serialNumber=dokument.elementsByTagName("SerialNumber").at(0).firstChildElement("Value").firstChild().nodeValue();
-            seznamZarizeni[index].swVersion=getVersion(dokument,"SwVersion");
+            qDebug()<<"ano, hledam Information ";
+
+            zarizeni.deviceClass=dokument.elementsByTagName("DeviceClass").at(0).firstChildElement("Value").firstChild().nodeValue();
+            zarizeni.deviceName=dokument.elementsByTagName("DeviceName").at(0).firstChildElement("Value").firstChild().nodeValue();
+            zarizeni.manufacturer=dokument.elementsByTagName("Manufacturer").at(0).firstChildElement("Value").firstChild().nodeValue();
+            zarizeni.serialNumber=dokument.elementsByTagName("SerialNumber").at(0).firstChildElement("Value").firstChild().nodeValue();
+            zarizeni.swVersion=getVersion(dokument,"SwVersion");
+
+            seznamZarizeni[index].deviceClass=zarizeni.deviceClass;
+            seznamZarizeni[index].deviceName=zarizeni.deviceName;
+            seznamZarizeni[index].manufacturer=zarizeni.manufacturer;
+            seznamZarizeni[index].serialNumber=zarizeni.serialNumber;
+            seznamZarizeni[index].swVersion=zarizeni.swVersion;
+            qDebug()<<"device class je: "<< zarizeni.deviceClass<<" verze: "<<zarizeni.swVersion<<" index na seznamu"<<index<<" adresa:"<<zarizeni.adresa<<" port:"<<zarizeni.port;
+
         }
 
-        qDebug()<<"device class je: "<< zarizeni.deviceClass<<" verze: "<<zarizeni.swVersion<<" index na seznamu"<<index<<" adresa:"<<zarizeni.adresa<<" port:"<<zarizeni.port;
 
     }
     else
     {
         qDebug()<<"index je mimo rozsah";
     }
+
+    emit signalAktualizaceSeznamu();
 
 
     return rawData;
@@ -181,19 +195,71 @@ void DevMgmtSubscriber::slotNewDnsSd(QZeroConfService zcs)
     qDebug() <<  Q_FUNC_INFO;
 
     DevMgmtPublisherStruct noveZarizeni;
-
-    noveZarizeni.adresa=zcs->ip();
-    noveZarizeni.port=zcs->port();
-    noveZarizeni.deviceClass="";
-    noveZarizeni.deviceId="";
-    // noveZarizeni.deviceName=zcs->host();
     noveZarizeni.serviceName=zcs->name();
-    noveZarizeni.hostname=zcs->host();
-    noveZarizeni.ibisIpVersion=zcs.data()->txt().value("ver");
 
-    getDeviceConfiguration(noveZarizeni,zcs);
-    getDeviceInformation(noveZarizeni,zcs);
-    seznamZarizeni.push_back(noveZarizeni);
 
-    emit aktualizaceSeznamu();
+    if(noveZarizeni.serviceName.contains("DeviceManagementService"))
+    {
+        noveZarizeni.adresa=zcs->ip();
+        noveZarizeni.port=zcs->port();
+        noveZarizeni.deviceClass="";
+        noveZarizeni.deviceId="";
+        noveZarizeni.hostname=zcs->host();
+        noveZarizeni.ibisIpVersion=zcs.data()->txt().value("ver");
+
+        if(!seznamZarizeni.contains(noveZarizeni))
+        {
+            getDeviceConfiguration(noveZarizeni,zcs);
+            getDeviceInformation(noveZarizeni,zcs);
+            seznamZarizeni.push_back(noveZarizeni);
+        }
+        else
+        {
+            qDebug()<<"zarizeni uz je na seznamu";
+        }
+    }
+    else
+    {
+        qDebug()<<"jina sluzba";
+    }
+
+
+
+
+
+    emit signalAktualizaceSeznamu();
+}
+
+void DevMgmtSubscriber::slotRemoveDnsSd(QZeroConfService zcs)
+{
+    qDebug() <<  Q_FUNC_INFO;
+
+    DevMgmtPublisherStruct noveZarizeni;
+    noveZarizeni.serviceName=zcs->name();
+
+    if(noveZarizeni.serviceName.contains("DeviceManagementService"))
+    {
+        noveZarizeni.adresa=zcs->ip();
+        noveZarizeni.port=zcs->port();
+        noveZarizeni.deviceClass="";
+        noveZarizeni.deviceId="";
+        // noveZarizeni.deviceName=zcs->host();
+
+        noveZarizeni.hostname=zcs->host();
+        noveZarizeni.ibisIpVersion=zcs.data()->txt().value("ver");
+
+        if(seznamZarizeni.contains(noveZarizeni))
+        {
+            seznamZarizeni.remove(seznamZarizeni.indexOf(noveZarizeni) );
+        }
+        else
+        {
+            qDebug()<<"zarizeni nebylo na seznamu";
+        }
+    }
+
+
+
+
+    emit signalAktualizaceSeznamu();
 }
