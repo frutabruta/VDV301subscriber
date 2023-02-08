@@ -71,8 +71,6 @@ QByteArray DevMgmtSubscriber::slotRequestReceived(QNetworkReply* reply)
     zarizeni.port=reply->request().url().port();
 
 
-
-
     int index=seznamZarizeni.indexOf(zarizeni);
     if((index>=0)&&(index<seznamZarizeni.count()))
     {
@@ -94,7 +92,7 @@ QByteArray DevMgmtSubscriber::slotRequestReceived(QNetworkReply* reply)
         {
             qDebug()<<"ano, hledam Information ";
 
-            zarizeni.deviceClass=dokument.elementsByTagName("DeviceClass").at(0).firstChildElement("Value").firstChild().nodeValue();
+            zarizeni.deviceClass=dokument.elementsByTagName("DeviceClass").at(0).firstChild().nodeValue();
             zarizeni.deviceName=dokument.elementsByTagName("DeviceName").at(0).firstChildElement("Value").firstChild().nodeValue();
             zarizeni.manufacturer=dokument.elementsByTagName("Manufacturer").at(0).firstChildElement("Value").firstChild().nodeValue();
             zarizeni.serialNumber=dokument.elementsByTagName("SerialNumber").at(0).firstChildElement("Value").firstChild().nodeValue();
@@ -148,10 +146,6 @@ QString DevMgmtSubscriber::getVersion(QDomDocument document, QString element)
 
     return vysledek;
 }
-
-
-
-
 
 
 /*
@@ -222,10 +216,6 @@ void DevMgmtSubscriber::slotNewDnsSd(QZeroConfService zcs)
     {
         qDebug()<<"jina sluzba";
     }
-
-
-
-
 
     emit signalAktualizaceSeznamu();
 }
