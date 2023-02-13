@@ -20,7 +20,7 @@ void DevMgmtSubscriber::vsechnyConnecty()
 }
 
 
-bool DevMgmtSubscriber::getDeviceInformation(DevMgmtPublisherStruct &zarizeni, QZeroConfService zcs)
+bool DevMgmtSubscriber::getDeviceInformation(QZeroConfService zcs)
 {
 
     qDebug()<<Q_FUNC_INFO;
@@ -36,12 +36,42 @@ bool DevMgmtSubscriber::getDeviceInformation(DevMgmtPublisherStruct &zarizeni, Q
     return true;
 }
 
-bool DevMgmtSubscriber::getDeviceConfiguration(DevMgmtPublisherStruct &zarizeni, QZeroConfService zcs)
+
+bool DevMgmtSubscriber::getDeviceInformation(DevMgmtPublisherStruct &zarizeni)
+{
+
+    qDebug()<<Q_FUNC_INFO;
+
+    //   QString adresa=zarizeni.adresa.toString()+":"+QString::number(zarizeni.port)+
+    QString adresa = "http://"+zarizeni.adresa.toString()+":"+QString::number(zarizeni.port)+"/DeviceManagementService/GetDeviceInformation";
+    qDebug()<<adresa;
+    QNetworkRequest pozadavek;
+    pozadavek.setUrl(QUrl(adresa));
+
+    manager->get(pozadavek);
+
+    return true;
+}
+
+
+bool DevMgmtSubscriber::getDeviceConfiguration(QZeroConfService zcs)
 {
     qDebug()<<Q_FUNC_INFO;
 
     //   QString adresa=zarizeni.adresa.toString()+":"+QString::number(zarizeni.port)+
     QString adresa = "http://"+zcs->ip().toString()+":"+QString::number(zcs->port())+"/DeviceManagementService/GetDeviceConfiguration";
+    qDebug()<<adresa;
+    manager->get(QNetworkRequest(QUrl(adresa)));
+
+    return true;
+}
+
+bool DevMgmtSubscriber::getDeviceConfiguration(DevMgmtPublisherStruct &zarizeni)
+{
+    qDebug()<<Q_FUNC_INFO;
+
+    //   QString adresa=zarizeni.adresa.toString()+":"+QString::number(zarizeni.port)+
+    QString adresa = "http://"+zarizeni.adresa.toString()+":"+QString::number(zarizeni.port)+"/DeviceManagementService/GetDeviceConfiguration";
     qDebug()<<adresa;
     manager->get(QNetworkRequest(QUrl(adresa)));
 
@@ -71,8 +101,8 @@ QByteArray DevMgmtSubscriber::slotRequestReceived(QNetworkReply* reply)
     zarizeni.port=reply->request().url().port();
 
 
-    int index=seznamZarizeni.indexOf(zarizeni);
-    if((index>=0)&&(index<seznamZarizeni.count()))
+    int index=seznamZarizeniDetekce.indexOf(zarizeni);
+    if((index>=0)&&(index<seznamZarizeniDetekce.count()))
     {
         //  zarizeni.hostname=seznamZarizeni.at(index).hostname;
         //   zarizeni.serviceName=seznamZarizeni.at(index).serviceName;
@@ -83,9 +113,8 @@ QByteArray DevMgmtSubscriber::slotRequestReceived(QNetworkReply* reply)
         {
             qDebug()<<"ano, hledam Configuration";
             zarizeni.deviceId=dokument.elementsByTagName("DeviceID").at(0).firstChildElement("Value").firstChild().nodeValue();
-            seznamZarizeni[index].deviceId=zarizeni.deviceId;
+            seznamZarizeniDetekce[index].deviceId=zarizeni.deviceId;
             qDebug()<<"device id je: "<< zarizeni.deviceId<<" index na seznamu"<<index<<" adresa:"<<zarizeni.adresa<<" port:"<<zarizeni.port;
-
         }
 
         if(dokument.firstChildElement().nodeName()=="DeviceManagementService.GetDeviceInformationResponse")
@@ -98,12 +127,49 @@ QByteArray DevMgmtSubscriber::slotRequestReceived(QNetworkReply* reply)
             zarizeni.serialNumber=dokument.elementsByTagName("SerialNumber").at(0).firstChildElement("Value").firstChild().nodeValue();
             zarizeni.swVersion=getVersion(dokument,"SwVersion");
 
-            seznamZarizeni[index].deviceClass=zarizeni.deviceClass;
-            seznamZarizeni[index].deviceName=zarizeni.deviceName;
-            seznamZarizeni[index].manufacturer=zarizeni.manufacturer;
-            seznamZarizeni[index].serialNumber=zarizeni.serialNumber;
-            seznamZarizeni[index].swVersion=zarizeni.swVersion;
+            seznamZarizeniDetekce[index].deviceClass=zarizeni.deviceClass;
+            seznamZarizeniDetekce[index].deviceName=zarizeni.deviceName;
+            seznamZarizeniDetekce[index].manufacturer=zarizeni.manufacturer;
+            seznamZarizeniDetekce[index].serialNumber=zarizeni.serialNumber;
+            seznamZarizeniDetekce[index].swVersion=zarizeni.swVersion;
             qDebug()<<"device class je: "<< zarizeni.deviceClass<<" verze: "<<zarizeni.swVersion<<" index na seznamu"<<index<<" adresa:"<<zarizeni.adresa<<" port:"<<zarizeni.port;
+
+        }
+
+
+        //  if(seznamZarizeniDetekce[index])
+        if((!seznamZarizeniDetekce[index].deviceId.isEmpty())&&(!seznamZarizeniDetekce[index].deviceClass.isEmpty()))
+        {
+            DevMgmtPublisherStruct* noveZarizeni=&seznamZarizeniDetekce[index];
+
+            if(noveZarizeni->isInListByIdClass(seznamZarizeniKonfigurace))
+            {
+                noveZarizeni->hwConfig=true;
+            }
+
+            /*
+            int indexZ=0;
+            foreach(DevMgmtPublisherStruct stareZarizeni, seznamZarizeniDetekce)
+            {
+                qDebug()<<"DP3";
+
+                if((stareZarizeni.deviceClass==noveZarizeni->deviceClass)&&(stareZarizeni.deviceId==noveZarizeni->deviceId)&&(stareZarizeni.adresa.isNull()))
+                {
+                    qDebug()<<"DP4";
+                    //stareZarizeni=noveZarizeni;
+                    int indexA=seznamZarizeniDetekce.indexOf(stareZarizeni);
+                    noveZarizeni->hwConfig=true;
+                    //seznamZarizeni.remove(seznamZarizeni.indexOf(stareZarizeni) );
+                    seznamZarizeniDetekce.remove(indexZ );
+
+
+                    qDebug()<<"nalezena shoda ID "+noveZarizeni->deviceId+" a DeviceClass "+noveZarizeni->deviceClass+" indexZ:"<<QString::number(indexZ)<<" indexA:"<<QString::number(indexA);
+                    // nalezeno=true;
+                    break;
+                }
+                indexZ++;
+            }*/
+
 
         }
 
@@ -149,40 +215,40 @@ QString DevMgmtSubscriber::getVersion(QDomDocument document, QString element)
 
 
 /*
-void IbisIpSubscriberOnePublisher::slotAddService(QZeroConfService zcs)
-{
+                void IbisIpSubscriberOnePublisher::slotAddService(QZeroConfService zcs)
+                {
 
-    qDebug() <<  Q_FUNC_INFO;
-    // QTableWidgetItem *cell;
-    // qDebug() << "Added service: " << zcs;
-    QString nazev=zcs->name();
-    QString ipadresa=zcs->ip().toString();
-    QString verze=zcs.data()->txt().value("ver");
-    int port=zcs->port();
-    qDebug() <<"nazev sluzby "<<nazev<<" ip adresa "<<ipadresa<<" port "<<QString::number(port)<<" data" <<verze;
+                    qDebug() <<  Q_FUNC_INFO;
+                    // QTableWidgetItem *cell;
+                    // qDebug() << "Added service: " << zcs;
+                    QString nazev=zcs->name();
+                    QString ipadresa=zcs->ip().toString();
+                    QString verze=zcs.data()->txt().value("ver");
+                    int port=zcs->port();
+                    qDebug() <<"nazev sluzby "<<nazev<<" ip adresa "<<ipadresa<<" port "<<QString::number(port)<<" data" <<verze;
 
-    seznamSluzeb.append(zcs);
-    emit aktualizaceSeznamu();
+                    seznamSluzeb.append(zcs);
+                    emit aktualizaceSeznamu();
 
-    if (jeSluzbaHledanaVerze(nazevSluzbyInterni,verzeInterni,zcs)&&(this->existujeKandidat==false)&&(this->odebirano==false))
-    {
-        qDebug()<<"odesilam subscribe na "<<ipadresa<<":"<<QString::number(port)<<" sluzba "<<nazev;
+                    if (jeSluzbaHledanaVerze(nazevSluzbyInterni,verzeInterni,zcs)&&(this->existujeKandidat==false)&&(this->odebirano==false))
+                    {
+                        qDebug()<<"odesilam subscribe na "<<ipadresa<<":"<<QString::number(port)<<" sluzba "<<nazev;
 
-        QString adresaZaLomitkem="/"+nazevSluzbyInterni+"/Subscribe"+strukturaInterni;
-        QString adresaCileString="http://"+zcs->ip().toString()+":"+QString::number(zcs->port())+adresaZaLomitkem;
-        qDebug()<<"adresaCile string "<<adresaCileString;
-        QUrl adresaKamPostovatSubscribe=QUrl(adresaCileString);
-        existujeKandidat=true;
-        kandidatSluzbaMdns=zcs;
-        PostSubscribe(adresaKamPostovatSubscribe,this->vytvorSubscribeRequest(adresaZarizeni,cisloPortuInterni));
+                        QString adresaZaLomitkem="/"+nazevSluzbyInterni+"/Subscribe"+strukturaInterni;
+                        QString adresaCileString="http://"+zcs->ip().toString()+":"+QString::number(zcs->port())+adresaZaLomitkem;
+                        qDebug()<<"adresaCile string "<<adresaCileString;
+                        QUrl adresaKamPostovatSubscribe=QUrl(adresaCileString);
+                        existujeKandidat=true;
+                        kandidatSluzbaMdns=zcs;
+                        PostSubscribe(adresaKamPostovatSubscribe,this->vytvorSubscribeRequest(adresaZarizeni,cisloPortuInterni));
 
-    }
+                    }
 
-   // emit nalezenaSluzba( zcs);
+                   // emit nalezenaSluzba( zcs);
 
-}
+                }
 
-*/
+                */
 
 void DevMgmtSubscriber::slotNewDnsSd(QZeroConfService zcs)
 {
@@ -192,8 +258,10 @@ void DevMgmtSubscriber::slotNewDnsSd(QZeroConfService zcs)
     noveZarizeni.serviceName=zcs->name();
 
 
+
     if(noveZarizeni.serviceName.contains("DeviceManagementService"))
     {
+        qDebug()<<"DP1";
         noveZarizeni.adresa=zcs->ip();
         noveZarizeni.port=zcs->port();
         noveZarizeni.deviceClass="";
@@ -201,11 +269,17 @@ void DevMgmtSubscriber::slotNewDnsSd(QZeroConfService zcs)
         noveZarizeni.hostname=zcs->host();
         noveZarizeni.ibisIpVersion=zcs.data()->txt().value("ver");
 
-        if(!seznamZarizeni.contains(noveZarizeni))
+
+
+        if(!seznamZarizeniDetekce.contains(noveZarizeni))
         {
-            getDeviceConfiguration(noveZarizeni,zcs);
-            getDeviceInformation(noveZarizeni,zcs);
-            seznamZarizeni.push_back(noveZarizeni);
+            qDebug()<<"DP2";
+            getDeviceConfiguration(noveZarizeni);
+            getDeviceInformation(noveZarizeni);
+
+            qDebug()<<"DP5";
+            seznamZarizeniDetekce.push_back(noveZarizeni);
+
         }
         else
         {
@@ -217,6 +291,18 @@ void DevMgmtSubscriber::slotNewDnsSd(QZeroConfService zcs)
         qDebug()<<"jina sluzba";
     }
 
+    emit signalAktualizaceSeznamu();
+}
+
+void DevMgmtSubscriber::slotAktualizaceZarizeni()
+{
+    qDebug() <<  Q_FUNC_INFO;
+    foreach(auto polozka, seznamZarizeniDetekce)
+    {
+        getDeviceConfiguration(polozka);
+        getDeviceInformation(polozka);
+
+    }
     emit signalAktualizaceSeznamu();
 }
 
@@ -238,9 +324,9 @@ void DevMgmtSubscriber::slotRemoveDnsSd(QZeroConfService zcs)
         noveZarizeni.hostname=zcs->host();
         noveZarizeni.ibisIpVersion=zcs.data()->txt().value("ver");
 
-        if(seznamZarizeni.contains(noveZarizeni))
+        if(seznamZarizeniDetekce.contains(noveZarizeni))
         {
-            seznamZarizeni.remove(seznamZarizeni.indexOf(noveZarizeni) );
+            seznamZarizeniDetekce.remove(seznamZarizeniDetekce.indexOf(noveZarizeni) );
         }
         else
         {

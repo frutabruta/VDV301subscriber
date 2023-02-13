@@ -16,7 +16,8 @@ public:
     //promenne
     int cisloPortu=0;
     QString nazevSluzby="";
-      QVector<DevMgmtPublisherStruct> seznamZarizeni;
+      QVector<DevMgmtPublisherStruct> seznamZarizeniDetekce;
+      QVector<DevMgmtPublisherStruct> seznamZarizeniKonfigurace;
     QString struktura="";
      QString typSluzby="";
     QString verze="";
@@ -24,10 +25,12 @@ public:
 
 
     //funkce
-    bool getDeviceConfiguration(DevMgmtPublisherStruct &zarizeni, QZeroConfService zcs);
-    bool getDeviceInformation(DevMgmtPublisherStruct &zarizeni, QZeroConfService zcs);
+    bool getDeviceConfiguration(QZeroConfService zcs);
+    bool getDeviceInformation(QZeroConfService zcs);
 
     QString getVersion(QDomDocument document, QString element);
+    bool getDeviceInformation(DevMgmtPublisherStruct &zarizeni);
+    bool getDeviceConfiguration(DevMgmtPublisherStruct &zarizeni);
 private:
 
     //konstruktor
@@ -46,6 +49,7 @@ public slots:
     void slotRemoveDnsSd(QZeroConfService zcs);
     void slotZpracujData(QString vstup);
     QByteArray slotRequestReceived(QNetworkReply *reply);
+    void slotAktualizaceZarizeni();
 private slots:
 
 
