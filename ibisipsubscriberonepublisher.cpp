@@ -6,7 +6,14 @@ IbisIpSubscriberOnePublisher::IbisIpSubscriberOnePublisher(QString nazevSluzby,Q
 
     vsechnyConnecty();
 
+
+}
+
+void IbisIpSubscriberOnePublisher::start()
+{
+    qDebug()<<Q_FUNC_INFO;
     timer->start(defaultniCasovac);
+    httpServerSubscriber.start();
 }
 
 
@@ -14,11 +21,11 @@ void IbisIpSubscriberOnePublisher::vsechnyConnecty()
 {
     qDebug()<<Q_FUNC_INFO;
 
-        connect(timer, &QTimer::timeout, this, &IbisIpSubscriberOnePublisher::slotCasovacVyprsel);
+    connect(timer, &QTimer::timeout, this, &IbisIpSubscriberOnePublisher::slotCasovacVyprsel);
 
-        connect(&InstanceNovehoServeru,&HttpServerSubscriber::prijemDat,this,&IbisIpSubscriberOnePublisher::slotVypisObsahRequestu) ;
-        connect(&zeroConf, &QZeroConf::serviceAdded, this, &IbisIpSubscriberOnePublisher::slotAddService);
-        connect(&zeroConf, &QZeroConf::serviceRemoved, this, &IbisIpSubscriberOnePublisher::slotOdstranenaSluzba);
+    connect(&httpServerSubscriber ,&HttpServerSubscriber::prijemDat,this,&IbisIpSubscriberOnePublisher::slotVypisObsahRequestu) ;
+    connect(&zeroConf, &QZeroConf::serviceAdded, this, &IbisIpSubscriberOnePublisher::slotAddService);
+    connect(&zeroConf, &QZeroConf::serviceRemoved, this, &IbisIpSubscriberOnePublisher::slotOdstranenaSluzba);
 }
 
 void IbisIpSubscriberOnePublisher::novePrihlaseniOdberu()
@@ -26,7 +33,7 @@ void IbisIpSubscriberOnePublisher::novePrihlaseniOdberu()
     qDebug() <<  Q_FUNC_INFO;
     odebirano=false;
     existujeKandidat=false;
-    hledejSluzby(typSluzbyInterni,1);
+    hledejSluzby(mTypSluzby,1);
 }
 
 
@@ -51,10 +58,6 @@ void IbisIpSubscriberOnePublisher::PostSubscribe(QUrl adresaDispleje, QString da
     //pozadavekPOST.setRawHeader("Accept-Encoding", "gzip, deflate");
 
     QByteArray dataDoPostuQByte=dataDoPostu.toUtf8() ;
-
-
-
-
 
     qDebug()<<"B";
 
@@ -100,21 +103,21 @@ void IbisIpSubscriberOnePublisher::slotAddService(QZeroConfService zcs)
     seznamSluzeb.append(zcs);
     emit signalAktualizaceSeznamu();
 
-    if (jeSluzbaHledanaVerze(nazevSluzbyInterni,verzeInterni,zcs)&&(this->existujeKandidat==false)&&(this->odebirano==false))
+    if (jeSluzbaHledanaVerze(mNazevSluzby,mVerze,zcs)&&(this->existujeKandidat==false)&&(this->odebirano==false))
     {
         qDebug()<<"odesilam subscribe na "<<ipadresa<<":"<<QString::number(port)<<" sluzba "<<nazev;
 
-        QString adresaZaLomitkem="/"+nazevSluzbyInterni+"/Subscribe"+strukturaInterni;
+        QString adresaZaLomitkem="/"+mNazevSluzby+"/Subscribe"+mStruktura;
         QString adresaCileString="http://"+zcs->ip().toString()+":"+QString::number(zcs->port())+adresaZaLomitkem;
         qDebug()<<"adresaCile string "<<adresaCileString;
         QUrl adresaKamPostovatSubscribe=QUrl(adresaCileString);
         existujeKandidat=true;
         kandidatSluzbaMdns=zcs;
-        PostSubscribe(adresaKamPostovatSubscribe,this->vytvorSubscribeRequest(adresaZarizeni,cisloPortuInterni));
+        PostSubscribe(adresaKamPostovatSubscribe,this->vytvorSubscribeRequest(adresaZarizeni,mCisloPortu));
 
     }
 
-   // emit nalezenaSluzba( zcs);
+    // emit nalezenaSluzba( zcs);
 
 }
 
@@ -167,7 +170,7 @@ void IbisIpSubscriberOnePublisher::slotSubscribeOdeslan(QNetworkReply *rep)
 void IbisIpSubscriberOnePublisher::slotVypisObsahRequestu(QString vysledek)
 {
     qDebug() <<  Q_FUNC_INFO;
-   // QByteArray posledniRequest=InstanceNovehoServeru.bodyPozadavku;
+    // QByteArray posledniRequest=InstanceNovehoServeru.bodyPozadavku;
     QDomDocument xmlrequest;
     xmlrequest.setContent(vysledek);
     timer->start(defaultniCasovac);

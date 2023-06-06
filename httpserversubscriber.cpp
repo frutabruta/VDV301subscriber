@@ -4,40 +4,28 @@ HttpServerSubscriber::HttpServerSubscriber(quint16 ppp)
 {
     cisloPortu=ppp;
     obsahRoot=vyrobHlavickuOk();
-    proved();
+    //start();
 
 }
 
-
-
-
-int HttpServerSubscriber::proved()
+int HttpServerSubscriber::start()
 {
-    qDebug()<<"NewHttpServer::proved()";
-
-
-
-    /*QHostAddress test;
-test.setAddress("127.0.0.1:47474");*/
+    qDebug() <<Q_FUNC_INFO;
 
     this->route(obsahGet,obsahTelaPole);
     this->listen();
 
     return 1;
 }
-//return app.exec();
-
 
 
 int HttpServerSubscriber::route(QString &intObsahGet,  QMap<QString,QString> &obsahyBody)
 {
 
-    qDebug() <<"NewHttpServer::route";
+    qDebug() <<Q_FUNC_INFO;
     httpServer.route("/CustomerInformationService/SubscribeAllData", [this ](const QHttpServerRequest &request)
     {
         qDebug()<<"request "<<"/CustomerInformationService/SubscribeAllData";
-        //qDebug()<<request.headers()["Connection"].isNull();
-        //qDebug()<<request.body();
         qDebug()<<"tady se mel spustit emit";
 
         QString textVysledek="true";
@@ -86,8 +74,6 @@ int HttpServerSubscriber::route(QString &intObsahGet,  QMap<QString,QString> &ob
     qDebug()<<"vnejsi intObsahGet="<<intObsahGet;
     httpServer.route("/CustomerInformationService/Get<arg>", [&obsahyBody](const QUrl &url,const QHttpServerRequest &request)
     {
-
-
         QString struktura= QStringLiteral("%1").arg(url.path());
         qDebug()<<"argument "<<struktura;
 
@@ -98,12 +84,8 @@ int HttpServerSubscriber::route(QString &intObsahGet,  QMap<QString,QString> &ob
         //return intObsahGet;
     });
 
-
     httpServer.route("/", [this](const QHttpServerRequest &request)
     {
-        //this->obsahRoot;
-      //  qDebug()<<"request HEAD "<<request.headers();
-      //  qDebug()<<"request BODY "<<request.body();
         emit prijemDat(request.body());
         QString okResponse="HTTP/1.1 200 OK";
         //return this->obsahRoot;
@@ -120,17 +102,30 @@ int HttpServerSubscriber::route(QString &intObsahGet,  QMap<QString,QString> &ob
     return 1;
 }
 
-
 int HttpServerSubscriber::listen()
 {
-    qDebug() <<"NewHttpServer::listen";
-    const auto port = httpServer.listen(QHostAddress::Any,cisloPortu);
-    if (!port)
+    qDebug() <<Q_FUNC_INFO;
+
+    quint16 nactenyPort;
+    if(cisloPortu==0)
+    {
+        nactenyPort = httpServer.listen(QHostAddress::Any);
+    }
+    else
+    {
+        nactenyPort=httpServer.listen(QHostAddress::Any,cisloPortu);
+    }
+
+
+    // manualni port:  const auto port = httpServer.listen(QHostAddress::Any,cisloPortu);
+    if (!nactenyPort)
     {
         qDebug() << QCoreApplication::translate(
                         "QHttpServerExample", "Server failed to listen on a port.");
         return 0;
     }
+    // nactenyPort=httpServer.listen(QHostAddress::Any,cisloPortu);
+
     /* automaticky port
      const auto port = httpServer.listen(QHostAddress::Any);
     if (!port) {
@@ -139,27 +134,27 @@ int HttpServerSubscriber::listen()
         return 0;
     }
     */
-    qDebug() << QCoreApplication::translate("QHttpServerExample", "Running on http://127.0.0.1:%1/ (Press CTRL+C to quit)").arg(port);
+    qDebug() << QCoreApplication::translate("QHttpServerExample", "Running on http://127.0.0.1:%1/ (Press CTRL+C to quit)").arg(nactenyPort);
     return 1;
 }
 
 
 void HttpServerSubscriber::zapisDoPromenneGet(QString vstup)
 {
-    qDebug() <<"NewHttpServer::zapisDoPromenneGet";
+    qDebug() <<Q_FUNC_INFO;
     this->obsahGet=vstup;
 
 }
 
 void HttpServerSubscriber::zapisDoSubscribe(QString vstup)
 {
-    qDebug() << "NewHttpServer::zapisDoSubscribe";
+    qDebug() <<Q_FUNC_INFO;
     this->obsahSubscribe=vstup;
 }
 
 int HttpServerSubscriber::nastavObsahTela(QMap<QString,QString> vstup )
 {
-    qDebug()<<"NewHttpServer::nastavObsahTela";
+    qDebug() <<Q_FUNC_INFO;
     obsahTelaPole=vstup;
 
 
@@ -171,10 +166,8 @@ int HttpServerSubscriber::nastavObsahTela(QMap<QString,QString> vstup )
 
 QString HttpServerSubscriber::vyrobHlavickuOk()
 {
-    qDebug()<<"HttpSluzba::vyrobHlavicku()";
+    qDebug() <<Q_FUNC_INFO;
     QString hlavicka;
-    //this->hlavickaInterni="";
-    QByteArray argumentXMLserveru = "";
     hlavicka+=("HTTP/1.1 200 OK\r\n");       // \r needs to be before \n
     hlavicka+=("Content-Type: application/xml\r\n");
     hlavicka+=("Connection: close\r\n");
@@ -182,8 +175,3 @@ QString HttpServerSubscriber::vyrobHlavickuOk()
     hlavicka+=("\r\n");
     return hlavicka;
 }
-
-
-
-
-

@@ -28,6 +28,7 @@ public:
     void novePrihlaseniOdberu();
     void slotVypisObsahRequestu(QString vysledek);
     void PostSubscribe(QUrl adresaDispleje, QString dataDoPostu);
+    void start();
 public slots:
     void slotCasovacVyprsel();
     void slotAddService(QZeroConfService zcs);

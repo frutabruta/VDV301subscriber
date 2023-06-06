@@ -1,26 +1,45 @@
 #include "ibisipsubscriber.h"
 
 
-IbisIpSubscriber::IbisIpSubscriber(QString nazevSluzby,QString struktura,QString verze,QString typSluzby, int cisloPortu) : InstanceNovehoServeru(cisloPortu)
+IbisIpSubscriber::IbisIpSubscriber(QString nazevSluzby,QString struktura,QString verze,QString typSluzby, int cisloPortu) : httpServerSubscriber (cisloPortu)
 {
     qDebug() <<  Q_FUNC_INFO;
-    cisloPortuInterni=cisloPortu;
-    nazevSluzbyInterni=nazevSluzby;
-    typSluzbyInterni=typSluzby;
-    strukturaInterni=struktura;
-    verzeInterni=verze;
+    mCisloPortu=cisloPortu;
+    mNazevSluzby=nazevSluzby;
+    mTypSluzby=typSluzby;
+    mStruktura=struktura;
+    mVerze=verze;
     adresaZarizeni=projedAdresy();
 
     vsechnyConnecty();
        // this->projedAdresy();
-
 
 }
 
 void IbisIpSubscriber::vsechnyConnecty()
 {
 
+}
 
+QString IbisIpSubscriber::verze() const
+{
+    return mVerze;
+}
+
+void IbisIpSubscriber::setVerze(const QString &newVerze)
+{
+    mVerze = newVerze;
+}
+
+int IbisIpSubscriber::cisloPortu() const
+{
+    return mCisloPortu;
+}
+
+void IbisIpSubscriber::setCisloPortu(int newCisloPortu)
+{
+    qDebug() <<  Q_FUNC_INFO << QString::number(newCisloPortu);
+    mCisloPortu = newCisloPortu;
 }
 
 
@@ -28,7 +47,7 @@ QByteArray IbisIpSubscriber::vyrobHlavickuOk()
 {
     qDebug() <<  Q_FUNC_INFO;
     QByteArray hlavicka;
-    this->hlavickaInterni="";
+    this->mHlavicka="";
     QByteArray argumentXMLserveru = "";
     hlavicka+=("HTTP/1.1 200 OK\r\n");       // \r needs to be before \n
     hlavicka+=("Content-Type: application/xml\r\n");
@@ -55,8 +74,6 @@ void IbisIpSubscriber::hledejSluzby(QString typSluzby, int start)
         }
     }
 }
-
-
 
 
 int IbisIpSubscriber::vymazSluzbuZeSeznamu(QVector<QZeroConfService> &intSeznamSluzeb, QZeroConfService sluzba)
@@ -162,9 +179,3 @@ QHostAddress IbisIpSubscriber::projedAdresy()
     }
     return list[ipIndex];
 }
-
-
-
-
-
-

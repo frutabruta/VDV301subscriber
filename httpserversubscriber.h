@@ -12,7 +12,7 @@ class HttpServerSubscriber: public QObject
 public:
     HttpServerSubscriber(quint16 ppp);
     QHttpServer httpServer;
-    int proved();
+    int start();
     quint16 cisloPortu=0;
     void zapisDoPromenneGet(QString vstup);
     void zapisDoSubscribe(QString vstup);

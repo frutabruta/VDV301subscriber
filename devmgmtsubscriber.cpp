@@ -6,7 +6,7 @@ DevMgmtSubscriber::DevMgmtSubscriber(QString nazevSluzby, QString struktura, QSt
     qDebug()<<Q_FUNC_INFO;
     vsechnyConnecty();
 
-    hledejSluzby(typSluzbyInterni,1);
+    hledejSluzby(mTypSluzby,1);
 }
 
 void DevMgmtSubscriber::vsechnyConnecty()

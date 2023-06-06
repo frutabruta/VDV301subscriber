@@ -27,76 +27,64 @@ public:
     //funkce
     QByteArray vyrobHlavickuOk();
     void hledejSluzby(QString typSluzby, int start);
-  //  void novePrihlaseniOdberu();
+    //  void novePrihlaseniOdberu();
     QString vytvorSubscribeRequest(QHostAddress ipadresa, int port);
 
 
     //nezarazeno
+    int cisloPortu() const;
+    void setCisloPortu(int newCisloPortu);
+
+    QString verze() const;
+    void setVerze(const QString &newVerze);
+
 private:
 
     //instance knihoven
 
-
     //promenne
-
-
-
 
     //funkce
     QHostAddress projedAdresy();
-
 
     void vsechnyConnecty();
 
     //nezarazeno
 
-
 protected:
 
     //instance knihoven
-      HttpServerSubscriber InstanceNovehoServeru;
+    HttpServerSubscriber httpServerSubscriber;
 
     //promenne
     QZeroConf zeroConf;
-    QString typSluzbyInterni="_ibisip_http._tcp";
+    QString mTypSluzby="_ibisip_http._tcp";
 
-        int cisloPortuInterni=0;
-    QString hlavickaInterni="";
-    QString nazevSluzbyInterni="";
-  //  QString obsahInterni="";
-    QString strukturaInterni="";
-    QString verzeInterni="";
-
-
+    int mCisloPortu=0;
+    QString mHlavicka="";
+    QString mNazevSluzby="";
+    //  QString obsahInterni="";
+    QString mStruktura="";
+    QString mVerze="";
 
     //funkce
     int jeSluzbaHledanaVerze(QString hledanaSluzba, QString hledanaVerze, QZeroConfService zcs);
     void PostSubscribe(QUrl adresaDispleje, QString dataDoPostu);
     int vymazSluzbuZeSeznamu(QVector<QZeroConfService> &intSeznamSluzeb, QZeroConfService sluzba);
 
-
     //ostatni
-
-
-
 
 signals:
     int dataNahrana (QString vysledek);
- //   void nalezenaSluzba(QZeroConfService zcs);
+    //   void nalezenaSluzba(QZeroConfService zcs);
     void signalAktualizaceSeznamu();
     void signalZtrataOdberu();
 
 public slots:
-    //void vypisObsahRequestu();
- //   void vypisObsahRequestu(QString vysledek);
-
 
 private slots:
 
-  //  void slotOdstranenaSluzba(QZeroConfService zcs);
-  //  void slotAddService(QZeroConfService zcs);
-  //  void slotSubscribeOdeslan(QNetworkReply *rep);
-  //  void httpFinished();
+
 };
 
 #endif // IBISIPSUBSCRIBER_H
