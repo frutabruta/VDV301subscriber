@@ -1,5 +1,5 @@
 #include "devmgmtpublisherstruct.h"
-
+#include <QVariant>
 
 DevMgmtPublisherStruct::DevMgmtPublisherStruct()
 {
