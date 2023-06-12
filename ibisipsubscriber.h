@@ -13,7 +13,7 @@ class IbisIpSubscriber : public QObject
 public:
 
     //konstruktor a destruktor
-    explicit IbisIpSubscriber(QObject *parent = nullptr);
+   // explicit IbisIpSubscriber(QObject *parent = nullptr);
     IbisIpSubscriber(QString nazevSluzby, QString struktura, QString verze, QString typSluzby, int cisloPortu);
 
     //instance knihoven
