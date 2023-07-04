@@ -6,6 +6,7 @@
 
 class IbisIpSubscriberOnePublisher : public IbisIpSubscriber
 {
+    Q_OBJECT
 public:
 
 
@@ -29,6 +30,10 @@ public:
     void slotVypisObsahRequestu(QString vysledek);
     void PostSubscribe(QUrl adresaDispleje, QString dataDoPostu);
     void start();
+
+private:
+    void vsechnyConnecty();
+
 public slots:
     void slotCasovacVyprsel();
     void slotAddService(QZeroConfService zcs);
@@ -36,8 +41,10 @@ private slots:
     void slotHttpFinished();
     void slotSubscribeOdeslan(QNetworkReply *rep);
     void slotOdstranenaSluzba(QZeroConfService zcs);
-private:
-    void vsechnyConnecty();
+
+signals:
+    void signalUspesnySubscribe(QZeroConfService zcs);
+
 
     //instance knihoven
 

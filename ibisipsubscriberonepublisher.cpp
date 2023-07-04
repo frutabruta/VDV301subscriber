@@ -4,7 +4,7 @@ IbisIpSubscriberOnePublisher::IbisIpSubscriberOnePublisher(QString nazevSluzby,Q
 {
     qDebug()<<Q_FUNC_INFO;
 
-    vsechnyConnecty();
+   // vsechnyConnecty();
 
 
 }
@@ -14,6 +14,7 @@ void IbisIpSubscriberOnePublisher::start()
     qDebug()<<Q_FUNC_INFO;
     timer->start(defaultniCasovac);
     httpServerSubscriber.start();
+    vsechnyConnecty();
 }
 
 
@@ -76,16 +77,6 @@ void IbisIpSubscriberOnePublisher::PostSubscribe(QUrl adresaDispleje, QString da
 
     qDebug()<<"C";
 
-
-
-
-    connect(reply, &QNetworkReply::finished, this, &IbisIpSubscriberOnePublisher::slotHttpFinished);
-
-    qDebug()<<"D";
-
-
-
-    qDebug()<<"E";
 }
 
 void IbisIpSubscriberOnePublisher::slotAddService(QZeroConfService zcs)
@@ -141,6 +132,7 @@ void IbisIpSubscriberOnePublisher::slotHttpFinished()
     this->odebirano=true;
     reply->deleteLater();
     //reply = nullptr;
+    emit signalUspesnySubscribe(aktualniSluzbaMdns);
 }
 
 void IbisIpSubscriberOnePublisher::slotOdstranenaSluzba(QZeroConfService zcs)
@@ -164,6 +156,7 @@ void IbisIpSubscriberOnePublisher::slotSubscribeOdeslan(QNetworkReply *rep)
     aktualniSluzbaMdns=kandidatSluzbaMdns;
 
     this->odebirano=true;
+    //asi nepouzito
 }
 
 
