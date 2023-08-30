@@ -2,24 +2,24 @@
 #define DEVMGMTSUBSCRIBER_H
 #include "ibisipsubscriber.h"
 #include "devmgmtpublisherstruct.h"
-#include "QObject"
+
 class DevMgmtSubscriber : public IbisIpSubscriber
 {
-      Q_OBJECT
+    Q_OBJECT
 public:
 
     //konstruktor
     explicit DevMgmtSubscriber(QString nazevSluzby, QString struktura, QString  verze, QString  typSluzby, int cisloPortu);
-
+    ~DevMgmtSubscriber();
     //instance knihoven
-     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+    QNetworkAccessManager manager; // = new QNetworkAccessManager(this);
     //promenne
     int cisloPortu=0;
     QString nazevSluzby="";
-      QVector<DevMgmtPublisherStruct> seznamZarizeniDetekce;
-      QVector<DevMgmtPublisherStruct> seznamZarizeniKonfigurace;
+    QVector<DevMgmtPublisherStruct> seznamZarizeniDetekce;
+    QVector<DevMgmtPublisherStruct> seznamZarizeniKonfigurace;
     QString struktura="";
-     QString typSluzby="";
+    QString typSluzby="";
     QString verze="";
 
 
@@ -43,6 +43,7 @@ private:
 
 
     void vsechnyConnecty();
+
 public slots:
 
     void slotNewDnsSd(QZeroConfService zcs);

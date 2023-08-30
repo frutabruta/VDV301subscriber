@@ -5,8 +5,14 @@ DevMgmtSubscriber::DevMgmtSubscriber(QString nazevSluzby, QString struktura, QSt
 {
     qDebug()<<Q_FUNC_INFO;
     vsechnyConnecty();
-
     hledejSluzby(mTypSluzby,1);
+}
+
+DevMgmtSubscriber::~DevMgmtSubscriber()
+{
+    qDebug()<<Q_FUNC_INFO;
+    zeroConf.disconnect();//reseni erroru ASSERT failure in DevMgmtSubscriber: "Called object is not of the correct type
+    //  this->disconnect();
 }
 
 void DevMgmtSubscriber::vsechnyConnecty()
@@ -14,7 +20,8 @@ void DevMgmtSubscriber::vsechnyConnecty()
     qDebug()<<Q_FUNC_INFO;
     connect(&zeroConf, &QZeroConf::serviceAdded, this, &DevMgmtSubscriber::slotNewDnsSd);
     connect(&zeroConf, &QZeroConf::serviceRemoved, this, &DevMgmtSubscriber::slotRemoveDnsSd);
-    connect(manager,SIGNAL(finished(QNetworkReply*)),this,SLOT(slotRequestReceived(QNetworkReply*)));
+
+    connect(&manager,&QNetworkAccessManager::finished,this,&DevMgmtSubscriber::slotRequestReceived);
     connect(this,&DevMgmtSubscriber::stazeniHotovo,this,&DevMgmtSubscriber::slotZpracujData);
 
 }
@@ -31,7 +38,7 @@ bool DevMgmtSubscriber::getDeviceInformation(QZeroConfService zcs)
     QNetworkRequest pozadavek;
     pozadavek.setUrl(QUrl(adresa));
 
-    manager->get(pozadavek);
+    manager.get(pozadavek);
 
     return true;
 }
@@ -48,7 +55,7 @@ bool DevMgmtSubscriber::getDeviceInformation(DevMgmtPublisherStruct &zarizeni)
     QNetworkRequest pozadavek;
     pozadavek.setUrl(QUrl(adresa));
 
-    manager->get(pozadavek);
+    manager.get(pozadavek);
 
     return true;
 }
@@ -61,7 +68,7 @@ bool DevMgmtSubscriber::getDeviceConfiguration(QZeroConfService zcs)
     //   QString adresa=zarizeni.adresa.toString()+":"+QString::number(zarizeni.port)+
     QString adresa = "http://"+zcs->ip().toString()+":"+QString::number(zcs->port())+"/DeviceManagementService/GetDeviceConfiguration";
     qDebug()<<adresa;
-    manager->get(QNetworkRequest(QUrl(adresa)));
+    manager.get(QNetworkRequest(QUrl(adresa)));
 
     return true;
 }
@@ -73,7 +80,7 @@ bool DevMgmtSubscriber::getDeviceConfiguration(DevMgmtPublisherStruct &zarizeni)
     //   QString adresa=zarizeni.adresa.toString()+":"+QString::number(zarizeni.port)+
     QString adresa = "http://"+zarizeni.adresa.toString()+":"+QString::number(zarizeni.port)+"/DeviceManagementService/GetDeviceConfiguration";
     qDebug()<<adresa;
-    manager->get(QNetworkRequest(QUrl(adresa)));
+    manager.get(QNetworkRequest(QUrl(adresa)));
 
     return true;
 }
@@ -104,10 +111,6 @@ QByteArray DevMgmtSubscriber::slotRequestReceived(QNetworkReply* reply)
     int index=seznamZarizeniDetekce.indexOf(zarizeni);
     if((index>=0)&&(index<seznamZarizeniDetekce.count()))
     {
-        //  zarizeni.hostname=seznamZarizeni.at(index).hostname;
-        //   zarizeni.serviceName=seznamZarizeni.at(index).serviceName;
-        //   zarizeni.ibisIpVersion=seznamZarizeni.at(index).ibisIpVersion;
-        //   seznamZarizeni.replace(index, zarizeni);
 
         if(dokument.firstChildElement().nodeName()=="DeviceManagementService.GetDeviceConfigurationResponse")
         {
@@ -137,7 +140,7 @@ QByteArray DevMgmtSubscriber::slotRequestReceived(QNetworkReply* reply)
         }
 
 
-        //  if(seznamZarizeniDetekce[index])
+
         if((!seznamZarizeniDetekce[index].deviceId.isEmpty())&&(!seznamZarizeniDetekce[index].deviceClass.isEmpty()))
         {
             DevMgmtPublisherStruct* noveZarizeni=&seznamZarizeniDetekce[index];
@@ -147,28 +150,7 @@ QByteArray DevMgmtSubscriber::slotRequestReceived(QNetworkReply* reply)
                 noveZarizeni->hwConfig=true;
             }
 
-            /*
-            int indexZ=0;
-            foreach(DevMgmtPublisherStruct stareZarizeni, seznamZarizeniDetekce)
-            {
-                qDebug()<<"DP3";
 
-                if((stareZarizeni.deviceClass==noveZarizeni->deviceClass)&&(stareZarizeni.deviceId==noveZarizeni->deviceId)&&(stareZarizeni.adresa.isNull()))
-                {
-                    qDebug()<<"DP4";
-                    //stareZarizeni=noveZarizeni;
-                    int indexA=seznamZarizeniDetekce.indexOf(stareZarizeni);
-                    noveZarizeni->hwConfig=true;
-                    //seznamZarizeni.remove(seznamZarizeni.indexOf(stareZarizeni) );
-                    seznamZarizeniDetekce.remove(indexZ );
-
-
-                    qDebug()<<"nalezena shoda ID "+noveZarizeni->deviceId+" a DeviceClass "+noveZarizeni->deviceClass+" indexZ:"<<QString::number(indexZ)<<" indexA:"<<QString::number(indexA);
-                    // nalezeno=true;
-                    break;
-                }
-                indexZ++;
-            }*/
 
 
         }
@@ -214,41 +196,6 @@ QString DevMgmtSubscriber::getVersion(QDomDocument document, QString element)
 }
 
 
-/*
-                void IbisIpSubscriberOnePublisher::slotAddService(QZeroConfService zcs)
-                {
-
-                    qDebug() <<  Q_FUNC_INFO;
-                    // QTableWidgetItem *cell;
-                    // qDebug() << "Added service: " << zcs;
-                    QString nazev=zcs->name();
-                    QString ipadresa=zcs->ip().toString();
-                    QString verze=zcs.data()->txt().value("ver");
-                    int port=zcs->port();
-                    qDebug() <<"nazev sluzby "<<nazev<<" ip adresa "<<ipadresa<<" port "<<QString::number(port)<<" data" <<verze;
-
-                    seznamSluzeb.append(zcs);
-                    emit aktualizaceSeznamu();
-
-                    if (jeSluzbaHledanaVerze(nazevSluzbyInterni,verzeInterni,zcs)&&(this->existujeKandidat==false)&&(this->odebirano==false))
-                    {
-                        qDebug()<<"odesilam subscribe na "<<ipadresa<<":"<<QString::number(port)<<" sluzba "<<nazev;
-
-                        QString adresaZaLomitkem="/"+nazevSluzbyInterni+"/Subscribe"+strukturaInterni;
-                        QString adresaCileString="http://"+zcs->ip().toString()+":"+QString::number(zcs->port())+adresaZaLomitkem;
-                        qDebug()<<"adresaCile string "<<adresaCileString;
-                        QUrl adresaKamPostovatSubscribe=QUrl(adresaCileString);
-                        existujeKandidat=true;
-                        kandidatSluzbaMdns=zcs;
-                        PostSubscribe(adresaKamPostovatSubscribe,this->vytvorSubscribeRequest(adresaZarizeni,cisloPortuInterni));
-
-                    }
-
-                   // emit nalezenaSluzba( zcs);
-
-                }
-
-                */
 
 void DevMgmtSubscriber::slotNewDnsSd(QZeroConfService zcs)
 {
