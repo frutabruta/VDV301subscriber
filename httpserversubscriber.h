@@ -10,28 +10,33 @@ class HttpServerSubscriber: public QObject
 {
     Q_OBJECT
 public:
-    HttpServerSubscriber(quint16 ppp);
+    HttpServerSubscriber(quint16 portNumber);
+
     QHttpServer httpServer;
+
+    quint16 mPortNumber=0;
+
+    QString contentGet="obsahGet";
+    QString contentSubscribe="<SubscribeResponse xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><Active><Value>true</Value></Active></SubscribeResponse>";
+
+    QByteArray requestBody="xx";
+    QString contentRoot="";
+
+    void setContentGet(QString input);
+    void setContentSubscribe(QString input);
     int start();
-    quint16 cisloPortu=0;
-    void zapisDoPromenneGet(QString vstup);
-    void zapisDoSubscribe(QString vstup);
-    QString obsahGet="obsahGet";
-    QString obsahSubscribe="<SubscribeResponse xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><Active><Value>true</Value></Active></SubscribeResponse>";
-    int route(QString &intObsahGet, QMap<QString, QString> &obsahyBody);
+
     int listen();
-    QByteArray bodyPozadavku="xx";
-    QString obsahRoot="";
+    int route(QString &getRequestContent, QMap<QString, QString> &contentBodyList);
 
 
-
-    int nastavObsahTela(QMap<QString, QString> vstup);
+    int setContentBody(QMap<QString, QString> input);
 private:
-    QString vyrobHlavickuOk();
-    QMap<QString,QString> obsahTelaPole;
+    QString createOkResponse();
+    QMap<QString,QString> contentBodyMap;
 signals:
-    void zmenaObsahu(QByteArray vysledek,QString struktura) ;
-    void prijemDat(QString vysledek) ;
+    void signalContentChanged(QByteArray vysledek,QString struktura) ;
+    void signalDataReceived(QString vysledek) ;
     //void zmenaObsahu() ;
 };
 

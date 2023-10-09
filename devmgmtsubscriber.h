@@ -5,57 +5,52 @@
 #include "QObject"
 class DevMgmtSubscriber : public IbisIpSubscriber
 {
-      Q_OBJECT
+    Q_OBJECT
 public:
 
-    //konstruktor
-    explicit DevMgmtSubscriber(QString nazevSluzby, QString struktura, QString  verze, QString  typSluzby, int cisloPortu);
+    //constructor
+    explicit DevMgmtSubscriber(QString serviceName, QString structureName, QString  version, QString  serviceType, int portNumber);
 
-    //instance knihoven
-     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+    //library instances
+    //QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+    QNetworkAccessManager manager ;
     //promenne
-    int cisloPortu=0;
-    QString nazevSluzby="";
-      QVector<DevMgmtPublisherStruct> seznamZarizeniDetekce;
-      QVector<DevMgmtPublisherStruct> seznamZarizeniKonfigurace;
-    QString struktura="";
-     QString typSluzby="";
-    QString verze="";
+    int mPortNumber=0;
+    QString mServiceName="";
+    QString mStructureName="";
+    QString mServiceType="";
+    QString mVersion="";
+
+    QVector<DevMgmtPublisherStruct> deviceListDetected;
+    QVector<DevMgmtPublisherStruct> deviceListConfigured;
 
 
-
-    //funkce
+    //functions
     bool getDeviceConfiguration(QZeroConfService zcs);
     bool getDeviceInformation(QZeroConfService zcs);
 
     QString getVersion(QDomDocument document, QString element);
-    bool getDeviceInformation(DevMgmtPublisherStruct &zarizeni);
-    bool getDeviceConfiguration(DevMgmtPublisherStruct &zarizeni);
+    bool getDeviceInformation(DevMgmtPublisherStruct &device);
+    bool getDeviceConfiguration(DevMgmtPublisherStruct &device);
 private:
 
-    //konstruktor
-
-    //instance knihoven
-
-    //promenne
-
-    //funkce
 
 
-    void vsechnyConnecty();
+
+    void allConnects();
 public slots:
 
     void slotNewDnsSd(QZeroConfService zcs);
     void slotRemoveDnsSd(QZeroConfService zcs);
-    void slotZpracujData(QString vstup);
+    void slotHandleData(QString input);
     QByteArray slotRequestReceived(QNetworkReply *reply);
-    void slotAktualizaceZarizeni();
+    void slotUpdateDeviceInfo();
 private slots:
 
 
 signals:
-    //void aktualizaceSeznamu();
-    void stazeniHotovo(QString vystup);
+
+    void downloadFinished(QString vystup);
 
 
 };

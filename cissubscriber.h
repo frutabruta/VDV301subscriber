@@ -7,7 +7,7 @@ class CisSubscriber : public IbisIpSubscriberOnePublisher
       Q_OBJECT
 public:
 
-    explicit CisSubscriber(QString nazevSluzby, QString struktura, QString verze, QString typSluzby, int cisloPortu);
+    explicit CisSubscriber(QString serviceName, QString structureName, QString version, QString serviceType, int portNumber);
 };
 
 #endif // CISSUBSCRIBER_H

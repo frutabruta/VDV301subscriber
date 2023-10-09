@@ -8,8 +8,8 @@ class DevMgmtPublisherStruct
 {
 public:
     DevMgmtPublisherStruct();
-    QHostAddress adresa;
-    int port;
+    QHostAddress hostAddress;
+    int portNumber;
     QString deviceId;
     QString deviceClass;
     QString deviceName;
@@ -26,7 +26,7 @@ public:
 
     bool operator ==(const DevMgmtPublisherStruct &node) const;
     QMap<QString, QVariant> toQMap();
-    bool isInListByIdClass(QVector<DevMgmtPublisherStruct> vstup);
+    bool isInListByIdClass(QVector<DevMgmtPublisherStruct> publisherList);
 private:
 
 };

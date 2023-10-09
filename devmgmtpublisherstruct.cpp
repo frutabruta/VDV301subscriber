@@ -3,7 +3,7 @@
 
 DevMgmtPublisherStruct::DevMgmtPublisherStruct()
 {
-    port=0;;
+    portNumber=0;;
     deviceId="";
     deviceClass="";
     deviceName="";
@@ -20,31 +20,31 @@ DevMgmtPublisherStruct::DevMgmtPublisherStruct()
 
 bool DevMgmtPublisherStruct::operator==(const DevMgmtPublisherStruct &node) const
 {
-    return port == node.port && adresa == node.adresa;
+    return portNumber == node.portNumber && hostAddress == node.hostAddress;
 }
 
 QMap<QString, QVariant> DevMgmtPublisherStruct::toQMap()
 {
-    QMap<QString,QVariant> vystup;
-    vystup["adresa"]=adresa.toString();
-    vystup["port"]=QString::number(port);
-    vystup["deviceId"]=deviceId;
-    vystup["deviceClass"]=deviceClass;
-    vystup["deviceName"]=deviceName;
-    vystup["hostname"]=hostname;
-    vystup["serviceName"]=serviceName;
-    vystup["ibisIpVersion"]=ibisIpVersion;
-    vystup["swVersion"]=swVersion;
-    vystup["manufacturer"]=manufacturer;
-    vystup["serialNumber"]=serialNumber;
-    return vystup;
+    QMap<QString,QVariant> output;
+    output["adresa"]=hostAddress.toString();
+    output["port"]=QString::number(portNumber);
+    output["deviceId"]=deviceId;
+    output["deviceClass"]=deviceClass;
+    output["deviceName"]=deviceName;
+    output["hostname"]=hostname;
+    output["serviceName"]=serviceName;
+    output["ibisIpVersion"]=ibisIpVersion;
+    output["swVersion"]=swVersion;
+    output["manufacturer"]=manufacturer;
+    output["serialNumber"]=serialNumber;
+    return output;
 }
 
-bool DevMgmtPublisherStruct::isInListByIdClass(QVector<DevMgmtPublisherStruct> vstup)
+bool DevMgmtPublisherStruct::isInListByIdClass(QVector<DevMgmtPublisherStruct> publisherList)
 {
-    foreach(DevMgmtPublisherStruct noveZarizeni, vstup)
+    foreach(DevMgmtPublisherStruct selectedPublisher, publisherList)
 
-    if ((deviceClass==noveZarizeni.deviceClass )&&(deviceId==noveZarizeni.deviceId))
+    if ((deviceClass==selectedPublisher.deviceClass )&&(deviceId==selectedPublisher.deviceId))
     {
         return true;
     }

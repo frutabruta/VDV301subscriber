@@ -1,107 +1,102 @@
 #include "ibisipsubscriber.h"
 
 
-IbisIpSubscriber::IbisIpSubscriber(QString nazevSluzby,QString struktura,QString verze,QString typSluzby, int cisloPortu) : httpServerSubscriber (cisloPortu)
+IbisIpSubscriber::IbisIpSubscriber(QString serviceName,QString structureName,QString version,QString serviceType, int portNumber) : httpServerSubscriber (portNumber)
 {
     qDebug() <<  Q_FUNC_INFO;
-    mCisloPortu=cisloPortu;
-    mNazevSluzby=nazevSluzby;
-    mTypSluzby=typSluzby;
-    mStruktura=struktura;
-    mVerze=verze;
-    adresaZarizeni=projedAdresy();
+    mPortNumber=portNumber;
+    mServiceName=serviceName;
+    mServiceType=serviceType;
+    mStructureName=structureName;
+    mVersion=version;
+    deviceAddress=selectNonLoopbackAddress();
 
-    vsechnyConnecty();
+    allConnects();
        // this->projedAdresy();
 
 }
 
-void IbisIpSubscriber::vsechnyConnecty()
+void IbisIpSubscriber::allConnects()
 {
 
 }
 
-QString IbisIpSubscriber::verze() const
+QString IbisIpSubscriber::version() const
 {
-    return mVerze;
+    return mVersion;
 }
 
-void IbisIpSubscriber::setVerze(const QString &newVerze)
+void IbisIpSubscriber::setVersion(const QString &newVersion)
 {
-    mVerze = newVerze;
+    mVersion = newVersion;
 }
 
-int IbisIpSubscriber::cisloPortu() const
+int IbisIpSubscriber::portNumber() const
 {
-    return mCisloPortu;
+    return mPortNumber;
 }
 
-void IbisIpSubscriber::setCisloPortu(int newCisloPortu)
+void IbisIpSubscriber::setPortNumber(int newPortNumber)
 {
-    qDebug() <<  Q_FUNC_INFO << QString::number(newCisloPortu);
-    mCisloPortu = newCisloPortu;
+    qDebug() <<  Q_FUNC_INFO << QString::number(newPortNumber);
+    mPortNumber = newPortNumber;
 }
 
 
-QByteArray IbisIpSubscriber::vyrobHlavickuOk()
+QByteArray IbisIpSubscriber::createOkResponse()
 {
     qDebug() <<  Q_FUNC_INFO;
-    QByteArray hlavicka;
-    this->mHlavicka="";
-    QByteArray argumentXMLserveru = "";
-    hlavicka+=("HTTP/1.1 200 OK\r\n");       // \r needs to be before \n
-    hlavicka+=("Content-Type: application/xml\r\n");
-    hlavicka+=("Connection: close\r\n");
-    hlavicka+=("Pragma: no-cache\r\n");
-    hlavicka+=("\r\n");
-    return hlavicka;
+    QByteArray okResponse;
+    this->mHeader="";
+    okResponse+=("HTTP/1.1 200 OK\r\n");       // \r needs to be before \n
+    okResponse+=("Content-Type: application/xml\r\n");
+    okResponse+=("Connection: close\r\n");
+    okResponse+=("Pragma: no-cache\r\n");
+    okResponse+=("\r\n");
+    return okResponse;
 }
 
 
-void IbisIpSubscriber::hledejSluzby(QString typSluzby, int start)
+void IbisIpSubscriber::findServices(QString serviceType, int start)
 {
     qDebug() <<  Q_FUNC_INFO;
-    if (start == 0 )
+    if (start == 0 ) //stops service browser
     {
         zeroConf.stopBrowser();
     }
-    else if (start == 1)
+    else if (start == 1) //starts service browser
     {
         if (!zeroConf.browserExists())
         {
-            qDebug()<<"prohledavam";
-            zeroConf.startBrowser(typSluzby);
+            qDebug()<<"searching for services";
+            zeroConf.startBrowser(serviceType);
         }
     }
 }
 
 
-int IbisIpSubscriber::vymazSluzbuZeSeznamu(QVector<QZeroConfService> &intSeznamSluzeb, QZeroConfService sluzba)
+int IbisIpSubscriber::deleteServiceFromList(QVector<QZeroConfService> &serviceList, QZeroConfService selectedService)
 {
     qDebug() <<  Q_FUNC_INFO;
-    if(    intSeznamSluzeb.removeOne(sluzba))
+    if(    serviceList.removeOne(selectedService))
     {
-        qDebug()<<"sluzbu se podarilo odstranit";
-        emit signalAktualizaceSeznamu();
+        qDebug()<<"couldn't remove service";
+        emit signalUpdateDeviceList();
         return 1;
-    }
-    else
-    {
-        qDebug()<<"sluzbu se nepodarilo odstranit";
     }
     return 0;
 }
 
 
-int IbisIpSubscriber::jeSluzbaHledanaVerze(QString hledanaSluzba,QString hledanaVerze, QZeroConfService zcs)
+int IbisIpSubscriber::isTheServiceRequestedOne(QString selectedServiceName,QString selectedVersion, QZeroConfService zcs)
 {
     qDebug() <<  Q_FUNC_INFO;
-    if (zcs->name().startsWith(hledanaSluzba))
+    if (zcs->name().startsWith(selectedServiceName))
     {
-        qDebug()<<"sluzba "<<hledanaSluzba<<" Nalezena";
-        if(zcs.data()->txt().value("ver")==hledanaVerze)
+        qDebug()<<"requested service found "<<selectedServiceName;
+        if(zcs.data()->txt().value("ver")==selectedVersion)
         {
-            qDebug()<<"hledana verze "<<hledanaVerze<<" nalezena";
+            qDebug()<<"requested service not found "<<selectedVersion;
             //this->vytvorSubscribeRequest(projedAdresy(),cisloPortuInterni);
             return 1;
         }
@@ -114,25 +109,25 @@ int IbisIpSubscriber::jeSluzbaHledanaVerze(QString hledanaSluzba,QString hledana
     return 0;
 }
 
-QString IbisIpSubscriber::vytvorSubscribeRequest(QHostAddress ipadresa, int port)
+QString IbisIpSubscriber::createSubscribeRequest(QHostAddress clientIpAddress, int port)
 {
-    QDomDocument xmlko;
-    QDomProcessingInstruction dHlavicka=xmlko.createProcessingInstruction("xml","version=\"1.0\" encoding=\"utf-8\" ");
-    xmlko.appendChild(dHlavicka);
-    QDomElement subscribeRequest =xmlko.createElement("SubscribeRequest");
-    xmlko.appendChild(subscribeRequest);
-    QDomElement clientIPAddress=xmlko.createElement("Client-IP-Address");
-    QDomElement ipValue=xmlko.createElement("Value");
-    ipValue.appendChild(xmlko.createTextNode(ipadresa.toString()));
-    clientIPAddress.appendChild(ipValue);
-    subscribeRequest.appendChild(clientIPAddress);
-    QDomElement replyPort=xmlko.createElement("ReplyPort");
-    QDomElement portValue=xmlko.createElement("Value");
-    portValue.appendChild(xmlko.createTextNode(QString::number(port)));
-    replyPort.appendChild(portValue);
-    subscribeRequest.appendChild(replyPort);
+    QDomDocument xmlDocument;
+    QDomProcessingInstruction dProcessingInformation=xmlDocument.createProcessingInstruction("xml","version=\"1.0\" encoding=\"utf-8\" ");
+    xmlDocument.appendChild(dProcessingInformation);
+    QDomElement dSubscribeRequest =xmlDocument.createElement("SubscribeRequest");
+    xmlDocument.appendChild(dSubscribeRequest);
+    QDomElement dClientIPAddress=xmlDocument.createElement("Client-IP-Address");
+    QDomElement dIpValue=xmlDocument.createElement("Value");
+    dIpValue.appendChild(xmlDocument.createTextNode(clientIpAddress.toString()));
+    dClientIPAddress.appendChild(dIpValue);
+    dSubscribeRequest.appendChild(dClientIPAddress);
+    QDomElement dReplyPort=xmlDocument.createElement("ReplyPort");
+    QDomElement dPortValue=xmlDocument.createElement("Value");
+    dPortValue.appendChild(xmlDocument.createTextNode(QString::number(port)));
+    dReplyPort.appendChild(dPortValue);
+    dSubscribeRequest.appendChild(dReplyPort);
 
-    return xmlko.toString();
+    return xmlDocument.toString();
 }
 
 /*
@@ -155,12 +150,19 @@ Connection: Keep-Alive
 
 
 
-QHostAddress IbisIpSubscriber::projedAdresy()
+QHostAddress IbisIpSubscriber::selectNonLoopbackAddress()
 {
     qDebug() <<  Q_FUNC_INFO;
     QList<QHostAddress> list = QNetworkInterface::allAddresses();
+    QHostAddress output;
+
     bool ipSet=false;
-    int ipIndex=0;
+
+
+    /* int ipIndex=0;
+
+
+
     for(int nIter=0; nIter<list.count(); nIter++)
     {
         qDebug() <<nIter<<" "<< list[nIter].toString();
@@ -177,5 +179,27 @@ QHostAddress IbisIpSubscriber::projedAdresy()
             }
         }
     }
-    return list[ipIndex];
+
+*/
+
+    foreach(QHostAddress selectedAddress, list)
+    {
+        qDebug() <<" "<<selectedAddress.toString();
+        if(!selectedAddress.isLoopback())
+        {
+            if (selectedAddress.protocol() == QAbstractSocket::IPv4Protocol )
+            {
+                qDebug() <<" not loopback"<< selectedAddress.toString();
+                if(ipSet==false)
+                {
+
+                    output=selectedAddress;
+                    ipSet=true;
+                }
+            }
+        }
+    }
+
+
+    return output;
 }

@@ -11,47 +11,41 @@ public:
 
 
     //konstruktor a destruktor
-    explicit IbisIpSubscriberOnePublisher(QString nazevSluzby,QString struktura,QString verze,QString typSluzby, int cisloPortu);
+    explicit IbisIpSubscriberOnePublisher(QString serviceName, QString structureName, QString version, QString serviceType, int portName);
 
     //instance knihoven
-    QTimer *timer = new QTimer(this);
+   // QTimer *timerHeartbeatCheck = new QTimer(this);
+    QTimer timerHeartbeatCheck;
     //promenne
-    int defaultniCasovac=120000;
-    bool odebirano=false;
-    bool existujeKandidat=false;
+    int heartbeatCheckInterval=120000;
+    bool isSubscriptionActive=false;
+    bool isCandidateSelected=false;
 
-    QZeroConfService aktualniSluzbaMdns;
-    QZeroConfService kandidatSluzbaMdns;
+    QZeroConfService subscribedService;
+    QZeroConfService subscribeServiceCandidate;
 
     //funkce
 
-
-    void novePrihlaseniOdberu();
-    void slotVypisObsahRequestu(QString vysledek);
-    void PostSubscribe(QUrl adresaDispleje, QString dataDoPostu);
     void start();
+    void newSubscribeRequest();
+
+    void postSubscribe(QUrl subscriberAddress, QString postRequestContent);
+
 
 private:
-    void vsechnyConnecty();
+    void allConnects();
 
 public slots:
-    void slotCasovacVyprsel();
+    void slotHeartbeatTimeout();
     void slotAddService(QZeroConfService zcs);
+    void slotHandleReceivedData(QString receivedData);
 private slots:
     void slotHttpFinished();
-    void slotSubscribeOdeslan(QNetworkReply *rep);
-    void slotOdstranenaSluzba(QZeroConfService zcs);
+    void slotSubscribeSent(QNetworkReply *subscriptionReply);
+    void slotServiceRemoved(QZeroConfService zcs);
 
 signals:
-    void signalUspesnySubscribe(QZeroConfService zcs);
-
-
-    //instance knihoven
-
-    //promenne
-
-
-    //funkce
+    void signalSubscriptionSuccessful(QZeroConfService zcs);
 
 };
 

@@ -14,71 +14,62 @@ public:
 
     //konstruktor a destruktor
    // explicit IbisIpSubscriber(QObject *parent = nullptr);
-    IbisIpSubscriber(QString nazevSluzby, QString struktura, QString verze, QString typSluzby, int cisloPortu);
+    IbisIpSubscriber(QString serviceName, QString structureName, QString version, QString serviceType, int portNumber);
 
     //instance knihoven
-    QNetworkAccessManager manager2;
+
+
+    //variables
+    QVector<QZeroConfService> serviceList;
+    QHostAddress deviceAddress;
+    QNetworkAccessManager postManager;
     QNetworkReply *reply;
 
-    //promenne
-    QVector<QZeroConfService> seznamSluzeb;
-    QHostAddress adresaZarizeni;
-
-    //funkce
-    QByteArray vyrobHlavickuOk();
-    void hledejSluzby(QString typSluzby, int start);
-    //  void novePrihlaseniOdberu();
-    QString vytvorSubscribeRequest(QHostAddress ipadresa, int port);
+    //functions
+    QByteArray createOkResponse();
+    void findServices(QString serviceType, int start);
+    QString createSubscribeRequest(QHostAddress clientIpAddress, int port);
 
 
     //nezarazeno
-    int cisloPortu() const;
-    void setCisloPortu(int newCisloPortu);
+    int portNumber() const;
+    void setPortNumber(int newPortNumber);
 
-    QString verze() const;
-    void setVerze(const QString &newVerze);
+    QString version() const;
+    void setVersion(const QString &newVersion);
 
 private:
 
-    //instance knihoven
 
-    //promenne
+    QHostAddress selectNonLoopbackAddress();
 
-    //funkce
-    QHostAddress projedAdresy();
-
-    void vsechnyConnecty();
-
-    //nezarazeno
+    void allConnects();
 
 protected:
 
     //instance knihoven
     HttpServerSubscriber httpServerSubscriber;
 
-    //promenne
+    //variables
     QZeroConf zeroConf;
-    QString mTypSluzby="_ibisip_http._tcp";
+    QString mServiceType="_ibisip_http._tcp";
 
-    int mCisloPortu=0;
-    QString mHlavicka="";
-    QString mNazevSluzby="";
-    //  QString obsahInterni="";
-    QString mStruktura="";
-    QString mVerze="";
+    int mPortNumber=0;
+    QString mHeader=""; //unused?
+    QString mServiceName="";
+    QString mStructureName="";
+    QString mVersion="";
 
     //funkce
-    int jeSluzbaHledanaVerze(QString hledanaSluzba, QString hledanaVerze, QZeroConfService zcs);
-    void PostSubscribe(QUrl adresaDispleje, QString dataDoPostu);
-    int vymazSluzbuZeSeznamu(QVector<QZeroConfService> &intSeznamSluzeb, QZeroConfService sluzba);
+    int isTheServiceRequestedOne(QString selectedServiceName,QString selectedVersion, QZeroConfService zcs);
+    int deleteServiceFromList(QVector<QZeroConfService> &serviceList, QZeroConfService selectedService);
 
     //ostatni
 
 signals:
-    int dataNahrana (QString vysledek);
-    //   void nalezenaSluzba(QZeroConfService zcs);
-    void signalAktualizaceSeznamu();
-    void signalZtrataOdberu();
+    int signalDataReceived (QString receivedData);
+    void signalUpdateDeviceList();
+    void signalSubscriptionLost();
 
 public slots:
 
