@@ -2,7 +2,7 @@
 #define DEVMGMTSUBSCRIBER_H
 #include "ibisipsubscriber.h"
 #include "devmgmtpublisherstruct.h"
-#include "QObject"
+
 class DevMgmtSubscriber : public IbisIpSubscriber
 {
     Q_OBJECT
@@ -11,6 +11,7 @@ public:
     //constructor
     explicit DevMgmtSubscriber(QString serviceName, QString structureName, QString  version, QString  serviceType, int portNumber);
 
+    ~DevMgmtSubscriber();
     //library instances
     //QNetworkAccessManager *manager = new QNetworkAccessManager(this);
     QNetworkAccessManager manager ;
