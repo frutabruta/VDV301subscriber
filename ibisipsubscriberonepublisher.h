@@ -35,9 +35,12 @@ public:
 private:
     void allConnects();
 
+    void allConnects2();
+
 public slots:
     void slotHeartbeatTimeout();
     void slotAddService(QZeroConfService zcs);
+    void slotUpdateService(QZeroConfService zcs);
     void slotHandleReceivedData(QString receivedData);
 private slots:
     void slotHttpFinished();

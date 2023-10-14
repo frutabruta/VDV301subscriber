@@ -91,17 +91,20 @@ int IbisIpSubscriber::deleteServiceFromList(QVector<QZeroConfService> &serviceLi
 int IbisIpSubscriber::isTheServiceRequestedOne(QString selectedServiceName,QString selectedVersion, QZeroConfService zcs)
 {
     qDebug() <<  Q_FUNC_INFO;
-    if (zcs->name().startsWith(selectedServiceName))
+    QString testedVersion=zcs.data()->txt().value("ver");
+    QString testedServiceName=zcs->name();
+    if (testedServiceName.startsWith(selectedServiceName))
     {
-        qDebug()<<"requested service found "<<selectedServiceName;
-        if(zcs.data()->txt().value("ver")==selectedVersion)
+        qDebug()<<"requested service found "<<testedServiceName;
+        if(testedVersion==selectedVersion)
         {
-            qDebug()<<"requested service not found "<<selectedVersion;
+            qDebug()<<"1 requested version:"<<selectedVersion<<" found version:"<<testedVersion;
             //this->vytvorSubscribeRequest(projedAdresy(),cisloPortuInterni);
             return 1;
         }
         else
         {
+             qDebug()<<"1 requested version:"<<selectedVersion<<" found version:"<<testedVersion;
             return 0;
         }
     }

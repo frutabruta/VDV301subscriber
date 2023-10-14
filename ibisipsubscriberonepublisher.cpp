@@ -15,6 +15,7 @@ void IbisIpSubscriberOnePublisher::start()
     timerHeartbeatCheck.start(heartbeatCheckInterval);
     httpServerSubscriber.start();
     allConnects();
+    allConnects2();
 }
 
 
@@ -25,7 +26,20 @@ void IbisIpSubscriberOnePublisher::allConnects()
     connect(&timerHeartbeatCheck, &QTimer::timeout, this, &IbisIpSubscriberOnePublisher::slotHeartbeatTimeout);
 
     connect(&httpServerSubscriber ,&HttpServerSubscriber::signalDataReceived,this,&IbisIpSubscriberOnePublisher::slotHandleReceivedData) ;
+ //   connect(&zeroConf, &QZeroConf::serviceAdded, this, &IbisIpSubscriberOnePublisher::slotAddService);
+ //   connect(&zeroConf, &QZeroConf::serviceRemoved, this, &IbisIpSubscriberOnePublisher::slotServiceRemoved);
+}
+
+
+void IbisIpSubscriberOnePublisher::allConnects2()
+{
+    qDebug()<<Q_FUNC_INFO;
+
+  //  connect(&timerHeartbeatCheck, &QTimer::timeout, this, &IbisIpSubscriberOnePublisher::slotHeartbeatTimeout);
+
+   // connect(&httpServerSubscriber ,&HttpServerSubscriber::signalDataReceived,this,&IbisIpSubscriberOnePublisher::slotHandleReceivedData) ;
     connect(&zeroConf, &QZeroConf::serviceAdded, this, &IbisIpSubscriberOnePublisher::slotAddService);
+    connect(&zeroConf, &QZeroConf::serviceUpdated, this, &IbisIpSubscriberOnePublisher::slotUpdateService);
     connect(&zeroConf, &QZeroConf::serviceRemoved, this, &IbisIpSubscriberOnePublisher::slotServiceRemoved);
 }
 
@@ -70,6 +84,20 @@ void IbisIpSubscriberOnePublisher::postSubscribe(QUrl subscriberAddress, QString
 
 }
 
+
+void IbisIpSubscriberOnePublisher::slotUpdateService(QZeroConfService zcs)
+{
+    qDebug() <<  Q_FUNC_INFO;
+    if(!serviceList.contains(zcs))
+    {
+        slotAddService(zcs);
+    }
+    else
+    {
+        qDebug()<<"service is already on the list";
+    }
+}
+
 void IbisIpSubscriberOnePublisher::slotAddService(QZeroConfService zcs)
 {
     qDebug() <<  Q_FUNC_INFO;
@@ -83,18 +111,37 @@ void IbisIpSubscriberOnePublisher::slotAddService(QZeroConfService zcs)
     serviceList.append(zcs);
     emit signalUpdateDeviceList();
 
-    if (isTheServiceRequestedOne(mServiceName,mVersion,zcs)&&(this->isCandidateSelected==false)&&(this->isSubscriptionActive==false))
+    if (isTheServiceRequestedOne(mServiceName,mVersion,zcs))
     {
-        qDebug()<<"sending subscribe request to  "<<ipAddress<<":"<<QString::number(portNumber)<<" service "<<serviceName;
+        if(this->isCandidateSelected==false)
+        {
+            if(this->isSubscriptionActive==false)
+            {
+                qDebug()<<"sending subscribe request to  "<<ipAddress<<":"<<QString::number(portNumber)<<" service "<<serviceName;
 
-        QString addressAfterBackslash="/"+mServiceName+"/Subscribe"+mStructureName;
-        QString addressComplete="http://"+zcs->ip().toString()+":"+QString::number(zcs->port())+addressAfterBackslash;
-        qDebug()<<"adresaCile string "<<addressComplete;
-        QUrl subscriptionDestination=QUrl(addressComplete);
-        isCandidateSelected=true;
-        subscribeServiceCandidate=zcs;
-        postSubscribe(subscriptionDestination,this->createSubscribeRequest(deviceAddress,mPortNumber));
+                QString addressAfterBackslash="/"+mServiceName+"/Subscribe"+mStructureName;
+                QString addressComplete="http://"+zcs->ip().toString()+":"+QString::number(zcs->port())+addressAfterBackslash;
+                qDebug()<<"adresaCile string "<<addressComplete;
+                QUrl subscriptionDestination=QUrl(addressComplete);
+                isCandidateSelected=true;
+                subscribeServiceCandidate=zcs;
+                postSubscribe(subscriptionDestination,this->createSubscribeRequest(deviceAddress,mPortNumber));
 
+            }
+            else
+            {
+                qDebug()<<"isSubscriptionActive "<<isSubscriptionActive;
+            }
+        }
+        else
+        {
+            qDebug()<<"isCandidateSelected "<<isCandidateSelected;
+        }
+
+    }
+    else
+    {
+        qDebug()<<"service is not the requested one";
     }
 
     // emit nalezenaSluzba( zcs);
