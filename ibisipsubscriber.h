@@ -13,7 +13,7 @@ class IbisIpSubscriber : public QObject
 public:
 
     //konstruktor a destruktor
-   // explicit IbisIpSubscriber(QObject *parent = nullptr);
+    // explicit IbisIpSubscriber(QObject *parent = nullptr);
     IbisIpSubscriber(QString serviceName, QString structureName, QString version, QString serviceType, int portNumber);
 
     //instance knihoven
@@ -38,10 +38,13 @@ public:
     QString version() const;
     void setVersion(const QString &newVersion);
 
+    bool isIpSet() const;
+    void setIsIpSet(bool newIsIpSet);
+
 private:
 
 
-    QHostAddress selectNonLoopbackAddress();
+
 
     void allConnects();
 
@@ -60,10 +63,12 @@ protected:
     QString mStructureName="";
     QString mVersion="";
 
+    bool mIsIpSet=false;
+
     //funkce
     int isTheServiceRequestedOne(QString selectedServiceName,QString selectedVersion, QZeroConfService zcs);
     int deleteServiceFromList(QVector<QZeroConfService> &serviceList, QZeroConfService selectedService);
-
+    QHostAddress selectNonLoopbackAddress();
     //ostatni
 
 signals:

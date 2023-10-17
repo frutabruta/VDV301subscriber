@@ -1,4 +1,6 @@
 # VDV301subscriber #
+- 2023_10_17
+    - empty IP address fix (check for empty subscriber IP before subscribing )
 - 2023_10_14
     - added fix when QZeroConf::serviceAdded doesn't trigger ( progrma now reacts to QZeroConf::serviceUpdated too)
 

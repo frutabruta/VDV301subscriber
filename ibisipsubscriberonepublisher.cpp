@@ -125,6 +125,10 @@ void IbisIpSubscriberOnePublisher::slotAddService(QZeroConfService zcs)
                 QUrl subscriptionDestination=QUrl(addressComplete);
                 isCandidateSelected=true;
                 subscribeServiceCandidate=zcs;
+                if(!isIpSet() )
+                {
+                    deviceAddress=selectNonLoopbackAddress();
+                }
                 postSubscribe(subscriptionDestination,this->createSubscribeRequest(deviceAddress,mPortNumber));
 
             }
@@ -151,7 +155,12 @@ void IbisIpSubscriberOnePublisher::slotAddService(QZeroConfService zcs)
 void IbisIpSubscriberOnePublisher::slotHeartbeatTimeout()
 {
     qDebug() <<  Q_FUNC_INFO;
+    if(!isIpSet() )
+    {
+        deviceAddress=selectNonLoopbackAddress();
+    }
     emit signalSubscriptionLost();
+
     newSubscribeRequest();
 }
 
