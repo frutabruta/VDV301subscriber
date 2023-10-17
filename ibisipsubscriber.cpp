@@ -21,6 +21,16 @@ void IbisIpSubscriber::allConnects()
 
 }
 
+bool IbisIpSubscriber::isIpSet() const
+{
+    return mIsIpSet;
+}
+
+void IbisIpSubscriber::setIsIpSet(bool newIsIpSet)
+{
+    mIsIpSet = newIsIpSet;
+}
+
 QString IbisIpSubscriber::version() const
 {
     return mVersion;
@@ -159,7 +169,7 @@ QHostAddress IbisIpSubscriber::selectNonLoopbackAddress()
     QList<QHostAddress> list = QNetworkInterface::allAddresses();
     QHostAddress output;
 
-    bool ipSet=false;
+
 
 
     /* int ipIndex=0;
@@ -193,15 +203,17 @@ QHostAddress IbisIpSubscriber::selectNonLoopbackAddress()
             if (selectedAddress.protocol() == QAbstractSocket::IPv4Protocol )
             {
                 qDebug() <<" not loopback"<< selectedAddress.toString();
-                if(ipSet==false)
+                if(mIsIpSet==false)
                 {
 
                     output=selectedAddress;
-                    ipSet=true;
+                    mIsIpSet=true;
                 }
             }
         }
     }
+
+
 
 
     return output;
