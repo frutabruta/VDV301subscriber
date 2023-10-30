@@ -12,15 +12,10 @@ public:
     explicit DevMgmtSubscriber(QString serviceName, QString structureName, QString  version, QString  serviceType, int portNumber);
 
     ~DevMgmtSubscriber();
-    //library instances
-    //QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+
     QNetworkAccessManager manager ;
     //promenne
-    int mPortNumber=0;
-    QString mServiceName="";
-    QString mStructureName="";
-    QString mServiceType="";
-    QString mVersion="";
+
 
     QVector<DevMgmtPublisherStruct> deviceListDetected;
     QVector<DevMgmtPublisherStruct> deviceListConfigured;

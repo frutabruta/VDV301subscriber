@@ -4,7 +4,8 @@
 DevMgmtSubscriber::DevMgmtSubscriber(QString serviceName, QString structureName, QString  version, QString  serviceType, int portNumber) : IbisIpSubscriber(serviceName,  structureName,  version,  serviceType, portNumber)
 {
     qDebug()<<Q_FUNC_INFO;
-    allConnects();
+
+    allConnects();    
     findServices(mServiceType,1);
 }
 
@@ -19,6 +20,7 @@ void DevMgmtSubscriber::allConnects()
 {
     qDebug()<<Q_FUNC_INFO;
     connect(&zeroConf, &QZeroConf::serviceAdded, this, &DevMgmtSubscriber::slotNewDnsSd);
+   // connect(&zeroConf, &QZeroConf::serviceUpdated, this, &DevMgmtSubscriber::slotNewDnsSd);
     connect(&zeroConf, &QZeroConf::serviceRemoved, this, &DevMgmtSubscriber::slotRemoveDnsSd);
     connect(&manager,&QNetworkAccessManager::finished,this,&DevMgmtSubscriber::slotRequestReceived);
     connect(this,&DevMgmtSubscriber::downloadFinished,this,&DevMgmtSubscriber::slotHandleData);
@@ -119,7 +121,7 @@ QByteArray DevMgmtSubscriber::slotRequestReceived(QNetworkReply* reply)
             qDebug()<<"device id je: "<< zarizeni.deviceId<<" index na seznamu"<<index<<" adresa:"<<zarizeni.hostAddress<<" port:"<<zarizeni.portNumber;
         }
 
-        if(dokument.firstChildElement().nodeName()=="DeviceManagementService.GetDeviceInformationResponse")
+        else if(dokument.firstChildElement().nodeName()=="DeviceManagementService.GetDeviceInformationResponse")
         {
             qDebug()<<"ano, hledam Information ";
 
@@ -148,9 +150,6 @@ QByteArray DevMgmtSubscriber::slotRequestReceived(QNetworkReply* reply)
             {
                 noveZarizeni->hwConfig=true;
             }
-
-
-
 
         }
 
@@ -243,7 +242,7 @@ void DevMgmtSubscriber::slotNewDnsSd(QZeroConfService zcs)
 void DevMgmtSubscriber::slotUpdateDeviceInfo()
 {
     qDebug() <<  Q_FUNC_INFO;
-    foreach(auto polozka, deviceListDetected)
+    foreach(DevMgmtPublisherStruct polozka, deviceListDetected)
     {
         getDeviceConfiguration(polozka);
         getDeviceInformation(polozka);

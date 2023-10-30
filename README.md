@@ -1,4 +1,7 @@
 # VDV301subscriber #
+- 2023_10_30
+    - DevMgmtSubscriber
+        - fix of overwritting IbisIpSubscriber by DevMgmtSubscriber (caused empty serviceType)
 - 2023_10_17
     - empty IP address fix (check for empty subscriber IP before subscribing )
 - 2023_10_14
