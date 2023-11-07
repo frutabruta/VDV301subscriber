@@ -103,6 +103,7 @@ int IbisIpSubscriber::isTheServiceRequestedOne(QString selectedServiceName,QStri
     qDebug() <<  Q_FUNC_INFO;
     QString testedVersion=zcs.data()->txt().value("ver");
     QString testedServiceName=zcs->name();
+    qDebug()<<"tested service: "<<testedServiceName<<" "<<testedVersion;
     if (testedServiceName.startsWith(selectedServiceName))
     {
         qDebug()<<"requested service found "<<testedServiceName;

@@ -4,7 +4,7 @@ IbisIpSubscriberOnePublisher::IbisIpSubscriberOnePublisher(QString serviceName,Q
 {
     qDebug()<<Q_FUNC_INFO;
 
-   // vsechnyConnecty();
+    // vsechnyConnecty();
 
 
 }
@@ -26,8 +26,8 @@ void IbisIpSubscriberOnePublisher::allConnects()
     connect(&timerHeartbeatCheck, &QTimer::timeout, this, &IbisIpSubscriberOnePublisher::slotHeartbeatTimeout);
 
     connect(&httpServerSubscriber ,&HttpServerSubscriber::signalDataReceived,this,&IbisIpSubscriberOnePublisher::slotHandleReceivedData) ;
- //   connect(&zeroConf, &QZeroConf::serviceAdded, this, &IbisIpSubscriberOnePublisher::slotAddService);
- //   connect(&zeroConf, &QZeroConf::serviceRemoved, this, &IbisIpSubscriberOnePublisher::slotServiceRemoved);
+    //   connect(&zeroConf, &QZeroConf::serviceAdded, this, &IbisIpSubscriberOnePublisher::slotAddService);
+    //   connect(&zeroConf, &QZeroConf::serviceRemoved, this, &IbisIpSubscriberOnePublisher::slotServiceRemoved);
 }
 
 
@@ -35,9 +35,9 @@ void IbisIpSubscriberOnePublisher::allConnects2()
 {
     qDebug()<<Q_FUNC_INFO;
 
-  //  connect(&timerHeartbeatCheck, &QTimer::timeout, this, &IbisIpSubscriberOnePublisher::slotHeartbeatTimeout);
+    //  connect(&timerHeartbeatCheck, &QTimer::timeout, this, &IbisIpSubscriberOnePublisher::slotHeartbeatTimeout);
 
-   // connect(&httpServerSubscriber ,&HttpServerSubscriber::signalDataReceived,this,&IbisIpSubscriberOnePublisher::slotHandleReceivedData) ;
+    // connect(&httpServerSubscriber ,&HttpServerSubscriber::signalDataReceived,this,&IbisIpSubscriberOnePublisher::slotHandleReceivedData) ;
     connect(&zeroConf, &QZeroConf::serviceAdded, this, &IbisIpSubscriberOnePublisher::slotAddService);
     connect(&zeroConf, &QZeroConf::serviceUpdated, this, &IbisIpSubscriberOnePublisher::slotUpdateService);
     connect(&zeroConf, &QZeroConf::serviceRemoved, this, &IbisIpSubscriberOnePublisher::slotServiceRemoved);
@@ -88,14 +88,34 @@ void IbisIpSubscriberOnePublisher::postSubscribe(QUrl subscriberAddress, QString
 void IbisIpSubscriberOnePublisher::slotUpdateService(QZeroConfService zcs)
 {
     qDebug() <<  Q_FUNC_INFO;
+
+    slotAddService(zcs);
+
+/*
+
+    QString serviceName=zcs->name();
+    QString ipAddress=zcs->ip().toString();
+    QString version=zcs.data()->txt().value("ver");
+    int portNumber=zcs->port();
+
+
     if(!serviceList.contains(zcs))
     {
         slotAddService(zcs);
     }
     else
     {
-        qDebug()<<"service is already on the list";
+        qDebug()<<"service "<<serviceName<<" "<<version<<" "<<ipAddress<<":"<<QString::number(portNumber)<<" is already on the list";
+
+        QZeroConfService zcs2=serviceList.at(serviceList.indexOf(zcs));
+        QString serviceName2=zcs2->name();
+        QString ipAddress2=zcs2->ip().toString();
+        QString version2=zcs2.data()->txt().value("ver");
+        int portNumber2=zcs2->port();
+        qDebug()<<"service on list: "<<serviceName2<<" "<<version2<<" "<<ipAddress2<<":"<<QString::number(portNumber2)<<" is already on the list";
+
     }
+*/
 }
 
 void IbisIpSubscriberOnePublisher::slotAddService(QZeroConfService zcs)
@@ -108,7 +128,12 @@ void IbisIpSubscriberOnePublisher::slotAddService(QZeroConfService zcs)
     int portNumber=zcs->port();
     qDebug() <<"service name "<<serviceName<<" ip address "<<ipAddress<<" portNumber "<<QString::number(portNumber)<<" data" <<version;
 
-    serviceList.append(zcs);
+    if(!serviceList.contains(zcs))
+    {
+        serviceList.append(zcs);
+    }
+
+
     emit signalUpdateDeviceList();
 
     if (isTheServiceRequestedOne(mServiceName,mVersion,zcs))
