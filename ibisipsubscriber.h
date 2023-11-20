@@ -32,8 +32,8 @@ public:
 
 
     //nezarazeno
-    int portNumber() const;
-    void setPortNumber(int newPortNumber);
+    //int portNumber() const;
+    //void setPortNumber(int newPortNumber);
 
     QString version() const;
     void setVersion(const QString &newVersion);

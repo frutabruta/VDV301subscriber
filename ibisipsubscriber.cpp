@@ -4,7 +4,7 @@
 IbisIpSubscriber::IbisIpSubscriber(QString serviceName,QString structureName,QString version,QString serviceType, int portNumber) : httpServerSubscriber (portNumber)
 {
     qDebug() <<  Q_FUNC_INFO;
-    mPortNumber=portNumber;
+  //  mPortNumber=portNumber;
     mServiceName=serviceName;
     mServiceType=serviceType;
     mStructureName=structureName;
@@ -41,18 +41,21 @@ void IbisIpSubscriber::setVersion(const QString &newVersion)
     mVersion = newVersion;
 }
 
+/*
 int IbisIpSubscriber::portNumber() const
 {
     return mPortNumber;
 }
-
+*/
+/*
 void IbisIpSubscriber::setPortNumber(int newPortNumber)
 {
     qDebug() <<  Q_FUNC_INFO << QString::number(newPortNumber);
     mPortNumber = newPortNumber;
+
 }
 
-
+*/
 QByteArray IbisIpSubscriber::createOkResponse()
 {
     qDebug() <<  Q_FUNC_INFO;

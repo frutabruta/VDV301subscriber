@@ -32,6 +32,9 @@ public:
     void postSubscribe(QUrl subscriberAddress, QString postRequestContent);
 
 
+    int portNumber() const;
+    void setPortNumber(int newPortNumber);
+
 private:
     void allConnects();
 

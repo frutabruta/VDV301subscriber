@@ -1,4 +1,6 @@
 # VDV301subscriber #
+- 2023_11_20
+    - HttpServerSubscriber port now changes correctly when IbisIpSubscriberOnePublisher::setPortNumber is called
 - 2023_11_08
     - IbisIpSubscriberOnePublisher
         - fix of unsuccessful subscription when service name updates (CustomerInfromationService (2) etc.)
@@ -16,7 +18,6 @@
     - oprava syntaxe funkce connect
     - oprava chyby ASSERT failure, vytvoření destruktoru
     - změna definice QNetworkAccessManager bez "new"
-
 
 - 2023_07_04
     - IbisSibscriberOnePublisher

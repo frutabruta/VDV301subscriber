@@ -31,6 +31,9 @@ public:
 
 
     int setContentBody(QMap<QString, QString> input);
+    quint16 portNumber() const;
+    void setPortNumber(quint16 newPortNumber);
+
 private:
     QString createOkResponse();
     QMap<QString,QString> contentBodyMap;

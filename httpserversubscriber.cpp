@@ -8,6 +8,16 @@ HttpServerSubscriber::HttpServerSubscriber(quint16 portNumber)
 
 }
 
+quint16 HttpServerSubscriber::portNumber() const
+{
+    return mPortNumber;
+}
+
+void HttpServerSubscriber::setPortNumber(quint16 newPortNumber)
+{
+    mPortNumber = newPortNumber;
+}
+
 int HttpServerSubscriber::start()
 {
     qDebug() <<Q_FUNC_INFO;

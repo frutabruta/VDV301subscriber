@@ -84,6 +84,17 @@ void IbisIpSubscriberOnePublisher::postSubscribe(QUrl subscriberAddress, QString
 
 }
 
+int IbisIpSubscriberOnePublisher::portNumber() const
+{
+
+    return httpServerSubscriber.portNumber();
+}
+
+void IbisIpSubscriberOnePublisher::setPortNumber(int newPortNumber)
+{
+    httpServerSubscriber.setPortNumber(newPortNumber);
+}
+
 
 void IbisIpSubscriberOnePublisher::slotUpdateService(QZeroConfService zcs)
 {
@@ -154,7 +165,7 @@ void IbisIpSubscriberOnePublisher::slotAddService(QZeroConfService zcs)
                 {
                     deviceAddress=selectNonLoopbackAddress();
                 }
-                postSubscribe(subscriptionDestination,this->createSubscribeRequest(deviceAddress,mPortNumber));
+                postSubscribe(subscriptionDestination,this->createSubscribeRequest(deviceAddress,httpServerSubscriber.portNumber()));
 
             }
             else
