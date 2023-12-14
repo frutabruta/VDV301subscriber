@@ -29,7 +29,7 @@ public:
     QByteArray createOkResponse();
     void findServices(QString serviceType, int start);
     QString createSubscribeRequest(QHostAddress clientIpAddress, int port);
-
+    QString createUnsubscribeRequest(QHostAddress clientIpAddress, int port);
 
     //nezarazeno
     //int portNumber() const;
@@ -43,9 +43,6 @@ public:
 
 private:
 
-
-
-
     void allConnects();
 
 protected:
@@ -57,7 +54,7 @@ protected:
     QZeroConf zeroConf;
     QString mServiceType="_ibisip_http._tcp";
 
-    int mPortNumber=0;
+   // int mPortNumber=0;
     QString mHeader=""; //unused?
     QString mServiceName="";
     QString mStructureName="";

@@ -12,6 +12,7 @@ public:
 
     //konstruktor a destruktor
     explicit IbisIpSubscriberOnePublisher(QString serviceName, QString structureName, QString version, QString serviceType, int portName);
+    ~IbisIpSubscriberOnePublisher();
 
     //instance knihoven
    // QTimer *timerHeartbeatCheck = new QTimer(this);
@@ -30,28 +31,33 @@ public:
     void newSubscribeRequest();
 
     void postSubscribe(QUrl subscriberAddress, QString postRequestContent);
-
+    void postUnsubscribe(QUrl subscriberAddress, QString postRequestContent);
 
     int portNumber() const;
     void setPortNumber(int newPortNumber);
+
+    void unsubscribe();
 
 private:
     void allConnects();
 
     void allConnects2();
 
+    void checkExistingServices();
 public slots:
     void slotHeartbeatTimeout();
     void slotAddService(QZeroConfService zcs);
     void slotUpdateService(QZeroConfService zcs);
     void slotHandleReceivedData(QString receivedData);
 private slots:
-    void slotHttpFinished();
+    void slotHttpRequestSubscriptionFinished();
     void slotSubscribeSent(QNetworkReply *subscriptionReply);
     void slotServiceRemoved(QZeroConfService zcs);
 
+    void slotHttpRequestUnsubscriptionFinished();
 signals:
     void signalSubscriptionSuccessful(QZeroConfService zcs);
+    void signalUnsubscriptionSuccessful(QZeroConfService zcs);
 
 };
 

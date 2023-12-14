@@ -1,4 +1,28 @@
 # VDV301subscriber #
+Qt C++ library to be used in VDV301 subscriber devices
+
+## Tested services ##
+- CustomerInformationService (1.0, 2.2CZ1.0, 2.3 )
+- DeviceManagementService (1.0)
+
+# Changelog # 
+- 2023_12_14
+    - HttpServerSubscriber
+        - removed options from HttpServerSubscriber::route which were copied from VDV301publisher
+        - variable contentSubscribe renamed to subscribeResponseContent
+    - IbisIpSubscriber
+        - new function IbisIpSubscriber::createUnsubscribeRequest
+    - IbisIpSubscriberOnePublisher
+        - new function IbisIpSubscriberOnePublisher::postUnsubscribe
+        - new function IbisIpSubscriberOnePublisher::checkExistingServices
+        - new function  IbisIpSubscriberOnePublisher::unsubscribe
+        - new slot IbisIpSubscriberOnePublisher::slotHttpRequestUnsubscriptionFinished()
+        - slotHttpFinished() renamed to slotHttpRequestSubscriptionFinished()
+
+
+
+
+
 - 2023_11_20
     - HttpServerSubscriber port now changes correctly when IbisIpSubscriberOnePublisher::setPortNumber is called
 - 2023_11_08

@@ -17,7 +17,7 @@ public:
     quint16 mPortNumber=0;
 
     QString contentGet="obsahGet";
-    QString contentSubscribe="<SubscribeResponse xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><Active><Value>true</Value></Active></SubscribeResponse>";
+    QString subscribeResponseContent="<SubscribeResponse xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><Active><Value>true</Value></Active></SubscribeResponse>";
 
     QByteArray requestBody="xx";
     QString contentRoot="";

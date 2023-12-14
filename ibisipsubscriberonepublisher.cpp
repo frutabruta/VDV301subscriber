@@ -9,6 +9,15 @@ IbisIpSubscriberOnePublisher::IbisIpSubscriberOnePublisher(QString serviceName,Q
 
 }
 
+
+
+IbisIpSubscriberOnePublisher::~IbisIpSubscriberOnePublisher()
+{
+    qDebug()<<Q_FUNC_INFO;
+  //  unsubscribe();
+}
+
+
 void IbisIpSubscriberOnePublisher::start()
 {
     qDebug()<<Q_FUNC_INFO;
@@ -17,6 +26,7 @@ void IbisIpSubscriberOnePublisher::start()
     allConnects();
     allConnects2();
 }
+
 
 
 void IbisIpSubscriberOnePublisher::allConnects()
@@ -48,19 +58,19 @@ void IbisIpSubscriberOnePublisher::newSubscribeRequest()
     qDebug() <<  Q_FUNC_INFO;
     isSubscriptionActive=false;
     isCandidateSelected=false;
+
+
     findServices(mServiceType,1);
+    checkExistingServices();
 }
-
-
 
 void IbisIpSubscriberOnePublisher::postSubscribe(QUrl subscriberAddress, QString postRequestContent)
 {
-
     qDebug() <<  Q_FUNC_INFO;
-    qDebug()<<"posting to address: "<<subscriberAddress<<" "<<postRequestContent;
+    qDebug().noquote()<<"posting to address: "<<subscriberAddress<<" "<<postRequestContent;
 
     QNetworkRequest postRequest(subscriberAddress);
-    qDebug()<<"A";
+
 
     // https://stackoverflow.com/a/53556560
 
@@ -68,21 +78,39 @@ void IbisIpSubscriberOnePublisher::postSubscribe(QUrl subscriberAddress, QString
     postRequest.setRawHeader("Content-Type", "text/xml");
     //postRequest.setRawHeader("Expect", "100-continue");
     //postRequest.setRawHeader("Connection", "keep-Alive");
+    //postRequest.setRawHeader("Accept-Encoding", "gzip, deflate");
+
+    QByteArray postRequestContentQByteArray=postRequestContent.toUtf8() ; 
+
+    reply=postManager.post(postRequest,postRequestContentQByteArray);
+    connect(reply, &QNetworkReply::finished, this, &IbisIpSubscriberOnePublisher::slotHttpRequestSubscriptionFinished);
+
+}
 
 
+void IbisIpSubscriberOnePublisher::postUnsubscribe(QUrl subscriberAddress, QString postRequestContent)
+{
+    qDebug() <<  Q_FUNC_INFO;
+    qDebug().noquote()<<"posting to address: "<<subscriberAddress<<" "<<postRequestContent;
+
+    QNetworkRequest postRequest(subscriberAddress);
+
+
+    // https://stackoverflow.com/a/53556560
+
+    postRequest.setTransferTimeout(30000);
+    postRequest.setRawHeader("Content-Type", "text/xml");
+    //postRequest.setRawHeader("Expect", "100-continue");
+    //postRequest.setRawHeader("Connection", "keep-Alive");
     //postRequest.setRawHeader("Accept-Encoding", "gzip, deflate");
 
     QByteArray postRequestContentQByteArray=postRequestContent.toUtf8() ;
 
-    qDebug()<<"B";
-
     reply=postManager.post(postRequest,postRequestContentQByteArray);
-    connect(reply, &QNetworkReply::finished, this, &IbisIpSubscriberOnePublisher::slotHttpFinished);
-
-
-    qDebug()<<"C";
+    connect(reply, &QNetworkReply::finished, this, &IbisIpSubscriberOnePublisher::slotHttpRequestUnsubscriptionFinished);
 
 }
+
 
 int IbisIpSubscriberOnePublisher::portNumber() const
 {
@@ -102,7 +130,7 @@ void IbisIpSubscriberOnePublisher::slotUpdateService(QZeroConfService zcs)
 
     slotAddService(zcs);
 
-/*
+    /*
 
     QString serviceName=zcs->name();
     QString ipAddress=zcs->ip().toString();
@@ -127,6 +155,18 @@ void IbisIpSubscriberOnePublisher::slotUpdateService(QZeroConfService zcs)
 
     }
 */
+}
+
+void IbisIpSubscriberOnePublisher::checkExistingServices()
+{
+    qDebug() <<  Q_FUNC_INFO;
+    foreach(QZeroConfService service, serviceList)
+    {
+        if(!isSubscriptionActive)
+        {
+            slotAddService(service);
+        }
+    }
 }
 
 void IbisIpSubscriberOnePublisher::slotAddService(QZeroConfService zcs)
@@ -200,7 +240,7 @@ void IbisIpSubscriberOnePublisher::slotHeartbeatTimeout()
     newSubscribeRequest();
 }
 
-void IbisIpSubscriberOnePublisher::slotHttpFinished()
+void IbisIpSubscriberOnePublisher::slotHttpRequestSubscriptionFinished()
 {
     qDebug() <<  Q_FUNC_INFO;
 
@@ -214,6 +254,24 @@ void IbisIpSubscriberOnePublisher::slotHttpFinished()
     reply->deleteLater();
     //reply = nullptr;
     emit signalSubscriptionSuccessful(subscribedService);
+}
+
+
+void IbisIpSubscriberOnePublisher::slotHttpRequestUnsubscriptionFinished()
+{
+    qDebug() <<  Q_FUNC_INFO;
+
+    QByteArray bts = reply->readAll();
+    QString str(bts);
+    qDebug()<<"odpoved na subscribe:"<<str;
+
+    // subscribedService=subscribeServiceCandidate;
+
+    this->isSubscriptionActive=false;
+    reply->deleteLater();
+    //reply = nullptr;
+    emit signalUnsubscriptionSuccessful(subscribedService);
+
 }
 
 void IbisIpSubscriberOnePublisher::slotSubscribeSent(QNetworkReply *subscriptionReply)
@@ -256,4 +314,18 @@ void IbisIpSubscriberOnePublisher::slotHandleReceivedData(QString receivedData)
 }
 
 
+void IbisIpSubscriberOnePublisher::unsubscribe()
+{
+
+    qDebug() <<  Q_FUNC_INFO;
+    QString addressAfterBackslash="/"+mServiceName+"/Unsubscribe"+mStructureName;
+    QString addressComplete="http://"+subscribedService->ip().toString()+":"+QString::number(subscribedService->port())+addressAfterBackslash;
+    qDebug()<<"adresaCile string "<<addressComplete;
+    QUrl subscriptionDestination=QUrl(addressComplete);
+
+
+    postUnsubscribe(subscriptionDestination,this->createUnsubscribeRequest(deviceAddress,httpServerSubscriber.portNumber()));
+    isSubscriptionActive=false;
+    isCandidateSelected=false;
+}
 

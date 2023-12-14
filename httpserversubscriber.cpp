@@ -33,48 +33,6 @@ int HttpServerSubscriber::route(QString &getRequestContent,  QMap<QString,QStrin
 {
 
     qDebug() <<Q_FUNC_INFO;
-    httpServer.route("/CustomerInformationService/SubscribeAllData", [this ](const QHttpServerRequest &request)
-    {
-        //needs to be modified to generate XML response properly
-        //error responses are not supported
-        qDebug()<<"request "<<"/CustomerInformationService/SubscribeAllData";
-
-        QString responseResult="true";
-        QString response="";
-        response+="<?xml version=\"1.0\" encoding=\"utf-16\"?>";
-        response+="<SubscribeResponse xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">";
-        response+="<Active><Value>";
-        response+=responseResult;
-        response+="</Value></Active>";
-        response+="</SubscribeResponse>";
-        this->requestBody=request.body();
-        QString structureName="AllData";
-        emit signalContentChanged(request.body(),structureName);
-
-        return this->contentSubscribe;
-
-    });
-    httpServer.route("/CustomerInformationService/SubscribeCurrentDisplayContent", [this ](const QHttpServerRequest &request)
-    {
-
-        qDebug()<<"request "<<"/CustomerInformationService/SubscribeCurrentDisplayContent";
-
-
-        QString responseResult="true";
-        QString result="";
-        result+="<?xml version=\"1.0\" encoding=\"utf-16\"?>";
-        result+="<SubscribeResponse xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">";
-        result+="<Active><Value>";
-        result+=responseResult;
-        result+="</Value></Active>";
-        result+="</SubscribeResponse>";
-        this->requestBody=request.body();
-        QString structureName="CurrentDisplayContent";
-        emit signalContentChanged(request.body(),structureName);
-
-        return this->contentSubscribe;
-
-    });
 
     qDebug()<<"get request content="<<getRequestContent;
     httpServer.route("/CustomerInformationService/Get<arg>", [&contentBodyList](const QUrl &url,const QHttpServerRequest &request)
@@ -153,7 +111,7 @@ void HttpServerSubscriber::setContentGet(QString input)
 void HttpServerSubscriber::setContentSubscribe(QString input)
 {
     qDebug() <<Q_FUNC_INFO;
-    this->contentSubscribe=input;
+    this->subscribeResponseContent=input;
 }
 
 int HttpServerSubscriber::setContentBody(QMap<QString,QString> input )
