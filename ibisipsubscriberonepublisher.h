@@ -57,8 +57,10 @@ private slots:
     void slotHttpRequestUnsubscriptionFinished();
 signals:
     void signalSubscriptionSuccessful(QZeroConfService zcs);
+    void signalIsSubscriptionSuccesful(bool result);
     void signalUnsubscriptionSuccessful(QZeroConfService zcs);
     void signalIsUnsubscriptionSuccesful(bool result);
+
 
 };
 

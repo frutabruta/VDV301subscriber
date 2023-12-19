@@ -246,14 +246,49 @@ void IbisIpSubscriberOnePublisher::slotHttpRequestSubscriptionFinished()
 
     QByteArray bts = reply->readAll();
     QString str(bts);
-    qDebug()<<"odpoved na subscribe:"<<str;
+    qDebug()<<"subscribe response:"<<str;
 
-    subscribedService=subscribeServiceCandidate;
+    if(reply->error()!=QNetworkReply::NoError)
+    {
+        qDebug()<<reply->errorString();
+        emit signalIsSubscriptionSuccesful(false);
+        return;
+    }
 
-    this->isSubscriptionActive=true;
+    QDomDocument qDomResponse;
+    bool setContentResult=false;
+    if(qDomResponse.setContent(str))
+    {
+        setContentResult=true;
+    }
+
+
+
+    if(setContentResult)
+    {
+        QString subscriptionResult=qDomResponse.elementsByTagName("Active").at(0).firstChildElement("Value").firstChild().nodeValue();
+        qDebug()<<"subscription result: "<<subscriptionResult;
+        if((subscriptionResult=="true")||(subscriptionResult=="True"))
+        {
+            subscribedService=subscribeServiceCandidate;
+            this->isSubscriptionActive=true;
+            emit signalIsSubscriptionSuccesful(true);
+            emit signalSubscriptionSuccessful(subscribedService);
+        }
+        else
+        {
+            qDebug()<<"unsubscription failed";
+            emit signalIsSubscriptionSuccesful(false);
+        }
+    }
+    else
+    {
+        emit signalIsSubscriptionSuccesful(false);
+    }
+
+
     reply->deleteLater();
     //reply = nullptr;
-    emit signalSubscriptionSuccessful(subscribedService);
 }
 
 
@@ -265,6 +300,14 @@ void IbisIpSubscriberOnePublisher::slotHttpRequestUnsubscriptionFinished()
     QString str(bts);
     qDebug()<<"unsusbscription response:";
     qDebug().noquote()<<str;
+
+    if(reply->error()!=QNetworkReply::NoError)
+    {
+        qDebug()<<reply->errorString();
+        emit signalIsUnsubscriptionSuccesful(false);
+        reply->deleteLater();
+        return;
+    }
 
     // subscribedService=subscribeServiceCandidate;
     QDomDocument qDomResponse;

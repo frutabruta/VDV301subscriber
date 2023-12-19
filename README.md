@@ -6,6 +6,9 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog # 
+- 2023_12_19_1138
+    - subscription in now only accepted if Active=true in Subscription response
+    - check for errors in http response in Subscribe and Unsubscribe
 - 2023_12_19
     - new signal signalIsUnsubscriptionSuccesful
     - unsubscription in now only accepted if Active=true in Unsubscription response
@@ -21,10 +24,6 @@ Qt C++ library to be used in VDV301 subscriber devices
         - new function  IbisIpSubscriberOnePublisher::unsubscribe
         - new slot IbisIpSubscriberOnePublisher::slotHttpRequestUnsubscriptionFinished()
         - slotHttpFinished() renamed to slotHttpRequestSubscriptionFinished()
-
-
-
-
 
 - 2023_11_20
     - HttpServerSubscriber port now changes correctly when IbisIpSubscriberOnePublisher::setPortNumber is called
