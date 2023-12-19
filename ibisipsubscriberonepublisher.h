@@ -58,6 +58,7 @@ private slots:
 signals:
     void signalSubscriptionSuccessful(QZeroConfService zcs);
     void signalUnsubscriptionSuccessful(QZeroConfService zcs);
+    void signalIsUnsubscriptionSuccesful(bool result);
 
 };
 

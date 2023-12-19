@@ -6,6 +6,9 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog # 
+- 2023_12_19
+    - new signal signalIsUnsubscriptionSuccesful
+    - unsubscription in now only accepted if Active=true in Unsubscription response
 - 2023_12_14
     - HttpServerSubscriber
         - removed options from HttpServerSubscriber::route which were copied from VDV301publisher

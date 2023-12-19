@@ -263,14 +263,45 @@ void IbisIpSubscriberOnePublisher::slotHttpRequestUnsubscriptionFinished()
 
     QByteArray bts = reply->readAll();
     QString str(bts);
-    qDebug()<<"odpoved na subscribe:"<<str;
+    qDebug()<<"unsusbscription response:";
+    qDebug().noquote()<<str;
 
     // subscribedService=subscribeServiceCandidate;
+    QDomDocument qDomResponse;
+    bool setContentResult=false;
 
-    this->isSubscriptionActive=false;
+    if(qDomResponse.setContent(str))
+    {
+        setContentResult=true;
+    }
+
+
+    if(setContentResult)
+    {
+        QString unsubscriptionResult=qDomResponse.elementsByTagName("Active").at(0).firstChildElement("Value").firstChild().nodeValue();
+        qDebug()<<"unsubscription result: "<<unsubscriptionResult;
+        if((unsubscriptionResult=="true")||(unsubscriptionResult=="True"))
+        {
+            this->isSubscriptionActive=false;
+            emit signalIsUnsubscriptionSuccesful(true);
+            emit signalUnsubscriptionSuccessful(subscribedService);
+        }
+        else
+        {
+            qDebug()<<"unsubscription failed";
+            emit signalIsUnsubscriptionSuccesful(false);
+        }
+    }
+    else
+    {
+        emit signalIsUnsubscriptionSuccesful(false);
+    }
+
+
+
     reply->deleteLater();
     //reply = nullptr;
-    emit signalUnsubscriptionSuccessful(subscribedService);
+
 
 }
 
