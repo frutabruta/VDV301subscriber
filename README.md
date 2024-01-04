@@ -6,6 +6,9 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog # 
+- 2024_01_04
+    - fixed expected unsubscription response
+        - unsubscription in now only accepted if Active=false in Unsubscription response
 - 2023_12_19_1138
     - subscription in now only accepted if Active=true in Subscription response
     - check for errors in http response in Subscribe and Unsubscribe

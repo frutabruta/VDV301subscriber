@@ -323,7 +323,7 @@ void IbisIpSubscriberOnePublisher::slotHttpRequestUnsubscriptionFinished()
     {
         QString unsubscriptionResult=qDomResponse.elementsByTagName("Active").at(0).firstChildElement("Value").firstChild().nodeValue();
         qDebug()<<"unsubscription result: "<<unsubscriptionResult;
-        if((unsubscriptionResult=="true")||(unsubscriptionResult=="True"))
+        if((unsubscriptionResult=="false")||(unsubscriptionResult=="False"))
         {
             this->isSubscriptionActive=false;
             emit signalIsUnsubscriptionSuccesful(true);
