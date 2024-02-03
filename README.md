@@ -6,6 +6,41 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog # 
+- 2024_02_04
+    - DevMgmtPublisherStruct
+        - added variable *status*
+        - added variable *isSubscriptionActive*
+    - DevMgmtSubscriber
+        - changed into base class for *DevMgmtSubscriber1* and *DevMgmtSubscriber1*, due to necessity to define function *allConnects* separately
+        - new functions
+            - *getStatus*
+            - *deviceInformationToDevice*
+            - *deviceConfigurationToDevice*
+            - *deviceStatusToDevice*
+        - removed function
+            - *allConnects()* (moved to *DevMgmtSubscriber1*)
+        - functions modified
+            - *slotRequestReceived* simplified
+        - added *start* to the constructor
+
+    - DevMgmtSubscriber1
+        - new class, inherits from *DevMgmtSubscriber*
+        - based on DeviceManagementService 1.0
+        - supports only *Get*  operations
+    - DevMgmtSubscriber2
+        - new class, inherits from *DevMgmtSubscriber*
+        - supports Subscribe operations on *DeviceStatus*
+        - based on DeviceManagementService 2.2
+        - matches received status to devices by IP address
+    - HttpServerSubscriber
+        - new class *HttpServerRequest*
+        - new signal *signalWholeRequest*
+            - includes IP adress and port of the request sender
+        - *HttpServerSubscriber::route* modified to send *signalWholeRequest*
+    -IbisIpSubscriber
+        - new function *start*
+        - added getter and setter for *mPortNumber
+
 - 2024_01_04
     - fixed expected unsubscription response
         - unsubscription in now only accepted if Active=false in Unsubscription response

@@ -41,6 +41,9 @@ public:
     bool isIpSet() const;
     void setIsIpSet(bool newIsIpSet);
 
+    void start();
+    int portNumber() const;
+    void setPortNumber(int newPortNumber);
 private:
 
     void allConnects();

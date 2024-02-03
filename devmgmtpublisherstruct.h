@@ -19,8 +19,11 @@ public:
     QString swVersion;
     QString manufacturer;
     QString serialNumber;
+    QString status;
 
     bool hwConfig=false;
+
+    bool isSubscriptionActive=false;
 
 
 

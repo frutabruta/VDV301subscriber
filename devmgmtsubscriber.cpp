@@ -5,8 +5,9 @@ DevMgmtSubscriber::DevMgmtSubscriber(QString serviceName, QString structureName,
 {
     qDebug()<<Q_FUNC_INFO;
 
-    allConnects();    
+    //allConnects();
     findServices(mServiceType,1);
+    start();
 }
 
 DevMgmtSubscriber::~DevMgmtSubscriber()
@@ -16,18 +17,9 @@ DevMgmtSubscriber::~DevMgmtSubscriber()
     //  this->disconnect();
 }
 
-void DevMgmtSubscriber::allConnects()
-{
-    qDebug()<<Q_FUNC_INFO;
-    connect(&zeroConf, &QZeroConf::serviceAdded, this, &DevMgmtSubscriber::slotNewDnsSd);
-   // connect(&zeroConf, &QZeroConf::serviceUpdated, this, &DevMgmtSubscriber::slotNewDnsSd);
-    connect(&zeroConf, &QZeroConf::serviceRemoved, this, &DevMgmtSubscriber::slotRemoveDnsSd);
-    connect(&manager,&QNetworkAccessManager::finished,this,&DevMgmtSubscriber::slotRequestReceived);
-    connect(this,&DevMgmtSubscriber::downloadFinished,this,&DevMgmtSubscriber::slotHandleData);
-
-}
 
 
+//unused
 bool DevMgmtSubscriber::getDeviceInformation(QZeroConfService zcs)
 {
 
@@ -99,48 +91,39 @@ QByteArray DevMgmtSubscriber::slotRequestReceived(QNetworkReply* reply)
     emit downloadFinished(textData);
 
 
-    DevMgmtPublisherStruct zarizeni;
+    DevMgmtPublisherStruct devicePlaceholder;
 
-    QDomDocument dokument;
-    dokument.setContent(textData);
+    QDomDocument domDocument;
+    domDocument.setContent(textData);
 
     //   zarizeni.adresa=QHostAddress("192.168.0.131");//reply->request().url()
-    zarizeni.hostAddress=QHostAddress( reply->request().url().host());
-    zarizeni.portNumber=reply->request().url().port();
+    devicePlaceholder.hostAddress=QHostAddress( reply->request().url().host());
+    devicePlaceholder.portNumber=reply->request().url().port();
+    reply->deleteLater();
 
+    int index=deviceListDetected.indexOf(devicePlaceholder);
 
-    int index=deviceListDetected.indexOf(zarizeni);
     if((index>=0)&&(index<deviceListDetected.count()))
     {
+        devicePlaceholder=deviceListDetected[index];
+        QString firstNodeName=domDocument.firstChildElement().nodeName();
 
-        if(dokument.firstChildElement().nodeName()=="DeviceManagementService.GetDeviceConfigurationResponse")
-        {
-            qDebug()<<"ano, hledam Configuration";
-            zarizeni.deviceId=dokument.elementsByTagName("DeviceID").at(0).firstChildElement("Value").firstChild().nodeValue();
-            deviceListDetected[index].deviceId=zarizeni.deviceId;
-            qDebug()<<"device id je: "<< zarizeni.deviceId<<" index na seznamu"<<index<<" adresa:"<<zarizeni.hostAddress<<" port:"<<zarizeni.portNumber;
+        if(firstNodeName=="DeviceManagementService.GetDeviceConfigurationResponse")
+        {     
+            deviceConfigurationToDevice(domDocument,devicePlaceholder);
+         }
+
+        else if(firstNodeName=="DeviceManagementService.GetDeviceInformationResponse")
+        {   
+            deviceInformationToDevice(domDocument,devicePlaceholder);
         }
 
-        else if(dokument.firstChildElement().nodeName()=="DeviceManagementService.GetDeviceInformationResponse")
+        else if(firstNodeName=="DeviceManagementService.GetDeviceStatusResponse")
         {
-            qDebug()<<"ano, hledam Information ";
-
-            zarizeni.deviceClass=dokument.elementsByTagName("DeviceClass").at(0).firstChild().nodeValue();
-            zarizeni.deviceName=dokument.elementsByTagName("DeviceName").at(0).firstChildElement("Value").firstChild().nodeValue();
-            zarizeni.manufacturer=dokument.elementsByTagName("Manufacturer").at(0).firstChildElement("Value").firstChild().nodeValue();
-            zarizeni.serialNumber=dokument.elementsByTagName("SerialNumber").at(0).firstChildElement("Value").firstChild().nodeValue();
-            zarizeni.swVersion=getVersion(dokument,"SwVersion");
-
-            deviceListDetected[index].deviceClass=zarizeni.deviceClass;
-            deviceListDetected[index].deviceName=zarizeni.deviceName;
-            deviceListDetected[index].manufacturer=zarizeni.manufacturer;
-            deviceListDetected[index].serialNumber=zarizeni.serialNumber;
-            deviceListDetected[index].swVersion=zarizeni.swVersion;
-            qDebug()<<"device class je: "<< zarizeni.deviceClass<<" verze: "<<zarizeni.swVersion<<" index na seznamu"<<index<<" adresa:"<<zarizeni.hostAddress<<" port:"<<zarizeni.portNumber;
-
+            deviceStatusToDevice(domDocument,devicePlaceholder);
         }
 
-
+        deviceListDetected[index]=devicePlaceholder;
         //  if(seznamZarizeniDetekce[index])
         if((!deviceListDetected[index].deviceId.isEmpty())&&(!deviceListDetected[index].deviceClass.isEmpty()))
         {
@@ -164,6 +147,28 @@ QByteArray DevMgmtSubscriber::slotRequestReceived(QNetworkReply* reply)
 
 
     return rawData;
+}
+
+
+void DevMgmtSubscriber::deviceInformationToDevice(QDomDocument &domDocument, DevMgmtPublisherStruct &device)
+{
+    device.deviceClass=domDocument.elementsByTagName("DeviceClass").at(0).firstChild().nodeValue();
+    device.deviceName=domDocument.elementsByTagName("DeviceName").at(0).firstChildElement("Value").firstChild().nodeValue();
+    device.manufacturer=domDocument.elementsByTagName("Manufacturer").at(0).firstChildElement("Value").firstChild().nodeValue();
+    device.serialNumber=domDocument.elementsByTagName("SerialNumber").at(0).firstChildElement("Value").firstChild().nodeValue();
+    device.swVersion=getVersion(domDocument,"SwVersion");
+}
+
+void DevMgmtSubscriber::deviceConfigurationToDevice(QDomDocument &domDocument, DevMgmtPublisherStruct &device)
+{
+     device.deviceId=domDocument.elementsByTagName("DeviceID").at(0).firstChildElement("Value").firstChild().nodeValue();
+}
+
+
+void DevMgmtSubscriber::deviceStatusToDevice(QDomDocument &domDocument, DevMgmtPublisherStruct &device)
+{
+    device.status=domDocument.elementsByTagName("DeviceState").at(0).firstChild().nodeValue();
+
 }
 
 void DevMgmtSubscriber::slotHandleData(QString input)
