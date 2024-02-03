@@ -48,7 +48,15 @@ int HttpServerSubscriber::route(QString &getRequestContent,  QMap<QString,QStrin
 
     httpServer.route("/", [this](const QHttpServerRequest &request)
     {
-        emit signalDataReceived(request.body());
+
+        HttpServerRequest requestReturnValue;
+        requestReturnValue.body=request.body();
+        requestReturnValue.hostAddress=request.remoteAddress();
+        requestReturnValue.port=request.remotePort();
+
+        emit signalDataReceived(requestReturnValue.body);
+        emit signalWholeRequest(requestReturnValue);
+
         QString okResponse="HTTP/1.1 200 OK";
         //return this->obsahRoot;
         return "";

@@ -11,10 +11,32 @@ IbisIpSubscriber::IbisIpSubscriber(QString serviceName,QString structureName,QSt
     mVersion=version;
     deviceAddress=selectNonLoopbackAddress();
 
-    allConnects();
+   // allConnects();
        // this->projedAdresy();
 
 }
+
+
+int IbisIpSubscriber::portNumber() const
+{
+
+    return httpServerSubscriber.portNumber();
+}
+
+void IbisIpSubscriber::setPortNumber(int newPortNumber)
+{
+    httpServerSubscriber.setPortNumber(newPortNumber);
+}
+
+
+void IbisIpSubscriber::start()
+{
+    qDebug()<<Q_FUNC_INFO;
+
+    httpServerSubscriber.start();
+    allConnects();
+}
+
 
 void IbisIpSubscriber::allConnects()
 {

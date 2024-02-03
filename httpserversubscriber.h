@@ -6,6 +6,14 @@
 
 #include <QtHttpServer>
 
+class HttpServerRequest
+{
+public:
+    QByteArray body="";
+    QHostAddress hostAddress;
+    quint16 port=0;
+};
+
 class HttpServerSubscriber: public QObject
 {
     Q_OBJECT
@@ -40,6 +48,7 @@ private:
 signals:
     void signalContentChanged(QByteArray vysledek,QString struktura) ;
     void signalDataReceived(QString vysledek) ;
+    void signalWholeRequest(const HttpServerRequest request);
     //void zmenaObsahu() ;
 };
 
