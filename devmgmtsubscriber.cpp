@@ -109,18 +109,18 @@ QByteArray DevMgmtSubscriber::slotRequestReceived(QNetworkReply* reply)
         QString firstNodeName=domDocument.firstChildElement().nodeName();
 
         if(firstNodeName=="DeviceManagementService.GetDeviceConfigurationResponse")
-        {     
-            deviceConfigurationToDevice(domDocument,devicePlaceholder);
+        {
+            xmlParserSubscriber.deviceConfigurationToDevice(domDocument,devicePlaceholder);
          }
 
         else if(firstNodeName=="DeviceManagementService.GetDeviceInformationResponse")
         {   
-            deviceInformationToDevice(domDocument,devicePlaceholder);
+            xmlParserSubscriber.deviceInformationToDevice(domDocument,devicePlaceholder);
         }
 
         else if(firstNodeName=="DeviceManagementService.GetDeviceStatusResponse")
         {
-            deviceStatusToDevice(domDocument,devicePlaceholder);
+            xmlParserSubscriber.deviceStatusToDevice(domDocument,devicePlaceholder);
         }
 
         deviceListDetected[index]=devicePlaceholder;
@@ -150,26 +150,7 @@ QByteArray DevMgmtSubscriber::slotRequestReceived(QNetworkReply* reply)
 }
 
 
-void DevMgmtSubscriber::deviceInformationToDevice(QDomDocument &domDocument, DevMgmtPublisherStruct &device)
-{
-    device.deviceClass=domDocument.elementsByTagName("DeviceClass").at(0).firstChild().nodeValue();
-    device.deviceName=domDocument.elementsByTagName("DeviceName").at(0).firstChildElement("Value").firstChild().nodeValue();
-    device.manufacturer=domDocument.elementsByTagName("Manufacturer").at(0).firstChildElement("Value").firstChild().nodeValue();
-    device.serialNumber=domDocument.elementsByTagName("SerialNumber").at(0).firstChildElement("Value").firstChild().nodeValue();
-    device.swVersion=getVersion(domDocument,"SwVersion");
-}
 
-void DevMgmtSubscriber::deviceConfigurationToDevice(QDomDocument &domDocument, DevMgmtPublisherStruct &device)
-{
-     device.deviceId=domDocument.elementsByTagName("DeviceID").at(0).firstChildElement("Value").firstChild().nodeValue();
-}
-
-
-void DevMgmtSubscriber::deviceStatusToDevice(QDomDocument &domDocument, DevMgmtPublisherStruct &device)
-{
-    device.status=domDocument.elementsByTagName("DeviceState").at(0).firstChild().nodeValue();
-
-}
 
 void DevMgmtSubscriber::slotHandleData(QString input)
 {
@@ -178,25 +159,7 @@ void DevMgmtSubscriber::slotHandleData(QString input)
 }
 
 
-QString DevMgmtSubscriber::getVersion(QDomDocument document, QString element)
-{
-    QString vysledek="";
-    QDomNodeList seznamElementu = document.elementsByTagName("DataVersion");
 
-    for (int i=0;i<seznamElementu.count();i++)
-    {
-        QString tagName=seznamElementu.at(i).toElement().firstChildElement("DataType").firstChildElement("Value").firstChild().nodeValue();
-        if(tagName==element)
-        {
-            vysledek=seznamElementu.at(i).toElement().firstChildElement("VersionRef").firstChildElement("Value").firstChild().nodeValue();
-            return vysledek;
-        }
-
-
-    }
-
-    return vysledek;
-}
 
 
 
@@ -288,4 +251,80 @@ void DevMgmtSubscriber::slotRemoveDnsSd(QZeroConfService zcs)
 
 
     emit signalUpdateDeviceList();
+}
+
+
+void DevMgmtSubscriber::postSetDeviceConfiguration(QUrl subscriberAddress, QString deviceId)
+{
+    qDebug() <<  Q_FUNC_INFO;
+    QDomDocument xmlDocument;
+    QString postRequestContent=xmlGeneratorSubscriber.setDeviceConfigurationRequest(xmlDocument,deviceId).toString();
+    qDebug().noquote()<<"posting to address: "<<subscriberAddress<<" "<<postRequestContent;
+
+    QNetworkRequest postRequest(subscriberAddress);
+
+
+    // https://stackoverflow.com/a/53556560
+
+    postRequest.setTransferTimeout(30000);
+    postRequest.setRawHeader("Content-Type", "text/xml");
+    //postRequest.setRawHeader("Expect", "100-continue");
+    //postRequest.setRawHeader("Connection", "keep-Alive");
+    //postRequest.setRawHeader("Accept-Encoding", "gzip, deflate");
+
+    QByteArray postRequestContentQByteArray=postRequestContent.toUtf8() ;
+
+    reply=postManager.post(postRequest,postRequestContentQByteArray);
+    connect(reply, &QNetworkReply::finished, this, &DevMgmtSubscriber::slotSetSetDeviceConfigurationFinished);
+
+}
+
+void DevMgmtSubscriber::slotSetSetDeviceConfigurationFinished()
+{
+    qDebug() <<  Q_FUNC_INFO;
+
+    QByteArray bts = reply->readAll();
+    QString str(bts);
+    qDebug()<<"subscribe response:"<<str;
+
+    if(reply->error()!=QNetworkReply::NoError)
+    {
+        qDebug()<<reply->errorString();
+      //  emit signalIsSubscriptionSuccesful2(false);
+        return;
+    }
+
+    QDomDocument qDomResponse;
+    bool setContentResult=false;
+    if(qDomResponse.setContent(str))
+    {
+        setContentResult=true;
+    }
+
+
+
+    if(setContentResult)
+    {
+        QString subscriptionResult=qDomResponse.elementsByTagName("Active").at(0).firstChildElement("Value").firstChild().nodeValue();
+        qDebug()<<"subscription result: "<<subscriptionResult;
+        if((subscriptionResult=="true")||(subscriptionResult=="True"))
+        {
+
+      //      emit signalIsSubscriptionSuccesful2(true);
+
+        }
+        else
+        {
+            qDebug()<<"unsubscription failed";
+      //      emit signalIsSubscriptionSuccesful2(false);
+        }
+    }
+    else
+    {
+     //   emit signalIsSubscriptionSuccesful2(false);
+    }
+
+
+    reply->deleteLater();
+    //reply = nullptr;
 }

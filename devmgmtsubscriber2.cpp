@@ -22,8 +22,6 @@ void DevMgmtSubscriber2::allConnects()
     connect(&httpServerSubscriber ,&HttpServerSubscriber::signalDataReceived,this,&DevMgmtSubscriber2::slotHandleReceivedData) ;
     connect(&httpServerSubscriber ,&HttpServerSubscriber::signalWholeRequest,this,&DevMgmtSubscriber2::slotHandleWholeRequest) ;
 
-
-
 }
 
 void DevMgmtSubscriber2::slotNewDnsSd(QZeroConfService zcs)
@@ -32,8 +30,6 @@ void DevMgmtSubscriber2::slotNewDnsSd(QZeroConfService zcs)
 
     DevMgmtPublisherStruct newDevice;
     newDevice.serviceName=zcs->name();
-
-
 
     //   if(newDevice.serviceName.contains("DeviceManagementService"))
     if(isTheServiceRequestedOne(mServiceName,mVersion,zcs))
@@ -47,7 +43,6 @@ void DevMgmtSubscriber2::slotNewDnsSd(QZeroConfService zcs)
         newDevice.ibisIpVersion=zcs.data()->txt().value("ver");
 
 
-
         if(!deviceListDetected.contains(newDevice))
         {
             qDebug()<<"DP2";
@@ -55,12 +50,7 @@ void DevMgmtSubscriber2::slotNewDnsSd(QZeroConfService zcs)
             getDeviceConfiguration(newDevice);
             getDeviceInformation(newDevice);
 
-
             qDebug()<<"DP5";
-
-
-
-
 
             qDebug()<<"sending subscribe request to  "<<newDevice.hostAddress<<":"<<QString::number(newDevice.portNumber)<<" service "<<zcs->name();
 
@@ -150,7 +140,7 @@ void DevMgmtSubscriber2::slotHttpRequestSubscriptionFinished()
     if(reply->error()!=QNetworkReply::NoError)
     {
         qDebug()<<reply->errorString();
-        emit signalIsSubscriptionSuccesful2(false);
+        emit signalIsSubscriptionSuccessful2(false);
         return;
     }
 
@@ -161,8 +151,6 @@ void DevMgmtSubscriber2::slotHttpRequestSubscriptionFinished()
         setContentResult=true;
     }
 
-
-
     if(setContentResult)
     {
         QString subscriptionResult=qDomResponse.elementsByTagName("Active").at(0).firstChildElement("Value").firstChild().nodeValue();
@@ -171,18 +159,18 @@ void DevMgmtSubscriber2::slotHttpRequestSubscriptionFinished()
         {
             // subscribedService=subscribeServiceCandidate;
             //   this->isSubscriptionActive=true;
-            emit signalIsSubscriptionSuccesful2(true);
+            emit signalIsSubscriptionSuccessful2(true);
             //  emit signalSubscriptionSuccessful(subscribedService);
         }
         else
         {
             qDebug()<<"unsubscription failed";
-            emit signalIsSubscriptionSuccesful2(false);
+            emit signalIsSubscriptionSuccessful2(false);
         }
     }
     else
     {
-        emit signalIsSubscriptionSuccesful2(false);
+        emit signalIsSubscriptionSuccessful2(false);
     }
 
 
@@ -204,7 +192,7 @@ void DevMgmtSubscriber2::slotHttpRequestUnsubscriptionFinished()
     if(reply->error()!=QNetworkReply::NoError)
     {
         qDebug()<<reply->errorString();
-        emit signalIsUnsubscriptionSuccesful(false);
+        emit signalIsUnsubscriptionSuccessful(false);
         reply->deleteLater();
         return;
     }
@@ -225,27 +213,21 @@ void DevMgmtSubscriber2::slotHttpRequestUnsubscriptionFinished()
         qDebug()<<"unsubscription result: "<<unsubscriptionResult;
         if((unsubscriptionResult=="false")||(unsubscriptionResult=="False"))
         {
-            //    this->isSubscriptionActive=false;
-            emit signalIsUnsubscriptionSuccesful(true);
+            emit signalIsUnsubscriptionSuccessful(true);
             //    emit signalUnsubscriptionSuccessful(subscribedService);
         }
         else
         {
             qDebug()<<"unsubscription failed";
-            emit signalIsUnsubscriptionSuccesful(false);
+            emit signalIsUnsubscriptionSuccessful(false);
         }
     }
     else
     {
-        emit signalIsUnsubscriptionSuccesful(false);
+        emit signalIsUnsubscriptionSuccessful(false);
     }
 
-
-
     reply->deleteLater();
-    //reply = nullptr;
-
-
 }
 
 void DevMgmtSubscriber2::slotHandleReceivedData(QString receivedData)
@@ -255,11 +237,6 @@ void DevMgmtSubscriber2::slotHandleReceivedData(QString receivedData)
     QDomDocument xmlrequest;
     xmlrequest.setContent(receivedData);
     //   timerHeartbeatCheck.start(heartbeatCheckInterval);
-
-
-
-
-
 
     emit signalDataReceived(receivedData);
 }
@@ -283,7 +260,6 @@ void DevMgmtSubscriber2::slotHandleWholeRequest(HttpServerRequest receivedData)
 
    // int index=deviceListDetected.indexOf(devicePlaceholder);
     int index=indexOfSubscriberOnListByIp(deviceListDetected,devicePlaceholder.hostAddress);
-   // index=0;
 
     if((index>=0)&&(index<deviceListDetected.count()))
     {
@@ -292,17 +268,17 @@ void DevMgmtSubscriber2::slotHandleWholeRequest(HttpServerRequest receivedData)
         QString firstNodeName=domDocument.firstChildElement().nodeName();
         if(firstNodeName=="DeviceManagementService.GetDeviceConfigurationResponse")
         {
-            deviceConfigurationToDevice(domDocument,devicePlaceholder);
+            xmlParserSubscriber.deviceConfigurationToDevice(domDocument,devicePlaceholder);
         }
 
         else if(firstNodeName=="DeviceManagementService.GetDeviceInformationResponse")
         {
-            deviceInformationToDevice(domDocument,devicePlaceholder);
+            xmlParserSubscriber.deviceInformationToDevice(domDocument,devicePlaceholder);
 
         }
         else if(firstNodeName=="DeviceManagementService.GetDeviceStatusResponse")
         {
-            deviceStatusToDevice(domDocument,devicePlaceholder);
+            xmlParserSubscriber.deviceStatusToDevice(domDocument,devicePlaceholder);
         }
 
         deviceListDetected[index]=devicePlaceholder;
@@ -311,12 +287,6 @@ void DevMgmtSubscriber2::slotHandleWholeRequest(HttpServerRequest receivedData)
 
 
      emit signalUpdateDeviceList();
-
-
-
-
-    // emit signalDataReceived(receivedData);
-
 }
 
 

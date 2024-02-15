@@ -22,9 +22,9 @@ private:
     int indexOfSubscriberOnListByIp(QVector<DevMgmtPublisherStruct> deviceList, QHostAddress hostAddress);
 signals:
     void signalSubscriptionSuccessful(QZeroConfService zcs);
-    void signalIsSubscriptionSuccesful2(bool result);
+    void signalIsSubscriptionSuccessful2(bool result);
     void signalUnsubscriptionSuccessful(QZeroConfService zcs);
-    void signalIsUnsubscriptionSuccesful(bool result);
+    void signalIsUnsubscriptionSuccessful(bool result);
 
 };
 

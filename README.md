@@ -6,6 +6,22 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog # 
+- 2024_02_15
+    - new class XmlParserSubscriber
+        - functions moved from DevMgmtSubscriber
+            - *deviceInformationToDevice*
+            - *deviceConfigurationToDevice*
+            - *deviceStatusToDevice*
+    - new class XmlGeneratorSubscriber
+        -
+    - DevMgmtSubscriber
+        - new function *postSetDeviceConfiguration*
+        - new slot *slotSetSetDeviceConfigurationFinished*
+    - DevMgmtSubscriber2
+        - *signalIsUnsubscriptionSuccesful* renamed to *signalIsUnsubscriptionSuccessful*
+        - *signalIsSubscriptionSuccesful2* renamed to *signalIsSubscriptionSuccessful2*
+        
+
 - 2024_02_04
     - DevMgmtPublisherStruct
         - added variable *status*

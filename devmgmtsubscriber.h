@@ -2,6 +2,8 @@
 #define DEVMGMTSUBSCRIBER_H
 #include "ibisipsubscriber.h"
 #include "devmgmtpublisherstruct.h"
+#include "xmlgeneratorsubscriber.h"
+#include "xmlparsersubscriber.h"
 
 class DevMgmtSubscriber : public IbisIpSubscriber
 {
@@ -14,6 +16,9 @@ public:
     ~DevMgmtSubscriber();
 
     QNetworkAccessManager manager ;
+    
+    XmlGeneratorSubscriber xmlGeneratorSubscriber;
+    XmlParserSubscriber xmlParserSubscriber;
 
     //promenne
     QVector<DevMgmtPublisherStruct> deviceListDetected;
@@ -28,10 +33,14 @@ public:
 
     bool getDeviceInformation(DevMgmtPublisherStruct &device);
     bool getDeviceConfiguration(DevMgmtPublisherStruct &device);
+    void postSetDeviceConfiguration(QUrl subscriberAddress, QString deviceId);
+    void slotSetSetDeviceConfigurationFinished();
 protected:
+    /*
     void deviceInformationToDevice(QDomDocument &domDocument, DevMgmtPublisherStruct &device);
     void deviceConfigurationToDevice(QDomDocument &domDocument, DevMgmtPublisherStruct &device);
     void deviceStatusToDevice(QDomDocument &domDocument, DevMgmtPublisherStruct &device);
+*/
 private:
 
 
