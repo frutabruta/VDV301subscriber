@@ -4,6 +4,7 @@
 #include "ibisipsubscriber.h"
 
 
+
 class IbisIpSubscriberOnePublisher : public IbisIpSubscriber
 {
     Q_OBJECT
@@ -24,6 +25,7 @@ public:
 
     QZeroConfService subscribedService;
     QZeroConfService subscribeServiceCandidate;
+
 
     //funkce
 

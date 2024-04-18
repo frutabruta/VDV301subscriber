@@ -38,8 +38,6 @@ QString XmlParserSubscriber::getVersion(QDomDocument document, QString element)
             vysledek=seznamElementu.at(i).toElement().firstChildElement("VersionRef").firstChildElement("Value").firstChild().nodeValue();
             return vysledek;
         }
-
-
     }
 
     return vysledek;

@@ -4,16 +4,12 @@
 IbisIpSubscriber::IbisIpSubscriber(QString serviceName,QString structureName,QString version,QString serviceType, int portNumber) : httpServerSubscriber (portNumber)
 {
     qDebug() <<  Q_FUNC_INFO;
-  //  mPortNumber=portNumber;
+
     mServiceName=serviceName;
     mServiceType=serviceType;
     mStructureName=structureName;
     mVersion=version;
     deviceAddress=selectNonLoopbackAddress();
-
-   // allConnects();
-       // this->projedAdresy();
-
 }
 
 
@@ -41,6 +37,16 @@ void IbisIpSubscriber::start()
 void IbisIpSubscriber::allConnects()
 {
 
+}
+
+int IbisIpSubscriber::subnetMask() const
+{
+    return mSubnetMask;
+}
+
+void IbisIpSubscriber::setSubnetMask(int newSubnetMask)
+{
+    mSubnetMask = newSubnetMask;
 }
 
 bool IbisIpSubscriber::isIpSet() const
@@ -140,7 +146,7 @@ int IbisIpSubscriber::isTheServiceRequestedOne(QString selectedServiceName,QStri
         }
         else
         {
-             qDebug()<<"1 requested version:"<<selectedVersion<<" found version:"<<testedVersion;
+            qDebug()<<"1 requested version:"<<selectedVersion<<" found version:"<<testedVersion;
             return 0;
         }
     }
@@ -148,47 +154,7 @@ int IbisIpSubscriber::isTheServiceRequestedOne(QString selectedServiceName,QStri
     return 0;
 }
 
-QString IbisIpSubscriber::createSubscribeRequest(QHostAddress clientIpAddress, int port)
-{
-    QDomDocument xmlDocument;
-    QDomProcessingInstruction dProcessingInformation=xmlDocument.createProcessingInstruction("xml","version=\"1.0\" encoding=\"utf-8\" ");
-    xmlDocument.appendChild(dProcessingInformation);
-    QDomElement dSubscribeRequest =xmlDocument.createElement("SubscribeRequest");
-    xmlDocument.appendChild(dSubscribeRequest);
-    QDomElement dClientIPAddress=xmlDocument.createElement("Client-IP-Address");
-    QDomElement dIpValue=xmlDocument.createElement("Value");
-    dIpValue.appendChild(xmlDocument.createTextNode(clientIpAddress.toString()));
-    dClientIPAddress.appendChild(dIpValue);
-    dSubscribeRequest.appendChild(dClientIPAddress);
-    QDomElement dReplyPort=xmlDocument.createElement("ReplyPort");
-    QDomElement dPortValue=xmlDocument.createElement("Value");
-    dPortValue.appendChild(xmlDocument.createTextNode(QString::number(port)));
-    dReplyPort.appendChild(dPortValue);
-    dSubscribeRequest.appendChild(dReplyPort);
 
-    return xmlDocument.toString();
-}
-
-QString IbisIpSubscriber::createUnsubscribeRequest(QHostAddress clientIpAddress, int port)
-{
-    QDomDocument xmlDocument;
-    QDomProcessingInstruction dProcessingInformation=xmlDocument.createProcessingInstruction("xml","version=\"1.0\" encoding=\"utf-8\" ");
-    xmlDocument.appendChild(dProcessingInformation);
-    QDomElement dSubscribeRequest =xmlDocument.createElement("UnsubscribeRequest");
-    xmlDocument.appendChild(dSubscribeRequest);
-    QDomElement dClientIPAddress=xmlDocument.createElement("Client-IP-Address");
-    QDomElement dIpValue=xmlDocument.createElement("Value");
-    dIpValue.appendChild(xmlDocument.createTextNode(clientIpAddress.toString()));
-    dClientIPAddress.appendChild(dIpValue);
-    dSubscribeRequest.appendChild(dClientIPAddress);
-    QDomElement dReplyPort=xmlDocument.createElement("ReplyPort");
-    QDomElement dPortValue=xmlDocument.createElement("Value");
-    dPortValue.appendChild(xmlDocument.createTextNode(QString::number(port)));
-    dReplyPort.appendChild(dPortValue);
-    dSubscribeRequest.appendChild(dReplyPort);
-
-    return xmlDocument.toString();
-}
 
 /*
 POST /CustomerInformationService/SubscribeAllData HTTP/1.1
@@ -218,30 +184,6 @@ QHostAddress IbisIpSubscriber::selectNonLoopbackAddress()
 
 
 
-
-    /* int ipIndex=0;
-
-
-
-    for(int nIter=0; nIter<list.count(); nIter++)
-    {
-        qDebug() <<nIter<<" "<< list[nIter].toString();
-        if(!list[nIter].isLoopback())
-        {
-            if (list[nIter].protocol() == QAbstractSocket::IPv4Protocol )
-            {
-                qDebug() <<nIter<<" not loopback"<< list[nIter].toString();
-                if(ipSet==false)
-                {
-                    ipIndex=nIter;
-                    ipSet=true;
-                }
-            }
-        }
-    }
-
-*/
-
     foreach(QHostAddress selectedAddress, list)
     {
         qDebug() <<" "<<selectedAddress.toString();
@@ -259,9 +201,48 @@ QHostAddress IbisIpSubscriber::selectNonLoopbackAddress()
             }
         }
     }
+    return output;
+}
+
+QHostAddress IbisIpSubscriber::selectNonLoopbackAddressInSubnet(QHostAddress addressOfPublisher,int mask)
+{
+    qDebug() <<  Q_FUNC_INFO;
+    QList<QHostAddress> list = QNetworkInterface::allAddresses();
+    QHostAddress output;
+
+
+    bool isIpSet=false;
+
+    foreach(QHostAddress selectedAddress, list)
+    {
+        qDebug() <<" "<<selectedAddress.toString();
+        if(!selectedAddress.isLoopback())
+        {
+            if (selectedAddress.protocol() == QAbstractSocket::IPv4Protocol )
+            {
+                qDebug() <<" not loopback"<< selectedAddress.toString();
+                if(isIpSet==false)
+                {
+                    if(selectedAddress.isInSubnet(addressOfPublisher,mask))
+                    {
+                        qDebug()<<" address "<<selectedAddress<<" is in subnet of "<<addressOfPublisher;
+                        output=selectedAddress;
+                        isIpSet=true;
+                    }
+                    else
+                    {
+                        qDebug()<<" address "<<selectedAddress<<" is NOT in subnet of "<<addressOfPublisher;
+                    }
+
+
+                }
 
 
 
 
+
+            }
+        }
+    }
     return output;
 }

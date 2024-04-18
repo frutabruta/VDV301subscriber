@@ -201,11 +201,15 @@ void IbisIpSubscriberOnePublisher::slotAddService(QZeroConfService zcs)
                 QUrl subscriptionDestination=QUrl(addressComplete);
                 isCandidateSelected=true;
                 subscribeServiceCandidate=zcs;
+                /*
                 if(!isIpSet() )
                 {
-                    deviceAddress=selectNonLoopbackAddress();
-                }
-                postSubscribe(subscriptionDestination,this->createSubscribeRequest(deviceAddress,httpServerSubscriber.portNumber()));
+                    //deviceAddress=selectNonLoopbackAddress();
+                    deviceAddress=selectNonLoopbackAddressInSubnet(zcs->ip());
+                }*/
+
+                deviceAddress=selectNonLoopbackAddressInSubnet(zcs->ip(),mSubnetMask);
+                postSubscribe(subscriptionDestination,xmlGeneratorSubscriber.createSubscribeRequest(deviceAddress,httpServerSubscriber.portNumber()));
 
             }
             else
@@ -398,7 +402,7 @@ void IbisIpSubscriberOnePublisher::unsubscribe()
     QUrl subscriptionDestination=QUrl(addressComplete);
 
 
-    postUnsubscribe(subscriptionDestination,this->createUnsubscribeRequest(deviceAddress,httpServerSubscriber.portNumber()));
+    postUnsubscribe(subscriptionDestination,xmlGeneratorSubscriber.createUnsubscribeRequest(deviceAddress,httpServerSubscriber.portNumber()));
     isSubscriptionActive=false;
     isCandidateSelected=false;
 }

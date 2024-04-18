@@ -6,6 +6,17 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog # 
+- 2024_04_18
+    - functions moved from IbisIpSubscriber to XmlGeneratorSubscriber
+        - *createSubscribeRequest*
+        - *createUnsubscribeRequest*
+    - IbisIpSubscriber
+        - new variable *mSubnetMask* (default value 16)
+        - new function *selectNonLoopbackAddressInSubnet* to allow sending correct IP address in subscribe request to publishers in different networks when subscriber has more than one network interface.
+    - IbisIpSubscriberOnePublisher
+        - slotAddService 
+            - now contains *deviceAddress=selectNonLoopbackAddressInSubnet(zcs->ip(),mSubnetMask);*
+
 - 2024_02_15
     - new class XmlParserSubscriber
         - functions moved from DevMgmtSubscriber

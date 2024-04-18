@@ -6,7 +6,7 @@
 #include <QtXml>
 #include "httpserversubscriber.h"
 #include "QtZeroConf/qzeroconf.h"
-
+#include "xmlgeneratorsubscriber.h"
 class IbisIpSubscriber : public QObject
 {
     Q_OBJECT
@@ -17,7 +17,7 @@ public:
     IbisIpSubscriber(QString serviceName, QString structureName, QString version, QString serviceType, int portNumber);
 
     //instance knihoven
-
+    XmlGeneratorSubscriber xmlGeneratorSubscriber;
 
     //variables
     QVector<QZeroConfService> serviceList;
@@ -44,6 +44,10 @@ public:
     void start();
     int portNumber() const;
     void setPortNumber(int newPortNumber);
+    QHostAddress selectNonLoopbackAddressInSubnet(QHostAddress addressOfPublisher, int mask);
+    int subnetMask() const;
+    void setSubnetMask(int newSubnetMask);
+
 private:
 
     void allConnects();
@@ -64,6 +68,8 @@ protected:
     QString mVersion="";
 
     bool mIsIpSet=false;
+
+    int mSubnetMask=16;
 
     //funkce
     int isTheServiceRequestedOne(QString selectedServiceName,QString selectedVersion, QZeroConfService zcs);
