@@ -62,7 +62,7 @@ void DevMgmtSubscriber2::slotNewDnsSd(QZeroConfService zcs)
             {
                 deviceAddress=selectNonLoopbackAddress();
             }
-            postSubscribe(subscriptionDestination,this->createSubscribeRequest(deviceAddress,httpServerSubscriber.portNumber()));
+            postSubscribe(subscriptionDestination,xmlGeneratorSubscriber.createSubscribeRequest(deviceAddress,httpServerSubscriber.portNumber()));
             deviceListDetected.push_back(newDevice);
 
         }

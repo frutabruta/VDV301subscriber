@@ -14,6 +14,7 @@ public:
     void deviceConfigurationToDevice(QDomDocument &domDocument, DevMgmtPublisherStruct &device);
     void deviceStatusToDevice(QDomDocument &domDocument, DevMgmtPublisherStruct &device);
     QString getVersion(QDomDocument document, QString element);
+    bool dataAcceptedResponseToBoolean(QDomDocument &domDocument);
 };
 
 #endif // XMLPARSERSUBSCRIBER_H

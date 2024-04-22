@@ -20,6 +20,7 @@ void XmlParserSubscriber::deviceConfigurationToDevice(QDomDocument &domDocument,
 
 void XmlParserSubscriber::deviceStatusToDevice(QDomDocument &domDocument, DevMgmtPublisherStruct &device)
 {
+
     device.status=domDocument.elementsByTagName("DeviceState").at(0).firstChild().nodeValue();
 
 }
@@ -41,4 +42,15 @@ QString XmlParserSubscriber::getVersion(QDomDocument document, QString element)
     }
 
     return vysledek;
+}
+
+
+
+bool XmlParserSubscriber::dataAcceptedResponseToBoolean(QDomDocument &domDocument)
+{
+    if(domDocument.firstChildElement("DataAcceptedResponse").firstChildElement("DataAcceptedResponseData").firstChildElement("DataAccepted").firstChildElement("Value").text()=="true")
+    {
+        return true;
+    }
+    return false;
 }
