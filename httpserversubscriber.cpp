@@ -36,39 +36,43 @@ int HttpServerSubscriber::route(QString &getRequestContent,  QMap<QString,QStrin
 
     qDebug()<<"get request content="<<getRequestContent;
     httpServer.route("/CustomerInformationService/Get<arg>", [&contentBodyList](const QUrl &url,const QHttpServerRequest &request)
-    {
-        QString struktura= QStringLiteral("%1").arg(url.path());
-        qDebug()<<"argument "<<struktura;
+                     {
+                         QString struktura= QStringLiteral("%1").arg(url.path());
+                         qDebug()<<"argument "<<struktura;
 
-        qDebug()<<"request "<<"/CustomerInformationService/Get<arg>";
+                         qDebug()<<"request "<<"/CustomerInformationService/Get<arg>";
 
-        return contentBodyList.value(struktura);
+                         return contentBodyList.value(struktura);
 
-    });
+                     });
 
     httpServer.route("/", [this](const QHttpServerRequest &request)
-    {
+                     {
 
-        HttpServerRequest requestReturnValue;
-        requestReturnValue.body=request.body();
-        requestReturnValue.hostAddress=request.remoteAddress();
-        requestReturnValue.port=request.remotePort();
+                         HttpServerRequest requestReturnValue;
+                         requestReturnValue.body=request.body();
+                         requestReturnValue.hostAddress=request.remoteAddress();
 
-        emit signalDataReceived(requestReturnValue.body);
-        emit signalWholeRequest(requestReturnValue);
+#if QT_VERSION > QT_VERSION_CHECK(6, 5, 0)
+                         requestReturnValue.port=request.remotePort();
+#endif
 
-        QString okResponse="HTTP/1.1 200 OK";
-        //return this->obsahRoot;
-        return "";
-        //return intObsahGet;
-    });
+                         emit signalDataReceived(requestReturnValue.body);
+                         emit signalWholeRequest(requestReturnValue);
 
+                         QString okResponse="HTTP/1.1 200 OK";
+                         //return this->obsahRoot;
+                         return "";
+                         //return intObsahGet;
+                     });
+#if QT_VERSION > QT_VERSION_CHECK(6, 0, 0)
     httpServer.afterRequest([](QHttpServerResponse &&resp)
-    {
-        resp.setHeader("Server", "Super server!");
-        resp.setHeader("Content-Type", "text/xml");
-        return std::move(resp);
-    });
+                            {
+                                resp.setHeader("Server", "Super server!");
+                                resp.setHeader("Content-Type", "text/xml");
+                                return std::move(resp);
+                            });
+#endif
     return 1;
 }
 
@@ -91,7 +95,7 @@ int HttpServerSubscriber::listen()
     if (!newPort)
     {
         qDebug() << QCoreApplication::translate(
-                        "QHttpServerExample", "Server failed to listen on a port.");
+            "QHttpServerExample", "Server failed to listen on a port.");
         return 0;
     }
     // nactenyPort=httpServer.listen(QHostAddress::Any,cisloPortu);
