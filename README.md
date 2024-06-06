@@ -6,6 +6,9 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog 
+- 2024_06_06
+    - new folder with examples
+        - basic example Vdv301SubscriberMinimalExample
 - 2024_05_14
     - cant be compiled with 5.15 again (functionality not guaranteed)
 - 2024_04_22
