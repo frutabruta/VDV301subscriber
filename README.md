@@ -6,6 +6,9 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog 
+- 2024_08_23
+    - VDV301DataStructures
+        - DoorOpenStateEnumerationFromQString
 - 2024_06_06
     - new folder with examples
         - basic example Vdv301SubscriberMinimalExample

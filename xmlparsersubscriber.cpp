@@ -20,9 +20,7 @@ void XmlParserSubscriber::deviceConfigurationToDevice(QDomDocument &domDocument,
 
 void XmlParserSubscriber::deviceStatusToDevice(QDomDocument &domDocument, DevMgmtPublisherStruct &device)
 {
-
     device.status=domDocument.elementsByTagName("DeviceState").at(0).firstChild().nodeValue();
-
 }
 
 
