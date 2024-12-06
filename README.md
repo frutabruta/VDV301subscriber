@@ -6,6 +6,9 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog 
+- 2024_12_06
+    - VDV301DataStructures
+        - new function AllData isOnLastStop
 - 2024_11_03
     - VDV301DataStructures
         - added Vdv301Connection related variables
