@@ -6,6 +6,9 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog 
+- 2024_02_23_1638
+    - VDV301DataStructures
+        - added VDV301Trip::additionalTextMessage1-9List
 - 2024_12_06_1805
     - all displayContentClassEnumeration changed from Inner to Interior
 - 2024_12_06
