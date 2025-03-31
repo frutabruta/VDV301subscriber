@@ -79,6 +79,7 @@ protected:
 
 signals:
     int signalDataReceived (QString receivedData);
+    int signalError (QString errorText);
     void signalUpdateDeviceList();
     void signalSubscriptionLost();
 
