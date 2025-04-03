@@ -48,6 +48,9 @@ public:
     int subnetMask() const;
     void setSubnetMask(int newSubnetMask);
 
+    QString structureName() const;
+    void setStructureName(const QString &newStructureName);
+
 private:
 
     void allConnects();

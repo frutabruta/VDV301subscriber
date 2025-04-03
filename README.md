@@ -6,6 +6,10 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog 
+- 20250403_2146
+    - IbisIpSubscriber::structureName added setter and getter
+    - VDV301DataStructures
+        - added Vdv301CurrentDisplayContent
 - 20250331_1912
     - new signal IbisIpSubscriber::signalError
     - new function IbisIpSubscriberOnePublisher::postGenericRequest
