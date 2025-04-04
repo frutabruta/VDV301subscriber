@@ -6,6 +6,10 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog 
+- 20250404_1836
+    - - VDV301DataStructures
+        - added VehicleModeEnumeration
+        - new function Vdv301Enumerations::RouteDeviationEnumeration RouteDeviationEnumerationFromQString
 - 20250403_2146
     - IbisIpSubscriber::structureName added setter and getter
     - VDV301DataStructures
