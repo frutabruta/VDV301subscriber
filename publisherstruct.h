@@ -4,10 +4,13 @@
 #include <QHostAddress>
 #include <QVariant>
 
+#include "QtZeroConf/qzeroconfservice.h"
+
 class PublisherStruct
 {
 public:
     PublisherStruct();
+    PublisherStruct(QZeroConfService zcs);
 
     QHostAddress hostAddress;
     int portNumber;
@@ -20,6 +23,7 @@ public:
     QMap<QString, QVariant> toQMap();
     bool operator ==(const PublisherStruct &node) const;
     QString dumpToQString();
+
 };
 
 #endif // PUBLISHERSTRUCT_H

@@ -108,6 +108,17 @@ QByteArray IbisIpSubscriber::createOkResponse()
 }
 
 
+
+QUrl IbisIpSubscriber::createSubscribeDestination(PublisherStruct publisherStruct)
+{
+
+    QString addressAfterBackslash="/"+mServiceName+"/Subscribe"+mStructureName;
+    QString addressComplete="http://"+publisherStruct.hostAddress.toString()+":"+QString::number(publisherStruct.portNumber)+addressAfterBackslash;
+    qDebug()<<"adresaCile string "<<addressComplete;
+    return QUrl(addressComplete);
+}
+
+
 void IbisIpSubscriber::findServices(QString serviceType, int start)
 {
     qDebug() <<  Q_FUNC_INFO;
@@ -334,3 +345,5 @@ void IbisIpSubscriber::slotHttpRequestGenericFinished()
 
     reply->deleteLater();
 }
+
+

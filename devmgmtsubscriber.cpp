@@ -18,25 +18,6 @@ DevMgmtSubscriber::~DevMgmtSubscriber()
 }
 
 
-
-//unused
-bool DevMgmtSubscriber::getDeviceInformation(QZeroConfService zcs)
-{
-
-    qDebug()<<Q_FUNC_INFO;
-
-    //   QString adresa=zarizeni.adresa.toString()+":"+QString::number(zarizeni.port)+
-    QString adresa = "http://"+zcs->ip().toString()+":"+QString::number(zcs->port())+"/DeviceManagementService/GetDeviceInformation";
-    qDebug()<<adresa;
-    QNetworkRequest pozadavek;
-    pozadavek.setUrl(QUrl(adresa));
-
-    manager.get(pozadavek);
-
-    return true;
-}
-
-
 bool DevMgmtSubscriber::getDeviceInformation(DevMgmtPublisherStruct &device)
 {
 
@@ -53,18 +34,6 @@ bool DevMgmtSubscriber::getDeviceInformation(DevMgmtPublisherStruct &device)
     return true;
 }
 
-
-bool DevMgmtSubscriber::getDeviceConfiguration(QZeroConfService zcs)
-{
-    qDebug()<<Q_FUNC_INFO;
-
-    //   QString adresa=zarizeni.adresa.toString()+":"+QString::number(zarizeni.port)+
-    QString adresa = "http://"+zcs->ip().toString()+":"+QString::number(zcs->port())+"/DeviceManagementService/GetDeviceConfiguration";
-    qDebug()<<adresa;
-    manager.get(QNetworkRequest(QUrl(adresa)));
-
-    return true;
-}
 
 bool DevMgmtSubscriber::getDeviceConfiguration(DevMgmtPublisherStruct &device)
 {
@@ -160,37 +129,21 @@ void DevMgmtSubscriber::slotHandleData(QString input)
 
 
 
-
-
-
 void DevMgmtSubscriber::slotNewDnsSd(QZeroConfService zcs)
 {
     qDebug() <<  Q_FUNC_INFO;
 
-    DevMgmtPublisherStruct newDevice;
-    newDevice.serviceName=zcs->name();
+    DevMgmtPublisherStruct newDevice(zcs);
 
 
-
-    if(newDevice.serviceName.contains("DeviceManagementService"))
+    if(newDevice.serviceName.contains(mServiceName))
     {
-        qDebug()<<"DP1";
-        newDevice.hostAddress=zcs->ip();
-        newDevice.portNumber=zcs->port();
-        newDevice.deviceClass="";
-        newDevice.deviceId="";
-        newDevice.hostname=zcs->host();
-        newDevice.ibisIpVersion=zcs.data()->txt().value("ver");
-
-
 
         if(!deviceListDetected.contains(newDevice))
-        {
-            qDebug()<<"DP2";
+        {     
             getDeviceConfiguration(newDevice);
             getDeviceInformation(newDevice);
 
-            qDebug()<<"DP5";
             deviceListDetected.push_back(newDevice);
 
         }
@@ -225,19 +178,11 @@ void DevMgmtSubscriber::slotRemoveDnsSd(QZeroConfService zcs)
 {
     qDebug() <<  Q_FUNC_INFO;
 
-    DevMgmtPublisherStruct selectedDevice;
+    DevMgmtPublisherStruct selectedDevice(zcs);
     selectedDevice.serviceName=zcs->name();
 
-    if(selectedDevice.serviceName.contains("DeviceManagementService"))
+    if(selectedDevice.serviceName.contains(mServiceName))
     {
-        selectedDevice.hostAddress=zcs->ip();
-        selectedDevice.portNumber=zcs->port();
-        selectedDevice.deviceClass="";
-        selectedDevice.deviceId="";
-        // noveZarizeni.deviceName=zcs->host();
-
-        selectedDevice.hostname=zcs->host();
-        selectedDevice.ibisIpVersion=zcs.data()->txt().value("ver");
 
         if(deviceListDetected.contains(selectedDevice))
         {

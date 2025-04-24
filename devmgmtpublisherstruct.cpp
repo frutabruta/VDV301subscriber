@@ -16,6 +16,8 @@ DevMgmtPublisherStruct::DevMgmtPublisherStruct()
 }
 
 
+DevMgmtPublisherStruct::DevMgmtPublisherStruct(const PublisherStruct& pubStruct) : PublisherStruct(pubStruct) {}
+
 
 /*
 bool DevMgmtPublisherStruct::operator==(const DevMgmtPublisherStruct &node) const

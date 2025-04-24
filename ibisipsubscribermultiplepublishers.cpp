@@ -28,16 +28,6 @@ void IbisIpSubscriberMultiplePublishers::unsubscribe(PublisherStruct publisher)
 }
 
 
-
-QUrl IbisIpSubscriberMultiplePublishers::createSubscribeDestination(PublisherStruct publisherStruct)
-{
-
-    QString addressAfterBackslash="/"+mServiceName+"/Subscribe"+mStructureName;
-    QString addressComplete="http://"+publisherStruct.hostAddress.toString()+":"+QString::number(publisherStruct.portNumber)+addressAfterBackslash;
-    qDebug()<<"adresaCile string "<<addressComplete;
-    return QUrl(addressComplete);
-}
-
 void IbisIpSubscriberMultiplePublishers::postSubscribe(PublisherStruct publisherCandidate)
 {
     publisherServiceCandidate=publisherCandidate;
@@ -223,20 +213,9 @@ void IbisIpSubscriberMultiplePublishers::slotHttpRequestUnsubscriptionFinished()
 void IbisIpSubscriberMultiplePublishers::slotAddServiceManual(PublisherStruct publisher)
 {
     qDebug() <<  Q_FUNC_INFO;
-    /*
-    QString serviceName=zcs->name();
-    QString ipAddress=zcs->ip().toString();
-    QString version=zcs.data()->txt().value("ver");
-    int portNumber=zcs->port();
-*/
+
     qDebug() <<"service name "<<publisher.serviceName<<" ip address "<<publisher.hostAddress<<" portNumber "<<QString::number(publisher.portNumber)<<" data "<<publisher.ibisIpVersion;
 
-    /*
-    if(!serviceList.contains(zcs))
-    {
-        serviceList.append(zcs);
-    }
-*/
 
     emit signalUpdateDeviceList();
 
@@ -299,53 +278,14 @@ void IbisIpSubscriberMultiplePublishers::slotAddServiceManualForce(PublisherStru
 
 
 
-
-
-
 void IbisIpSubscriberMultiplePublishers::slotNewDnsSd(QZeroConfService zcs)
 {
     qDebug() <<  Q_FUNC_INFO;
 
-    PublisherStruct newDevice;
-    newDevice.serviceName=zcs->name();
-    newDevice.hostAddress=zcs->ip();
-    newDevice.portNumber=zcs->port();
-    newDevice.hostname=zcs->host();
-    newDevice.ibisIpVersion=zcs.data()->txt().value("ver");
-
+    PublisherStruct newDevice(zcs);
     qDebug()<<newDevice.dumpToQString();
-
-    if(newDevice.serviceName.contains(mServiceName))
-    {
-        qDebug()<<"DP1";
-
-
-
-
-        if(!publisherList.contains(newDevice))
-        {
-            qDebug()<<"DP2";
-            // getDeviceConfiguration(newDevice);
-            //  getDeviceInformation(newDevice);
-
-            qDebug()<<"DP5";
-         //   publisherList.push_back(newDevice);
-            emit signalNewPublisherDiscovered(newDevice);
-
-        }
-        else
-        {
-            qDebug()<<"device is already on the list";
-        }
-    }
-    else
-    {
-        qDebug()<<"jina sluzba";
-    }
-
-    emit signalUpdateDeviceList();
+    tryToAddPublisher(newDevice);
 }
-
 
 
 
@@ -353,32 +293,19 @@ void IbisIpSubscriberMultiplePublishers::slotUpdateDnsSd(QZeroConfService zcs)
 {
     qDebug() <<  Q_FUNC_INFO;
 
-    PublisherStruct newDevice;
-    newDevice.serviceName=zcs->name();
-    newDevice.hostAddress=zcs->ip();
-    newDevice.portNumber=zcs->port();
-    newDevice.hostname=zcs->host();
-    newDevice.ibisIpVersion=zcs.data()->txt().value("ver");
-
-    qDebug()<<newDevice.dumpToQString();
+    PublisherStruct newDevice(zcs);
+    qDebug()<<newDevice.dumpToQString();    
+    tryToAddPublisher(newDevice);
+}
 
 
-
-    if(newDevice.serviceName.contains(mServiceName))
+void IbisIpSubscriberMultiplePublishers::tryToAddPublisher(PublisherStruct publisher)
+{
+    if(publisher.serviceName.contains(mServiceName))
     {
-        qDebug()<<"DP1";
-
-
-        if(!publisherList.contains(newDevice))
+        if(!publisherList.contains(publisher))
         {
-            qDebug()<<"DP2";
-            // getDeviceConfiguration(newDevice);
-            //  getDeviceInformation(newDevice);
-
-            qDebug()<<"DP5";
-          //  publisherList.push_back(newDevice);
-            emit signalNewPublisherDiscovered(newDevice);
-
+            emit signalNewPublisherDiscovered(publisher);
         }
         else
         {
@@ -395,23 +322,15 @@ void IbisIpSubscriberMultiplePublishers::slotUpdateDnsSd(QZeroConfService zcs)
 
 
 
-
 void IbisIpSubscriberMultiplePublishers::slotRemoveDnsSd(QZeroConfService zcs)
 {
     qDebug() <<  Q_FUNC_INFO;
 
-    PublisherStruct selectedDevice;
-    selectedDevice.serviceName=zcs->name();
-    selectedDevice.hostAddress=zcs->ip();
-    selectedDevice.portNumber=zcs->port();
-    selectedDevice.hostname=zcs->host();
-    selectedDevice.ibisIpVersion=zcs.data()->txt().value("ver");
+    PublisherStruct selectedDevice(zcs);
 
     qDebug()<<selectedDevice.dumpToQString();
 
-
-
-    if(selectedDevice.serviceName.contains("DeviceManagementService"))
+    if(selectedDevice.serviceName.contains(mServiceName))
     {
 
 
@@ -424,10 +343,6 @@ void IbisIpSubscriberMultiplePublishers::slotRemoveDnsSd(QZeroConfService zcs)
             qDebug()<<"device was not present on the list";
         }
     }
-
-
-
-
     emit signalUpdateDeviceList();
 }
 

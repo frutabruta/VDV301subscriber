@@ -35,6 +35,7 @@ public:
 
     void slotHandleReceivedData(QString receivedData);
 
+private:
 
 public slots:
     void slotRemoveDnsSd(QZeroConfService zcs);
@@ -42,6 +43,7 @@ public slots:
     void slotUpdateDnsSd(QZeroConfService zcs);
 protected:
 
+    void tryToAddPublisher(PublisherStruct publisher);
 protected slots:
     void slotHttpRequestUnsubscriptionFinished();
     void slotHttpRequestSubscriptionFinished();
@@ -53,8 +55,8 @@ signals:
     void signalIsUnsubscriptionSuccesful(bool result);
     void signalNewPublisherDiscovered(PublisherStruct publisher);
 
-private:
-    QUrl createSubscribeDestination(PublisherStruct publisherStruct);
+
+
 };
 
 #endif // IBISIPSUBSCRIBERMULTIPLEPUBLISHERS_H

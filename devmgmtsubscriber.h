@@ -26,9 +26,6 @@ public:
     QVector<DevMgmtPublisherStruct> deviceListConfigured;
 
     //functions
-    bool getDeviceConfiguration(QZeroConfService zcs);
-    bool getDeviceInformation(QZeroConfService zcs);
-
     QString getVersion(QDomDocument document, QString element);
 
 

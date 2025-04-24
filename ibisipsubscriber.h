@@ -7,6 +7,7 @@
 #include "httpserversubscriber.h"
 #include "QtZeroConf/qzeroconf.h"
 #include "xmlgeneratorsubscriber.h"
+#include "publisherstruct.h"
 class IbisIpSubscriber : public QObject
 {
     Q_OBJECT
@@ -51,6 +52,7 @@ public:
     QString structureName() const;
     void setStructureName(const QString &newStructureName);
 
+
 private:
 
     void allConnects();
@@ -75,6 +77,7 @@ protected:
     int mSubnetMask=16;
 
     //funkce
+    QUrl createSubscribeDestination(PublisherStruct publisherStruct);
     int isTheServiceRequestedOne(QString selectedServiceName,QString selectedVersion, QZeroConfService zcs);
     int isTheServiceRequestedOne(QString selectedServiceName, QString selectedVersion, QString testedServiceName, QString testedVersion);
     int deleteServiceFromList(QVector<QZeroConfService> &serviceList, QZeroConfService selectedService);
@@ -82,6 +85,7 @@ protected:
     //ostatni
 
     void postGenericRequest(QUrl subscriberAddress, QString postRequestContent);
+
 signals:
     int signalDataReceived (QString receivedData);
     int signalError (QString errorText);

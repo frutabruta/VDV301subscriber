@@ -28,52 +28,33 @@ void DevMgmtSubscriber2::slotNewDnsSd(QZeroConfService zcs)
 {
     qDebug() <<  Q_FUNC_INFO;
 
-    DevMgmtPublisherStruct newDevice;
-    newDevice.serviceName=zcs->name();
+    DevMgmtPublisherStruct newDevice(zcs);
+
 
     //   if(newDevice.serviceName.contains("DeviceManagementService"))
     if(isTheServiceRequestedOne(mServiceName,mVersion,zcs))
     {
-        qDebug()<<"DP1";
-        newDevice.hostAddress=zcs->ip();
-        newDevice.portNumber=zcs->port();
-        newDevice.deviceClass="";
-        newDevice.deviceId="";
-        newDevice.hostname=zcs->host();
-        newDevice.ibisIpVersion=zcs.data()->txt().value("ver");
-
-
         if(!deviceListDetected.contains(newDevice))
         {
-            qDebug()<<"DP2";
-            //subscribe here
             getDeviceConfiguration(newDevice);
             getDeviceInformation(newDevice);
 
-            qDebug()<<"DP5";
 
-            qDebug()<<"sending subscribe request to  "<<newDevice.hostAddress<<":"<<QString::number(newDevice.portNumber)<<" service "<<zcs->name();
+            qDebug()<<"sending subscribe request to "<<newDevice.dumpToQString();
 
-            QString addressAfterBackslash="/"+mServiceName+"/Subscribe"+mStructureName;
-            QString addressComplete="http://"+zcs->ip().toString()+":"+QString::number(zcs->port())+addressAfterBackslash;
-            qDebug()<<"adresaCile string "<<addressComplete;
-            QUrl subscriptionDestination=QUrl(addressComplete);
-            if(!isIpSet() )
-            {
-                deviceAddress=selectNonLoopbackAddress();
-            }
-            postSubscribe(subscriptionDestination,xmlGeneratorSubscriber.createSubscribeRequest(deviceAddress,httpServerSubscriber.portNumber()));
+
+            postSubscribe(createSubscribeDestination(newDevice),xmlGeneratorSubscriber.createSubscribeRequest(deviceAddress,httpServerSubscriber.portNumber()));
             deviceListDetected.push_back(newDevice);
 
         }
         else
         {
-            qDebug()<<"zarizeni uz je na seznamu";
+            qDebug()<<"device is already on the list";
         }
     }
     else
     {
-        qDebug()<<"jina sluzba";
+        qDebug()<<"wrong service name";
     }
 
     emit signalUpdateDeviceList();

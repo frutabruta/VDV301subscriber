@@ -9,12 +9,11 @@ class DevMgmtPublisherStruct : public PublisherStruct
 {
 public:
     DevMgmtPublisherStruct();
+    DevMgmtPublisherStruct(const PublisherStruct &pubStruct);
 
     QString deviceId;
     QString deviceClass;
     QString deviceName;
-
-
 
     QString swVersion;
     QString manufacturer;
@@ -26,10 +25,9 @@ public:
     bool isSubscriptionActive=false;
 
 
-
- //   bool operator ==(const DevMgmtPublisherStruct &node) const;
     QMap<QString, QVariant> toQMap();
     bool isInListByIdClass(QVector<DevMgmtPublisherStruct> publisherList);
+
 private:
 
 };

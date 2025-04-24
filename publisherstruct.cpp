@@ -2,6 +2,14 @@
 
 PublisherStruct::PublisherStruct() {}
 
+PublisherStruct::PublisherStruct(QZeroConfService zcs) {
+    serviceName=zcs->name();
+    hostAddress=zcs->ip();
+    portNumber=zcs->port();
+    hostname=zcs->host();
+    ibisIpVersion=zcs.data()->txt().value("ver");
+}
+
 
 QMap<QString, QVariant> PublisherStruct::toQMap()
 {

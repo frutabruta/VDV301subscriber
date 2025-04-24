@@ -6,6 +6,27 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20250424_2248
+    -   DevMgmtPublisherStruct
+        - added new constructor from PublisherStruct
+    - PublisherStruct
+        - added new constructor PublisherStruct::PublisherStruct(QZeroConfService zcs)
+    - DevMgmtSubscriber
+        - removed legacy function DevMgmtSubscriber::getDeviceInformation(QZeroConfService zcs)
+        - removed legacy function DevMgmtSubscriber::getDeviceConfiguration(QZeroConfService zcs)
+        - DevMgmtSubscriber::slotNewDnsSd use of DevMgmtPublisherStruct newDevice(zcs)
+        - DevMgmtSubscriber::slotRemoveDnsSd use of DevMgmtPublisherStruct newDevice(zcs)
+    - DevMgmtSubscriber2
+        - DevMgmtSubscriber2::slotNewDnsSd use of DevMgmtPublisherStruct newDevice(zcs)
+    - IbisIpSubscriber
+        - new function IbisIpSubscriber::createSubscribeDestination (moved from IbisIpSubscriberMultiplePublishers)
+    - IbisIpSubscriberMultiplePublishers
+        - IbisIpSubscriberMultiplePublishers::slotAddServiceManual    
+        - IbisIpSubscriberMultiplePublishers::slotNewDnsSd refactoring using tryToAddPublisher
+        - IbisIpSubscriberMultiplePublishers::slotUpdateDnsSd refactoring using tryToAddPublisher
+        - new function IbisIpSubscriberMultiplePublishers::tryToAddPublisher
+
+
 - 20250424_1926
     - PassengerCountingService first version
     - moved variables from DevMgmtPublisherStruct to new base class PublisherStruct
