@@ -48,6 +48,7 @@ public:
     int subnetMask() const;
     void setSubnetMask(int newSubnetMask);
 
+
 private:
 
     void allConnects();
@@ -73,18 +74,22 @@ protected:
 
     //funkce
     int isTheServiceRequestedOne(QString selectedServiceName,QString selectedVersion, QZeroConfService zcs);
+    int isTheServiceRequestedOne(QString selectedServiceName, QString selectedVersion, QString testedServiceName, QString testedVersion);
     int deleteServiceFromList(QVector<QZeroConfService> &serviceList, QZeroConfService selectedService);
     QHostAddress selectNonLoopbackAddress();
     //ostatni
 
+    void postGenericRequest(QUrl subscriberAddress, QString postRequestContent);
 signals:
     int signalDataReceived (QString receivedData);
     int signalError (QString errorText);
     void signalUpdateDeviceList();
     void signalSubscriptionLost();
 
-public slots:
+//public slots:
 
+protected slots:
+    void slotHttpRequestGenericFinished();
 private slots:
 
 

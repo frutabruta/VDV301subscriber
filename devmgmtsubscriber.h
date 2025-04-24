@@ -1,11 +1,12 @@
 #ifndef DEVMGMTSUBSCRIBER_H
 #define DEVMGMTSUBSCRIBER_H
-#include "ibisipsubscriber.h"
+
+#include "ibisipsubscribermultiplepublishers.h"
 #include "devmgmtpublisherstruct.h"
 #include "xmlgeneratorsubscriber.h"
 #include "xmlparsersubscriber.h"
 
-class DevMgmtSubscriber : public IbisIpSubscriber
+class DevMgmtSubscriber : public IbisIpSubscriberMultiplePublishers
 {
     Q_OBJECT
 public:

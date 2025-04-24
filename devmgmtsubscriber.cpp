@@ -1,7 +1,7 @@
 #include "devmgmtsubscriber.h"
 
 
-DevMgmtSubscriber::DevMgmtSubscriber(QString serviceName, QString structureName, QString  version, QString  serviceType, int portNumber) : IbisIpSubscriber(serviceName,  structureName,  version,  serviceType, portNumber)
+DevMgmtSubscriber::DevMgmtSubscriber(QString serviceName, QString structureName, QString  version, QString  serviceType, int portNumber) : IbisIpSubscriberMultiplePublishers(serviceName,  structureName,  version,  serviceType, portNumber)
 {
     qDebug()<<Q_FUNC_INFO;
 
@@ -167,36 +167,36 @@ void DevMgmtSubscriber::slotNewDnsSd(QZeroConfService zcs)
 {
     qDebug() <<  Q_FUNC_INFO;
 
-    DevMgmtPublisherStruct noveZarizeni;
-    noveZarizeni.serviceName=zcs->name();
+    DevMgmtPublisherStruct newDevice;
+    newDevice.serviceName=zcs->name();
 
 
 
-    if(noveZarizeni.serviceName.contains("DeviceManagementService"))
+    if(newDevice.serviceName.contains("DeviceManagementService"))
     {
         qDebug()<<"DP1";
-        noveZarizeni.hostAddress=zcs->ip();
-        noveZarizeni.portNumber=zcs->port();
-        noveZarizeni.deviceClass="";
-        noveZarizeni.deviceId="";
-        noveZarizeni.hostname=zcs->host();
-        noveZarizeni.ibisIpVersion=zcs.data()->txt().value("ver");
+        newDevice.hostAddress=zcs->ip();
+        newDevice.portNumber=zcs->port();
+        newDevice.deviceClass="";
+        newDevice.deviceId="";
+        newDevice.hostname=zcs->host();
+        newDevice.ibisIpVersion=zcs.data()->txt().value("ver");
 
 
 
-        if(!deviceListDetected.contains(noveZarizeni))
+        if(!deviceListDetected.contains(newDevice))
         {
             qDebug()<<"DP2";
-            getDeviceConfiguration(noveZarizeni);
-            getDeviceInformation(noveZarizeni);
+            getDeviceConfiguration(newDevice);
+            getDeviceInformation(newDevice);
 
             qDebug()<<"DP5";
-            deviceListDetected.push_back(noveZarizeni);
+            deviceListDetected.push_back(newDevice);
 
         }
         else
         {
-            qDebug()<<"zarizeni uz je na seznamu";
+            qDebug()<<"device is already on the list";
         }
     }
     else
@@ -206,6 +206,8 @@ void DevMgmtSubscriber::slotNewDnsSd(QZeroConfService zcs)
 
     emit signalUpdateDeviceList();
 }
+
+
 
 void DevMgmtSubscriber::slotUpdateDeviceInfo()
 {

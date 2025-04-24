@@ -34,13 +34,15 @@ public:
 
     void postSubscribe(QUrl subscriberAddress, QString postRequestContent);
     void postUnsubscribe(QUrl subscriberAddress, QString postRequestContent);
-    void postGenericRequest(QUrl subscriberAddress, QString postRequestContent);
+ //   void postGenericRequest(QUrl subscriberAddress, QString postRequestContent);
 
     int portNumber() const;
     void setPortNumber(int newPortNumber);
 
     void unsubscribe();
 
+    void slotAddServiceManual(QString serviceName, QString version, QString ipAddress, int portNumber);
+    void slotAddServiceManualForce(QString serviceName, QString version, QString ipAddress, int portNumber);
 private:
     void allConnects();
 
@@ -52,13 +54,14 @@ public slots:
     void slotAddService(QZeroConfService zcs);
     void slotUpdateService(QZeroConfService zcs);
     void slotHandleReceivedData(QString receivedData);
-    void slotHttpRequestGenericFinished();
-private slots:
+ //   void slotHttpRequestGenericFinished();
+protected slots:
     void slotHttpRequestSubscriptionFinished();
     void slotHttpRequestUnsubscriptionFinished();
 
     void slotSubscribeSent(QNetworkReply *subscriptionReply);
     void slotServiceRemoved(QZeroConfService zcs);
+
 
 
 signals:

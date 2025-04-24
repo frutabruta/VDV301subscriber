@@ -17,11 +17,11 @@ DevMgmtPublisherStruct::DevMgmtPublisherStruct()
 
 
 
-
+/*
 bool DevMgmtPublisherStruct::operator==(const DevMgmtPublisherStruct &node) const
 {
     return portNumber == node.portNumber && hostAddress == node.hostAddress;
-}
+}*/
 
 QMap<QString, QVariant> DevMgmtPublisherStruct::toQMap()
 {

@@ -155,6 +155,31 @@ int IbisIpSubscriber::isTheServiceRequestedOne(QString selectedServiceName,QStri
 }
 
 
+int IbisIpSubscriber::isTheServiceRequestedOne(QString selectedServiceName,QString selectedVersion,QString testedServiceName, QString testedVersion)
+{
+    qDebug() <<  Q_FUNC_INFO;
+
+    qDebug()<<"tested service: "<<testedServiceName<<" "<<testedVersion;
+    if (testedServiceName.startsWith(selectedServiceName))
+    {
+        qDebug()<<"requested service found "<<testedServiceName;
+        if(testedVersion==selectedVersion)
+        {
+            qDebug()<<"1 requested version:"<<selectedVersion<<" found version:"<<testedVersion;
+            //this->vytvorSubscribeRequest(projedAdresy(),cisloPortuInterni);
+            return 1;
+        }
+        else
+        {
+            qDebug()<<"1 requested version:"<<selectedVersion<<" found version:"<<testedVersion;
+            return 0;
+        }
+    }
+
+    return 0;
+}
+
+
 
 /*
 POST /CustomerInformationService/SubscribeAllData HTTP/1.1
@@ -245,4 +270,57 @@ QHostAddress IbisIpSubscriber::selectNonLoopbackAddressInSubnet(QHostAddress add
         }
     }
     return output;
+}
+
+
+
+void IbisIpSubscriber::postGenericRequest(QUrl subscriberAddress, QString postRequestContent)
+{
+    qDebug() <<  Q_FUNC_INFO;
+    qDebug().noquote()<<"posting to address: "<<subscriberAddress<<" "<<postRequestContent;
+
+    QNetworkRequest postRequest(subscriberAddress);
+
+
+    // https://stackoverflow.com/a/53556560
+
+    postRequest.setTransferTimeout(30000);
+    postRequest.setRawHeader("Content-Type", "text/xml");
+    //postRequest.setRawHeader("Expect", "100-continue");
+    //postRequest.setRawHeader("Connection", "keep-Alive");
+    //postRequest.setRawHeader("Accept-Encoding", "gzip, deflate");
+
+    QByteArray postRequestContentQByteArray=postRequestContent.toUtf8() ;
+
+    reply=postManager.post(postRequest,postRequestContentQByteArray);
+    connect(reply, &QNetworkReply::finished, this, &IbisIpSubscriber::slotHttpRequestGenericFinished);
+
+}
+
+void IbisIpSubscriber::slotHttpRequestGenericFinished()
+{
+    qDebug() <<  Q_FUNC_INFO;
+
+    QByteArray bts = reply->readAll();
+    QString str(bts);
+    qDebug()<<"unsusbscription response:";
+    qDebug().noquote()<<str;
+
+    if(reply->error()!=QNetworkReply::NoError)
+    {
+        qDebug()<<reply->errorString();
+
+        reply->deleteLater();
+        return;
+    }
+
+    // subscribedService=subscribeServiceCandidate;
+
+
+    QDomDocument qDomResponse;
+    bool setContentResult=false;
+
+    emit signalError(bts);
+
+    reply->deleteLater();
 }

@@ -5,7 +5,37 @@ Qt C++ library to be used in VDV301 subscriber devices
 - CustomerInformationService (1.0, 2.2CZ1.0, 2.3 )
 - DeviceManagementService (1.0)
 
-# Changelog 
+# Changelog
+- 20250424_1926
+    - PassengerCountingService first version
+    - moved variables from DevMgmtPublisherStruct to new base class PublisherStruct
+    - DevMgmtSubscriber
+        - has new base class IbisIpSubscriberMultiplePublishers
+    - IbisIpSubscriber
+        - new function IbisIpSubscriber::isTheServiceRequestedOne
+        - new function IbisIpSubscriber::postGenericRequest
+        - new slot IbisIpSubscriber::slotHttpRequestGenericFinished
+    - IbisIpSubscriberMultiplePublishers
+        - new class
+    - IbisIpSubscriberOnePublisher
+        - IbisIpSubscriberOnePublisher::postGenericRequest moved to IbisIpSubscriber
+        - bisIpSubscriberOnePublisher::slotHttpRequestGenericFinished  moved to IbisIpSubscriber
+        - new function IbisIpSubscriberOnePublisher::slotAddServiceManual
+        - new function IbisIpSubscriberOnePublisher::slotAddServiceManualForce
+    - PcsPublisherStruct 
+        - new class
+    - PcsSubscriber
+        - new class
+    - PublisherStruct 
+        - new class
+    - Vdv301PcsAllData
+        - new class
+    - XmlGeneratorSubscriberPcs
+        - new class
+    - XmlParserPcs
+        - new class    
+
+
 - 20250331_1912
     - new signal IbisIpSubscriber::signalError
     - new function IbisIpSubscriberOnePublisher::postGenericRequest
