@@ -39,6 +39,16 @@ void IbisIpSubscriber::allConnects()
 
 }
 
+QString IbisIpSubscriber::structureName() const
+{
+    return mStructureName;
+}
+
+void IbisIpSubscriber::setStructureName(const QString &newStructureName)
+{
+    mStructureName = newStructureName;
+}
+
 int IbisIpSubscriber::subnetMask() const
 {
     return mSubnetMask;

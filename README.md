@@ -34,7 +34,14 @@ Qt C++ library to be used in VDV301 subscriber devices
         - new class
     - XmlParserPcs
         - new class    
-
+- 20250404_1836
+    - - VDV301DataStructures
+        - added VehicleModeEnumeration
+        - new function Vdv301Enumerations::RouteDeviationEnumeration RouteDeviationEnumerationFromQString
+- 20250403_2146
+    - IbisIpSubscriber::structureName added setter and getter
+    - VDV301DataStructures
+        - added Vdv301CurrentDisplayContent
 
 - 20250331_1912
     - new signal IbisIpSubscriber::signalError
