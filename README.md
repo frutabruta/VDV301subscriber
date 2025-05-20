@@ -6,6 +6,8 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20250520_1347
+    - fixed Vdv301Datastructures VDV301CurrentDisplayContent dependency
 - 20250424_2248
     -   DevMgmtPublisherStruct
         - added new constructor from PublisherStruct

@@ -231,6 +231,14 @@ void IbisIpSubscriberOnePublisher::slotAddService(QZeroConfService zcs)
                 }*/
 
                 deviceAddress=selectNonLoopbackAddressInSubnet(zcs->ip(),mSubnetMask);
+
+                if(deviceAddress.toString().isEmpty())
+                {
+                    emit signalError("couldn't find device address!");
+                }
+
+
+
                 postSubscribe(subscriptionDestination,xmlGeneratorSubscriber.createSubscribeRequest(deviceAddress,httpServerSubscriber.portNumber()));
 
             }
