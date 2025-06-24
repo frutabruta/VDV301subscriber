@@ -6,6 +6,11 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20250624_1721
+    - VDV301DataStructures
+        - Stop Point
+
+
 - 20250520_1347
     - fixed Vdv301Datastructures VDV301CurrentDisplayContent dependency
 - 20250424_2248
@@ -58,7 +63,7 @@ Qt C++ library to be used in VDV301 subscriber devices
     - XmlParserPcs
         - new class    
 - 20250404_1836
-    - - VDV301DataStructures
+    - VDV301DataStructures
         - added VehicleModeEnumeration
         - new function Vdv301Enumerations::RouteDeviationEnumeration RouteDeviationEnumerationFromQString
 - 20250403_2146
