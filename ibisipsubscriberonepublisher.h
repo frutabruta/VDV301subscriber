@@ -10,15 +10,14 @@ class IbisIpSubscriberOnePublisher : public IbisIpSubscriber
     Q_OBJECT
 public:
 
-
-    //konstruktor a destruktor
-    explicit IbisIpSubscriberOnePublisher(QString serviceName, QString structureName, QString version, QString serviceType, int portName);
+    //construktor a destructor
+    explicit IbisIpSubscriberOnePublisher(QString serviceName, QString structureName, QString version, QString serviceType, int portName, QString replyPath="");
     ~IbisIpSubscriberOnePublisher();
 
     //instance knihoven
-   // QTimer *timerHeartbeatCheck = new QTimer(this);
-    QTimer timerHeartbeatCheck;
-    //promenne
+    QTimer timerHeartbeatCheck;    
+
+    //variables
     int heartbeatCheckInterval=120000;
     bool isSubscriptionActive=false;
     bool isCandidateSelected=false;
@@ -26,15 +25,12 @@ public:
     QZeroConfService subscribedService;
     QZeroConfService subscribeServiceCandidate;
 
-
-    //funkce
-
+    //functions
     void start();
     void newSubscribeRequest();
 
     void postSubscribe(QUrl subscriberAddress, QString postRequestContent);
     void postUnsubscribe(QUrl subscriberAddress, QString postRequestContent);
- //   void postGenericRequest(QUrl subscriberAddress, QString postRequestContent);
 
     int portNumber() const;
     void setPortNumber(int newPortNumber);
@@ -54,7 +50,7 @@ public slots:
     void slotAddService(QZeroConfService zcs);
     void slotUpdateService(QZeroConfService zcs);
     void slotHandleReceivedData(QString receivedData);
- //   void slotHttpRequestGenericFinished();
+
 protected slots:
     void slotHttpRequestSubscriptionFinished();
     void slotHttpRequestUnsubscriptionFinished();
@@ -62,15 +58,11 @@ protected slots:
     void slotSubscribeSent(QNetworkReply *subscriptionReply);
     void slotServiceRemoved(QZeroConfService zcs);
 
-
-
 signals:
     void signalSubscriptionSuccessful(QZeroConfService zcs);
     void signalIsSubscriptionSuccesful(bool result);
     void signalUnsubscriptionSuccessful(QZeroConfService zcs);
     void signalIsUnsubscriptionSuccesful(bool result);
-
-
 };
 
 #endif // IBISIPSUBSCRIBERONEPUBLISHER_H

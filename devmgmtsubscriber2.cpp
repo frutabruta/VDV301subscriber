@@ -109,10 +109,18 @@ void DevMgmtSubscriber2::postUnsubscribe(QUrl subscriberAddress, QString postReq
 }
 
 
-//void IbisIpSubscriberOnePublisher::slotHttpRequestSubscriptionFinished()
 void DevMgmtSubscriber2::slotHttpRequestSubscriptionFinished()
 {
     qDebug() <<  Q_FUNC_INFO;
+
+    if(reply==nullptr)
+    {
+        qDebug()<<"reply is nullptr";
+        emit signalIsSubscriptionSuccessful2(false);
+
+        return;
+    }
+
 
     QByteArray bts = reply->readAll();
     QString str(bts);
@@ -135,19 +143,30 @@ void DevMgmtSubscriber2::slotHttpRequestSubscriptionFinished()
     if(setContentResult)
     {
         QString subscriptionResult=qDomResponse.elementsByTagName("Active").at(0).firstChildElement("Value").firstChild().nodeValue();
-        qDebug()<<"subscription result: "<<subscriptionResult;
-        if((subscriptionResult=="true")||(subscriptionResult=="True"))
+
+        if(subscriptionResult.isEmpty())
         {
-            // subscribedService=subscribeServiceCandidate;
-            //   this->isSubscriptionActive=true;
-            emit signalIsSubscriptionSuccessful2(true);
-            //  emit signalSubscriptionSuccessful(subscribedService);
+            qDebug()<<"subscription result is empty";
+            emit signalIsSubscriptionSuccessful2(false);
         }
         else
         {
-            qDebug()<<"unsubscription failed";
-            emit signalIsSubscriptionSuccessful2(false);
+            qDebug().noquote()<<"subscription result: \n"<<subscriptionResult;
+            if((subscriptionResult=="true")||(subscriptionResult=="True"))
+            {
+                // subscribedService=subscribeServiceCandidate;
+                //   this->isSubscriptionActive=true;
+                emit signalIsSubscriptionSuccessful2(true);
+                //  emit signalSubscriptionSuccessful(subscribedService);
+            }
+            else
+            {
+                qDebug()<<"subscription failed";
+                emit signalIsSubscriptionSuccessful2(false);
+            }
         }
+
+
     }
     else
     {

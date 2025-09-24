@@ -1,6 +1,6 @@
 #include "ibisipsubscriberonepublisher.h"
 
-IbisIpSubscriberOnePublisher::IbisIpSubscriberOnePublisher(QString serviceName,QString structureName,QString version,QString serviceType, int portName) : IbisIpSubscriber(serviceName,structureName, version, serviceType, portName)
+IbisIpSubscriberOnePublisher::IbisIpSubscriberOnePublisher(QString serviceName,QString structureName,QString version,QString serviceType, int portName, QString replyPath) : IbisIpSubscriber(serviceName,structureName, version, serviceType, portName, replyPath)
 {
     qDebug()<<Q_FUNC_INFO;
 
@@ -12,7 +12,7 @@ IbisIpSubscriberOnePublisher::IbisIpSubscriberOnePublisher(QString serviceName,Q
 IbisIpSubscriberOnePublisher::~IbisIpSubscriberOnePublisher()
 {
     qDebug()<<Q_FUNC_INFO;
-  //  unsubscribe();
+    //  unsubscribe();
 }
 
 
@@ -32,10 +32,7 @@ void IbisIpSubscriberOnePublisher::allConnects()
     qDebug()<<Q_FUNC_INFO;
 
     connect(&timerHeartbeatCheck, &QTimer::timeout, this, &IbisIpSubscriberOnePublisher::slotHeartbeatTimeout);
-
     connect(&httpServerSubscriber ,&HttpServerSubscriber::signalDataReceived,this,&IbisIpSubscriberOnePublisher::slotHandleReceivedData) ;
-    //   connect(&zeroConf, &QZeroConf::serviceAdded, this, &IbisIpSubscriberOnePublisher::slotAddService);
-    //   connect(&zeroConf, &QZeroConf::serviceRemoved, this, &IbisIpSubscriberOnePublisher::slotServiceRemoved);
 }
 
 
@@ -43,9 +40,6 @@ void IbisIpSubscriberOnePublisher::allConnects2()
 {
     qDebug()<<Q_FUNC_INFO;
 
-    //  connect(&timerHeartbeatCheck, &QTimer::timeout, this, &IbisIpSubscriberOnePublisher::slotHeartbeatTimeout);
-
-    // connect(&httpServerSubscriber ,&HttpServerSubscriber::signalDataReceived,this,&IbisIpSubscriberOnePublisher::slotHandleReceivedData) ;
     connect(&zeroConf, &QZeroConf::serviceAdded, this, &IbisIpSubscriberOnePublisher::slotAddService);
     connect(&zeroConf, &QZeroConf::serviceUpdated, this, &IbisIpSubscriberOnePublisher::slotUpdateService);
     connect(&zeroConf, &QZeroConf::serviceRemoved, this, &IbisIpSubscriberOnePublisher::slotServiceRemoved);
@@ -109,31 +103,6 @@ void IbisIpSubscriberOnePublisher::postUnsubscribe(QUrl subscriberAddress, QStri
 
 }
 
-/*
-void IbisIpSubscriberOnePublisher::postGenericRequest(QUrl subscriberAddress, QString postRequestContent)
-{
-    qDebug() <<  Q_FUNC_INFO;
-    qDebug().noquote()<<"posting to address: "<<subscriberAddress<<" "<<postRequestContent;
-
-    QNetworkRequest postRequest(subscriberAddress);
-
-
-    // https://stackoverflow.com/a/53556560
-
-    postRequest.setTransferTimeout(30000);
-    postRequest.setRawHeader("Content-Type", "text/xml");
-    //postRequest.setRawHeader("Expect", "100-continue");
-    //postRequest.setRawHeader("Connection", "keep-Alive");
-    //postRequest.setRawHeader("Accept-Encoding", "gzip, deflate");
-
-    QByteArray postRequestContentQByteArray=postRequestContent.toUtf8() ;
-
-    reply=postManager.post(postRequest,postRequestContentQByteArray);
-    connect(reply, &QNetworkReply::finished, this, &IbisIpSubscriberOnePublisher::slotHttpRequestGenericFinished);
-
-}
-*/
-
 int IbisIpSubscriberOnePublisher::portNumber() const
 {
 
@@ -151,32 +120,6 @@ void IbisIpSubscriberOnePublisher::slotUpdateService(QZeroConfService zcs)
     qDebug() <<  Q_FUNC_INFO;
 
     slotAddService(zcs);
-
-    /*
-
-    QString serviceName=zcs->name();
-    QString ipAddress=zcs->ip().toString();
-    QString version=zcs.data()->txt().value("ver");
-    int portNumber=zcs->port();
-
-
-    if(!serviceList.contains(zcs))
-    {
-        slotAddService(zcs);
-    }
-    else
-    {
-        qDebug()<<"service "<<serviceName<<" "<<version<<" "<<ipAddress<<":"<<QString::number(portNumber)<<" is already on the list";
-
-        QZeroConfService zcs2=serviceList.at(serviceList.indexOf(zcs));
-        QString serviceName2=zcs2->name();
-        QString ipAddress2=zcs2->ip().toString();
-        QString version2=zcs2.data()->txt().value("ver");
-        int portNumber2=zcs2->port();
-        qDebug()<<"service on list: "<<serviceName2<<" "<<version2<<" "<<ipAddress2<<":"<<QString::number(portNumber2)<<" is already on the list";
-
-    }
-*/
 }
 
 void IbisIpSubscriberOnePublisher::checkExistingServices()
@@ -222,13 +165,7 @@ void IbisIpSubscriberOnePublisher::slotAddService(QZeroConfService zcs)
                 qDebug()<<"adresaCile string "<<addressComplete;
                 QUrl subscriptionDestination=QUrl(addressComplete);
                 isCandidateSelected=true;
-                subscribeServiceCandidate=zcs;
-                /*
-                if(!isIpSet() )
-                {
-                    //deviceAddress=selectNonLoopbackAddress();
-                    deviceAddress=selectNonLoopbackAddressInSubnet(zcs->ip());
-                }*/
+                subscribeServiceCandidate=zcs;            
 
                 deviceAddress=selectNonLoopbackAddressInSubnet(zcs->ip(),mSubnetMask);
 
@@ -239,7 +176,7 @@ void IbisIpSubscriberOnePublisher::slotAddService(QZeroConfService zcs)
 
 
 
-                postSubscribe(subscriptionDestination,xmlGeneratorSubscriber.createSubscribeRequest(deviceAddress,httpServerSubscriber.portNumber()));
+                postSubscribe(subscriptionDestination,xmlGeneratorSubscriber.createSubscribeRequest(deviceAddress,httpServerSubscriber.portNumber(),mReplyPath));
 
             }
             else
@@ -251,15 +188,11 @@ void IbisIpSubscriberOnePublisher::slotAddService(QZeroConfService zcs)
         {
             qDebug()<<"isCandidateSelected "<<isCandidateSelected;
         }
-
     }
     else
     {
         qDebug()<<"service is not the requested one";
     }
-
-    // emit nalezenaSluzba( zcs);
-
 }
 
 
@@ -267,20 +200,9 @@ void IbisIpSubscriberOnePublisher::slotAddService(QZeroConfService zcs)
 void IbisIpSubscriberOnePublisher::slotAddServiceManual(QString serviceName, QString version, QString ipAddress, int portNumber)
 {
     qDebug() <<  Q_FUNC_INFO;
-/*
-    QString serviceName=zcs->name();
-    QString ipAddress=zcs->ip().toString();
-    QString version=zcs.data()->txt().value("ver");
-    int portNumber=zcs->port();
-*/
+
     qDebug() <<"service name "<<serviceName<<" ip address "<<ipAddress<<" portNumber "<<QString::number(portNumber)<<" data" <<version;
 
-    /*
-    if(!serviceList.contains(zcs))
-    {
-        serviceList.append(zcs);
-    }
-*/
 
     emit signalUpdateDeviceList();
 
@@ -298,17 +220,9 @@ void IbisIpSubscriberOnePublisher::slotAddServiceManual(QString serviceName, QSt
                 QUrl subscriptionDestination=QUrl(addressComplete);
                 isCandidateSelected=true;
 
-                //subscribeServiceCandidate=zcs;
-
-                /*
-                if(!isIpSet() )
-                {
-                    //deviceAddress=selectNonLoopbackAddress();
-                    deviceAddress=selectNonLoopbackAddressInSubnet(zcs->ip());
-                }*/
 
                 deviceAddress=selectNonLoopbackAddressInSubnet(QHostAddress(ipAddress),mSubnetMask);
-                postSubscribe(subscriptionDestination,xmlGeneratorSubscriber.createSubscribeRequest(deviceAddress,httpServerSubscriber.portNumber()));
+                postSubscribe(subscriptionDestination,xmlGeneratorSubscriber.createSubscribeRequest(deviceAddress,httpServerSubscriber.portNumber(),mReplyPath));
 
             }
             else
@@ -327,28 +241,14 @@ void IbisIpSubscriberOnePublisher::slotAddServiceManual(QString serviceName, QSt
         qDebug()<<"service is not the requested one";
     }
 
-    // emit nalezenaSluzba( zcs);
-
 }
 
 
 void IbisIpSubscriberOnePublisher::slotAddServiceManualForce(QString serviceName, QString version, QString ipAddress,  int portNumber)
 {
     qDebug() <<  Q_FUNC_INFO;
-    /*
-    QString serviceName=zcs->name();
-    QString ipAddress=zcs->ip().toString();
-    QString version=zcs.data()->txt().value("ver");
-    int portNumber=zcs->port();
-*/
-    qDebug() <<"service name "<<serviceName<<" ip address "<<ipAddress<<" portNumber "<<QString::number(portNumber)<<" data" <<version;
 
-    /*
-    if(!serviceList.contains(zcs))
-    {
-        serviceList.append(zcs);
-    }
-*/
+    qDebug() <<"service name "<<serviceName<<" ip address "<<ipAddress<<" portNumber "<<QString::number(portNumber)<<" data" <<version;
 
     emit signalUpdateDeviceList();
 
@@ -366,19 +266,8 @@ void IbisIpSubscriberOnePublisher::slotAddServiceManualForce(QString serviceName
                 QUrl subscriptionDestination=QUrl(addressComplete);
                 isCandidateSelected=true;
 
-                //subscribeServiceCandidate=zcs;
-
-                /*
-                if(!isIpSet() )
-                {
-                    //deviceAddress=selectNonLoopbackAddress();
-                    deviceAddress=selectNonLoopbackAddressInSubnet(zcs->ip());
-                }*/
 
                 deviceAddress=selectNonLoopbackAddressInSubnet(QHostAddress(ipAddress),mSubnetMask);
-              //  postSubscribe(subscriptionDestination,xmlGeneratorSubscriber.createSubscribeRequest(deviceAddress,httpServerSubscriber.portNumber()));
-
-
 
                 subscribedService=subscribeServiceCandidate;
                 this->isSubscriptionActive=true;
@@ -402,9 +291,6 @@ void IbisIpSubscriberOnePublisher::slotAddServiceManualForce(QString serviceName
     {
         qDebug()<<"service is not the requested one";
     }
-
-    // emit nalezenaSluzba( zcs);
-
 }
 
 void IbisIpSubscriberOnePublisher::slotHeartbeatTimeout()
@@ -466,9 +352,7 @@ void IbisIpSubscriberOnePublisher::slotHttpRequestSubscriptionFinished()
         emit signalIsSubscriptionSuccesful(false);
     }
 
-
     reply->deleteLater();
-    //reply = nullptr;
 }
 
 
@@ -522,43 +406,9 @@ void IbisIpSubscriberOnePublisher::slotHttpRequestUnsubscriptionFinished()
         emit signalError("unsubscription reply empty");
     }
 
-
-
-    reply->deleteLater();
-    //reply = nullptr;
-
-
-}
-
-/*
-void IbisIpSubscriberOnePublisher::slotHttpRequestGenericFinished()
-{
-    qDebug() <<  Q_FUNC_INFO;
-
-    QByteArray bts = reply->readAll();
-    QString str(bts);
-    qDebug()<<"unsusbscription response:";
-    qDebug().noquote()<<str;
-
-    if(reply->error()!=QNetworkReply::NoError)
-    {
-        qDebug()<<reply->errorString();
-
-        reply->deleteLater();
-        return;
-    }
-
-    // subscribedService=subscribeServiceCandidate;
-
-
-    QDomDocument qDomResponse;
-    bool setContentResult=false;
-
-    emit signalError(bts);
-
     reply->deleteLater();
 }
-*/
+
 
 void IbisIpSubscriberOnePublisher::slotSubscribeSent(QNetworkReply *subscriptionReply)
 {
@@ -612,7 +462,7 @@ void IbisIpSubscriberOnePublisher::unsubscribe()
         QUrl subscriptionDestination=QUrl(addressComplete);
 
 
-        postUnsubscribe(subscriptionDestination,xmlGeneratorSubscriber.createUnsubscribeRequest(deviceAddress,httpServerSubscriber.portNumber()));
+        postUnsubscribe(subscriptionDestination,xmlGeneratorSubscriber.createUnsubscribeRequest(deviceAddress,httpServerSubscriber.portNumber(),mReplyPath));
 
     }
     else

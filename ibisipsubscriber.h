@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QtHttpServer>
 #include <QtXml>
+#include <QPointer>
+
 #include "httpserversubscriber.h"
 #include "QtZeroConf/qzeroconf.h"
 #include "xmlgeneratorsubscriber.h"
@@ -15,7 +17,7 @@ public:
 
     //konstruktor a destruktor
     // explicit IbisIpSubscriber(QObject *parent = nullptr);
-    IbisIpSubscriber(QString serviceName, QString structureName, QString version, QString serviceType, int portNumber);
+    IbisIpSubscriber(QString serviceName, QString structureName, QString version, QString serviceType, int portNumber, QString replyPath="");
 
     //instance knihoven
     XmlGeneratorSubscriber xmlGeneratorSubscriber;
@@ -23,18 +25,17 @@ public:
     //variables
     QVector<QZeroConfService> serviceList;
     QHostAddress deviceAddress;
+
+
+
     QNetworkAccessManager postManager;
-    QNetworkReply *reply;
+    QPointer<QNetworkReply> reply;
 
     //functions
     QByteArray createOkResponse();
     void findServices(QString serviceType, int start);
-    QString createSubscribeRequest(QHostAddress clientIpAddress, int port);
-    QString createUnsubscribeRequest(QHostAddress clientIpAddress, int port);
 
     //nezarazeno
-    //int portNumber() const;
-    //void setPortNumber(int newPortNumber);
 
     QString version() const;
     void setVersion(const QString &newVersion);
@@ -53,6 +54,9 @@ public:
     void setStructureName(const QString &newStructureName);
 
 
+    QString replyPath() const;
+    void setReplyPath(const QString &newReplyPath);
+
 private:
 
     void allConnects();
@@ -66,11 +70,13 @@ protected:
     QZeroConf zeroConf;
     QString mServiceType="_ibisip_http._tcp";
 
-   // int mPortNumber=0;
+    // int mPortNumber=0;
     QString mHeader=""; //unused?
+    QString mReplyPath="";
     QString mServiceName="";
     QString mStructureName="";
     QString mVersion="";
+
 
     bool mIsIpSet=false;
 
@@ -92,7 +98,7 @@ signals:
     void signalUpdateDeviceList();
     void signalSubscriptionLost();
 
-//public slots:
+    //public slots:
 
 protected slots:
     void slotHttpRequestGenericFinished();

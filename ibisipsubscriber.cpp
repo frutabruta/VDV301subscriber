@@ -1,10 +1,11 @@
 #include "ibisipsubscriber.h"
 
 
-IbisIpSubscriber::IbisIpSubscriber(QString serviceName,QString structureName,QString version,QString serviceType, int portNumber) : httpServerSubscriber (portNumber)
+IbisIpSubscriber::IbisIpSubscriber(QString serviceName,QString structureName,QString version,QString serviceType, int portNumber, QString replyPath) : httpServerSubscriber (portNumber, replyPath)
 {
     qDebug() <<  Q_FUNC_INFO;
 
+    mReplyPath=replyPath;
     mServiceName=serviceName;
     mServiceType=serviceType;
     mStructureName=structureName;
@@ -37,6 +38,16 @@ void IbisIpSubscriber::start()
 void IbisIpSubscriber::allConnects()
 {
 
+}
+
+QString IbisIpSubscriber::replyPath() const
+{
+    return mReplyPath;
+}
+
+void IbisIpSubscriber::setReplyPath(const QString &newReplyPath)
+{
+    mReplyPath = newReplyPath;
 }
 
 QString IbisIpSubscriber::structureName() const

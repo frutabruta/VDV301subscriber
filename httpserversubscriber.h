@@ -18,7 +18,7 @@ class HttpServerSubscriber: public QObject
 {
     Q_OBJECT
 public:
-    HttpServerSubscriber(quint16 portNumber);
+    HttpServerSubscriber(quint16 portNumber, QString replyPath="");
 
     QHttpServer httpServer;
 
@@ -26,6 +26,7 @@ public:
 
     QString contentGet="obsahGet";
     QString subscribeResponseContent="<SubscribeResponse xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><Active><Value>true</Value></Active></SubscribeResponse>";
+    QString mReplyPath="";
 
     QByteArray requestBody="xx";
     QString contentRoot="";
@@ -35,7 +36,7 @@ public:
     int start();
 
     int listen();
-    int route(QString &getRequestContent, QMap<QString, QString> &contentBodyList);
+    int route(QString &getRequestContent, QMap<QString, QString> &contentBodyList, QString replyPath="");
 
 
     int setContentBody(QMap<QString, QString> input);

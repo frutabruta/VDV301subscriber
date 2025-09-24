@@ -17,11 +17,7 @@ QDomDocument XmlGeneratorSubscriber::setDeviceConfigurationRequest(QDomDocument 
     xmlDocument.appendChild(domSetDeviceConfigurationRequest);
 
     qDebug()<<xmlDocument.toString();
-
-
-
     return xmlDocument;
-
 }
 
 QDomProcessingInstruction XmlGeneratorSubscriber::createProcessingInformation(QDomDocument &xmlDocument, QString encoding)
@@ -47,23 +43,22 @@ QDomElement XmlGeneratorSubscriber::value(QDomDocument &xmlDocument, QString ele
 }
 
 
-QString XmlGeneratorSubscriber::createSubscribeRequest(QHostAddress clientIpAddress, int port)
+QString XmlGeneratorSubscriber::createSubscribeRequest(QHostAddress clientIpAddress, int port, QString replyPath)
 {
     QDomDocument xmlDocument;
     QDomProcessingInstruction dProcessingInformation=xmlDocument.createProcessingInstruction("xml","version=\"1.0\" encoding=\"utf-8\" ");
     xmlDocument.appendChild(dProcessingInformation);
     QDomElement dSubscribeRequest =xmlDocument.createElement("SubscribeRequest");
     xmlDocument.appendChild(dSubscribeRequest);
-    QDomElement dClientIPAddress=xmlDocument.createElement("Client-IP-Address");
-    QDomElement dIpValue=xmlDocument.createElement("Value");
-    dIpValue.appendChild(xmlDocument.createTextNode(clientIpAddress.toString()));
-    dClientIPAddress.appendChild(dIpValue);
-    dSubscribeRequest.appendChild(dClientIPAddress);
-    QDomElement dReplyPort=xmlDocument.createElement("ReplyPort");
-    QDomElement dPortValue=xmlDocument.createElement("Value");
-    dPortValue.appendChild(xmlDocument.createTextNode(QString::number(port)));
-    dReplyPort.appendChild(dPortValue);
-    dSubscribeRequest.appendChild(dReplyPort);
+
+    dSubscribeRequest.appendChild(value(xmlDocument,"Client-IP-Address",clientIpAddress.toString()));
+
+    dSubscribeRequest.appendChild(value(xmlDocument,"ReplyPort",QString::number(port)));
+
+    if(replyPath!="")
+    {
+           dSubscribeRequest.appendChild(value(xmlDocument,"ReplyPath",replyPath));
+    }
 
     return xmlDocument.toString();
 }
@@ -74,17 +69,14 @@ QString XmlGeneratorSubscriber::createUnsubscribeRequest(QHostAddress clientIpAd
     QDomProcessingInstruction dProcessingInformation=xmlDocument.createProcessingInstruction("xml","version=\"1.0\" encoding=\"utf-8\" ");
     xmlDocument.appendChild(dProcessingInformation);
     QDomElement dSubscribeRequest =xmlDocument.createElement("UnsubscribeRequest");
-    xmlDocument.appendChild(dSubscribeRequest);
-    QDomElement dClientIPAddress=xmlDocument.createElement("Client-IP-Address");
-    QDomElement dIpValue=xmlDocument.createElement("Value");
-    dIpValue.appendChild(xmlDocument.createTextNode(clientIpAddress.toString()));
-    dClientIPAddress.appendChild(dIpValue);
-    dSubscribeRequest.appendChild(dClientIPAddress);
-    QDomElement dReplyPort=xmlDocument.createElement("ReplyPort");
-    QDomElement dPortValue=xmlDocument.createElement("Value");
-    dPortValue.appendChild(xmlDocument.createTextNode(QString::number(port)));
-    dReplyPort.appendChild(dPortValue);
-    dSubscribeRequest.appendChild(dReplyPort);
+    xmlDocument.appendChild(dSubscribeRequest);     
 
+    dSubscribeRequest.appendChild(value(xmlDocument,"Client-IP-Address",clientIpAddress.toString()));
+    dSubscribeRequest.appendChild(value(xmlDocument,"ReplyPort",QString::number(port)));
+    
+    if(replyPath!="")
+    {
+           dSubscribeRequest.appendChild(value(xmlDocument,"ReplyPath",replyPath));
+    }
     return xmlDocument.toString();
 }

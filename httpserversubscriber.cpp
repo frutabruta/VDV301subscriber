@@ -1,8 +1,9 @@
 #include "httpserversubscriber.h"
 
-HttpServerSubscriber::HttpServerSubscriber(quint16 portNumber)
+HttpServerSubscriber::HttpServerSubscriber(quint16 portNumber, QString replyPath)
 {
     mPortNumber=portNumber;
+    mReplyPath=replyPath;
     contentRoot=createOkResponse();
     //start();
 
@@ -22,14 +23,14 @@ int HttpServerSubscriber::start()
 {
     qDebug() <<Q_FUNC_INFO;
 
-    this->route(contentGet,contentBodyMap);
+    this->route(contentGet,contentBodyMap,mReplyPath);
     this->listen();
 
     return 1;
 }
 
 
-int HttpServerSubscriber::route(QString &getRequestContent,  QMap<QString,QString> &contentBodyList)
+int HttpServerSubscriber::route(QString &getRequestContent,  QMap<QString,QString> &contentBodyList, QString replyPath)
 {
 
     qDebug() <<Q_FUNC_INFO;
@@ -46,6 +47,69 @@ int HttpServerSubscriber::route(QString &getRequestContent,  QMap<QString,QStrin
 
                      });
 
+    httpServer.route(replyPath, [replyPath,this](const QHttpServerRequest &request)
+                     {
+                         qDebug()<<"replyPath: "<<replyPath;
+                         HttpServerRequest requestReturnValue;
+                         requestReturnValue.body=request.body();
+                         requestReturnValue.hostAddress=request.remoteAddress();
+
+#if QT_VERSION > QT_VERSION_CHECK(6, 5, 0)
+                         requestReturnValue.port=request.remotePort();
+#endif
+
+                         emit signalDataReceived(requestReturnValue.body);
+                         emit signalWholeRequest(requestReturnValue);
+
+                         QString okResponse="HTTP/1.1 200 OK";
+                         //return this->obsahRoot;
+                         return "";
+                         //return intObsahGet;
+                     });
+    httpServer.route("/"+replyPath, [replyPath,this](const QHttpServerRequest &request)
+                     {
+                         qDebug()<<"replyPath : /"<<replyPath;
+                         HttpServerRequest requestReturnValue;
+                         requestReturnValue.body=request.body();
+                         requestReturnValue.hostAddress=request.remoteAddress();
+
+#if QT_VERSION > QT_VERSION_CHECK(6, 5, 0)
+                         requestReturnValue.port=request.remotePort();
+#endif
+
+                         emit signalDataReceived(requestReturnValue.body);
+                         emit signalWholeRequest(requestReturnValue);
+
+                         QString okResponse="HTTP/1.1 200 OK";
+                         //return this->obsahRoot;
+                         return "";
+                         //return intObsahGet;
+                     });
+    if(replyPath!="")
+    {
+        httpServer.route("/", [this](const QHttpServerRequest &request)
+                         {
+                             qDebug()<<"OBU doesn't respect ReplyPath";
+
+                             HttpServerRequest requestReturnValue;
+                             requestReturnValue.body=request.body();
+                             requestReturnValue.hostAddress=request.remoteAddress();
+
+#if QT_VERSION > QT_VERSION_CHECK(6, 5, 0)
+                             requestReturnValue.port=request.remotePort();
+#endif
+
+                             emit signalDataReceived(requestReturnValue.body);
+                             emit signalWholeRequest(requestReturnValue);
+
+                             QString okResponse="HTTP/1.1 200 OK";
+                             //return this->obsahRoot;
+                             return "";
+
+                         });
+    }
+
+/*
     httpServer.route("/", [this](const QHttpServerRequest &request)
                      {
 
@@ -65,6 +129,7 @@ int HttpServerSubscriber::route(QString &getRequestContent,  QMap<QString,QStrin
                          return "";
                          //return intObsahGet;
                      });
+*/
 #if QT_VERSION > QT_VERSION_CHECK(6, 0, 0)
     httpServer.afterRequest([](QHttpServerResponse &&resp)
                             {

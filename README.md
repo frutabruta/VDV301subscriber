@@ -6,10 +6,30 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20250924_1509
+    - CisSubscriber
+      - added replyPath attribute
+    - DevMgmtSubscriber2::slotHttpRequestSubscriptionFinished
+      - null pointer fix
+      - empty result check
+    - HttpServerSubscriber::route
+      - added replyPath handeling and support for / in beginning
+    - IbisIpSubscriber
+      - added replyPath support
+      - changed reply type to QPointer<QNetworkReply> to fix crashes
+    - IbisIpSubscriberOnePublisher
+      - added replyPath support
+    - XmlGeneratorSubscriber::createSubscribeRequest
+      - simplified using value function
+      - added replyPath
+    - XmlGeneratorSubscriber::createUnsubscribeRequest
+      - simplified using value function
+      - added replyPath
+
+
 - 20250624_1721
     - VDV301DataStructures
         - Stop Point
-
 
 - 20250520_1347
     - fixed Vdv301Datastructures VDV301CurrentDisplayContent dependency
