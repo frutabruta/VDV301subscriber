@@ -6,6 +6,9 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20250924_1550
+    - XmlGeneratorSubscriber::createUnsubscribeRequest
+      - header fix
 - 20250924_1509
     - CisSubscriber
       - added replyPath attribute

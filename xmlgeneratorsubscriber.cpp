@@ -63,7 +63,7 @@ QString XmlGeneratorSubscriber::createSubscribeRequest(QHostAddress clientIpAddr
     return xmlDocument.toString();
 }
 
-QString XmlGeneratorSubscriber::createUnsubscribeRequest(QHostAddress clientIpAddress, int port)
+QString XmlGeneratorSubscriber::createUnsubscribeRequest(QHostAddress clientIpAddress, int port, QString replyPath)
 {
     QDomDocument xmlDocument;
     QDomProcessingInstruction dProcessingInformation=xmlDocument.createProcessingInstruction("xml","version=\"1.0\" encoding=\"utf-8\" ");
