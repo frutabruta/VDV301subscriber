@@ -6,6 +6,9 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20251007_1642
+  - IbisIpSubscriberOnePublisher::slotAddService
+    - temporary fix of sending empty request when nonloopback address is not found
 - 20250924_1550
     - XmlGeneratorSubscriber::createUnsubscribeRequest
       - header fix

@@ -171,13 +171,17 @@ void IbisIpSubscriberOnePublisher::slotAddService(QZeroConfService zcs)
 
                 if(deviceAddress.toString().isEmpty())
                 {
+                    qWarning()<<"couldn't find device address!";
                     emit signalError("couldn't find device address!");
+                }
+                else
+                {
+                       postSubscribe(subscriptionDestination,xmlGeneratorSubscriber.createSubscribeRequest(deviceAddress,httpServerSubscriber.portNumber(),mReplyPath));
                 }
 
 
 
-                postSubscribe(subscriptionDestination,xmlGeneratorSubscriber.createSubscribeRequest(deviceAddress,httpServerSubscriber.portNumber(),mReplyPath));
-
+           
             }
             else
             {
