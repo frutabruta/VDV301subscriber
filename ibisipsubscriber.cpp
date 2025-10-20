@@ -133,18 +133,26 @@ QUrl IbisIpSubscriber::createSubscribeDestination(PublisherStruct publisherStruc
 void IbisIpSubscriber::findServices(QString serviceType, int start)
 {
     qDebug() <<  Q_FUNC_INFO;
-    if (start == 0 ) //stops service browser
+    if(!blockBonjour)
     {
-        zeroConf.stopBrowser();
-    }
-    else if (start == 1) //starts service browser
-    {
-        if (!zeroConf.browserExists())
+        if (start == 0 ) //stops service browser
         {
-            qDebug()<<"searching for services";
-            zeroConf.startBrowser(serviceType);
+            zeroConf.stopBrowser();
+        }
+        else if (start == 1) //starts service browser
+        {
+            if (!zeroConf.browserExists())
+            {
+                qDebug()<<"searching for services";
+                zeroConf.startBrowser(serviceType);
+            }
         }
     }
+    else
+    {
+        qDebug()<<"bonjour blocked!";
+    }
+
 }
 
 
@@ -258,6 +266,22 @@ QHostAddress IbisIpSubscriber::selectNonLoopbackAddress()
             }
         }
     }
+
+    if(mIsIpSet)
+    {
+        qDebug()<<"address found";
+    }
+    else
+    {
+        qDebug()<<"non-loopback address not found";
+        if(allowLoopback)
+        {
+            output=QHostAddress::LocalHost;
+            qDebug()<<"non-loopback address allowed, setting localhost";
+        }
+    }
+
+
     return output;
 }
 
@@ -270,37 +294,41 @@ QHostAddress IbisIpSubscriber::selectNonLoopbackAddressInSubnet(QHostAddress add
 
     bool isIpSet=false;
 
-    foreach(QHostAddress selectedAddress, list)
+    if(addressOfPublisher.isLoopback())
     {
-        qDebug() <<" "<<selectedAddress.toString();
-        if(!selectedAddress.isLoopback())
+        qDebug()<<"address of publisher is loopback, setting local host";
+        output=QHostAddress::LocalHost;
+        isIpSet=true;
+    }
+    else
+    {
+        foreach(QHostAddress selectedAddress, list)
         {
-            if (selectedAddress.protocol() == QAbstractSocket::IPv4Protocol )
+            qDebug() <<" "<<selectedAddress.toString();
+            if(!selectedAddress.isLoopback())
             {
-                qDebug() <<" not loopback"<< selectedAddress.toString();
-                if(isIpSet==false)
+                if (selectedAddress.protocol() == QAbstractSocket::IPv4Protocol )
                 {
-                    if(selectedAddress.isInSubnet(addressOfPublisher,mask))
+                    qDebug() <<" not loopback"<< selectedAddress.toString();
+                    if(isIpSet==false)
                     {
-                        qDebug()<<" address "<<selectedAddress<<" is in subnet of "<<addressOfPublisher;
-                        output=selectedAddress;
-                        isIpSet=true;
+                        if(selectedAddress.isInSubnet(addressOfPublisher,mask))
+                        {
+                            qDebug()<<" address "<<selectedAddress<<" is in subnet of "<<addressOfPublisher;
+                            output=selectedAddress;
+                            isIpSet=true;
+                        }
+                        else
+                        {
+                            qDebug()<<" address "<<selectedAddress<<" is NOT in subnet of "<<addressOfPublisher;
+                        }
                     }
-                    else
-                    {
-                        qDebug()<<" address "<<selectedAddress<<" is NOT in subnet of "<<addressOfPublisher;
-                    }
-
-
                 }
-
-
-
-
-
             }
         }
     }
+
+
     return output;
 }
 
@@ -350,7 +378,7 @@ void IbisIpSubscriber::slotHttpRequestGenericFinished()
 
 
     QDomDocument qDomResponse;
-    bool setContentResult=false;
+    //bool setContentResult=false;
 
     emit signalError(bts);
 

@@ -31,6 +31,10 @@ public:
     QNetworkAccessManager postManager;
     QPointer<QNetworkReply> reply;
 
+    //options
+    bool blockBonjour=false;
+    bool allowLoopback=false;
+
     //functions
     QByteArray createOkResponse();
     void findServices(QString serviceType, int start);

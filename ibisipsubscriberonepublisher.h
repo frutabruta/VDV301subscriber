@@ -22,8 +22,8 @@ public:
     bool isSubscriptionActive=false;
     bool isCandidateSelected=false;
 
-    QZeroConfService subscribedService;
-    QZeroConfService subscribeServiceCandidate;
+    PublisherStruct subscribedService;
+    PublisherStruct subscribeServiceCandidate;
 
     //functions
     void start();
@@ -59,9 +59,9 @@ protected slots:
     void slotServiceRemoved(QZeroConfService zcs);
 
 signals:
-    void signalSubscriptionSuccessful(QZeroConfService zcs);
+    void signalSubscriptionSuccessful(PublisherStruct zcs);
     void signalIsSubscriptionSuccesful(bool result);
-    void signalUnsubscriptionSuccessful(QZeroConfService zcs);
+    void signalUnsubscriptionSuccessful(PublisherStruct zcs);
     void signalIsUnsubscriptionSuccesful(bool result);
 };
 

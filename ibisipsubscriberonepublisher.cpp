@@ -138,11 +138,15 @@ void IbisIpSubscriberOnePublisher::slotAddService(QZeroConfService zcs)
 {
     qDebug() <<  Q_FUNC_INFO;
 
-    QString serviceName=zcs->name();
-    QString ipAddress=zcs->ip().toString();
-    QString version=zcs.data()->txt().value("ver");
-    int portNumber=zcs->port();
-    qDebug() <<"service name "<<serviceName<<" ip address "<<ipAddress<<" portNumber "<<QString::number(portNumber)<<" data" <<version;
+    PublisherStruct publisherStruct(zcs);
+
+
+  //  QString serviceName=zcs->name();
+ //   QString ipAddress=zcs->ip().toString();
+ //   QString version=zcs.data()->txt().value("ver");
+  //  int portNumber=zcs->port();
+
+    qDebug() <<"service name "<<publisherStruct.serviceName<<" ip address "<<publisherStruct.hostAddress<<" portNumber "<<QString::number(publisherStruct.portNumber)<<" data" <<publisherStruct.ibisIpVersion;
 
     if(!serviceList.contains(zcs))
     {
@@ -158,16 +162,16 @@ void IbisIpSubscriberOnePublisher::slotAddService(QZeroConfService zcs)
         {
             if(this->isSubscriptionActive==false)
             {
-                qDebug()<<"sending subscribe request to  "<<ipAddress<<":"<<QString::number(portNumber)<<" service "<<serviceName;
+                qDebug()<<"sending subscribe request to  "<<publisherStruct.hostAddress<<":"<<QString::number(publisherStruct.portNumber)<<" service "<<publisherStruct.serviceName;
 
                 QString addressAfterBackslash="/"+mServiceName+"/Subscribe"+mStructureName;
-                QString addressComplete="http://"+zcs->ip().toString()+":"+QString::number(zcs->port())+addressAfterBackslash;
+                QString addressComplete="http://"+publisherStruct.hostAddress.toString()+":"+QString::number(publisherStruct.portNumber)+addressAfterBackslash;
                 qDebug()<<"adresaCile string "<<addressComplete;
                 QUrl subscriptionDestination=QUrl(addressComplete);
                 isCandidateSelected=true;
                 subscribeServiceCandidate=zcs;            
 
-                deviceAddress=selectNonLoopbackAddressInSubnet(zcs->ip(),mSubnetMask);
+                deviceAddress=selectNonLoopbackAddressInSubnet(publisherStruct.hostAddress,mSubnetMask);
 
                 if(deviceAddress.toString().isEmpty())
                 {
@@ -205,8 +209,14 @@ void IbisIpSubscriberOnePublisher::slotAddServiceManual(QString serviceName, QSt
 {
     qDebug() <<  Q_FUNC_INFO;
 
-    qDebug() <<"service name "<<serviceName<<" ip address "<<ipAddress<<" portNumber "<<QString::number(portNumber)<<" data" <<version;
 
+
+    subscribeServiceCandidate.serviceName=serviceName;
+    subscribeServiceCandidate.ibisIpVersion=version;
+    subscribeServiceCandidate.hostAddress=QHostAddress(ipAddress);
+    subscribeServiceCandidate.portNumber=portNumber;
+
+    qDebug() <<"service name "<<subscribeServiceCandidate.serviceName<<" ip address "<<subscribeServiceCandidate.hostAddress<<" portNumber "<<QString::number(subscribeServiceCandidate.portNumber)<<" data" <<subscribeServiceCandidate.ibisIpVersion;
 
     emit signalUpdateDeviceList();
 
@@ -216,10 +226,10 @@ void IbisIpSubscriberOnePublisher::slotAddServiceManual(QString serviceName, QSt
         {
             if(this->isSubscriptionActive==false)
             {
-                qDebug()<<"sending subscribe request to  "<<ipAddress<<":"<<QString::number(portNumber)<<" service "<<serviceName;
+                qDebug()<<"sending subscribe request to  "<<subscribeServiceCandidate.hostAddress<<":"<<QString::number(subscribeServiceCandidate.portNumber)<<" service "<<subscribeServiceCandidate.serviceName;
 
                 QString addressAfterBackslash="/"+mServiceName+"/Subscribe"+mStructureName;
-                QString addressComplete="http://"+ipAddress+":"+QString::number( portNumber)+addressAfterBackslash;
+                QString addressComplete="http://"+subscribeServiceCandidate.hostAddress.toString()+":"+QString::number( subscribeServiceCandidate.portNumber)+addressAfterBackslash;
                 qDebug()<<"adresaCile string "<<addressComplete;
                 QUrl subscriptionDestination=QUrl(addressComplete);
                 isCandidateSelected=true;
@@ -433,7 +443,7 @@ void IbisIpSubscriberOnePublisher::slotServiceRemoved(QZeroConfService zcs)
 {
     qDebug() <<  Q_FUNC_INFO;
     deleteServiceFromList(serviceList,zcs);
-    if(zcs==subscribedService)
+    if(PublisherStruct(zcs)==subscribedService)
     {
         emit signalSubscriptionLost();
         newSubscribeRequest();
@@ -458,10 +468,10 @@ void IbisIpSubscriberOnePublisher::unsubscribe()
 {
 
     qDebug() <<  Q_FUNC_INFO;
-    if(!subscribedService.isNull())
+    if(!subscribedService.serviceName.isNull())
     {
         QString addressAfterBackslash="/"+mServiceName+"/Unsubscribe"+mStructureName;
-        QString addressComplete="http://"+subscribedService->ip().toString()+":"+QString::number(subscribedService->port())+addressAfterBackslash;
+        QString addressComplete="http://"+subscribedService.hostAddress.toString()+":"+QString::number(subscribedService.portNumber)+addressAfterBackslash;
         qDebug()<<"adresaCile string "<<addressComplete;
         QUrl subscriptionDestination=QUrl(addressComplete);
 
@@ -471,8 +481,8 @@ void IbisIpSubscriberOnePublisher::unsubscribe()
     }
     else
     {
-        qDebug()<<"no subscribed service";
-        emit signalError("subscribed service is null");
+        qDebug()<<"subscribed service name is empty";
+        emit signalError("subscribed service name is empty");
     }
     isSubscriptionActive=false;
     isCandidateSelected=false;
