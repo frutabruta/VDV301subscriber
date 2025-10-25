@@ -33,6 +33,7 @@ public:
     bool getDeviceConfiguration(DevMgmtPublisherStruct &device);
     void postSetDeviceConfiguration(QUrl subscriberAddress, QString deviceId);
     void slotSetSetDeviceConfigurationFinished();
+    void start();
 protected:
     /*
     void deviceInformationToDevice(QDomDocument &domDocument, DevMgmtPublisherStruct &device);

@@ -6,6 +6,9 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20251025_2304
+  - DevMgmtSubscriber::start
+    - modified to allow not starting in constructor
 - 20251021_0133
   - IbisIpSubscriber
     - added blockBonjour function    

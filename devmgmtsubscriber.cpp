@@ -6,15 +6,21 @@ DevMgmtSubscriber::DevMgmtSubscriber(QString serviceName, QString structureName,
     qDebug()<<Q_FUNC_INFO;
 
     //allConnects();
-    findServices(mServiceType,1);
-    start();
+
 }
+
 
 DevMgmtSubscriber::~DevMgmtSubscriber()
 {
     qDebug()<<Q_FUNC_INFO;
     zeroConf.disconnect();//reseni erroru ASSERT failure in DevMgmtSubscriber: "Called object is not of the correct type
     //  this->disconnect();
+}
+
+void DevMgmtSubscriber::start()
+{
+    findServices(mServiceType,1);
+    IbisIpSubscriber::start();
 }
 
 
