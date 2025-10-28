@@ -6,6 +6,10 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20251028_1435
+  - Vdv301Datastructures 
+    - vehicleRef prevent reset
+    
 - 20251025_2304
   - DevMgmtSubscriber::start
     - modified to allow not starting in constructor
