@@ -6,8 +6,12 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20251028_1939
+  - Vdv301DataStructures 
+    - Trip == operator fix
+
 - 20251028_1435
-  - Vdv301Datastructures 
+  - Vdv301DataStructures 
     - vehicleRef prevent reset
     
 - 20251025_2304
