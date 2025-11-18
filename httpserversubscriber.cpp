@@ -9,6 +9,16 @@ HttpServerSubscriber::HttpServerSubscriber(quint16 portNumber, QString replyPath
 
 }
 
+QString HttpServerSubscriber::replyPath() const
+{
+    return mReplyPath;
+}
+
+void HttpServerSubscriber::setReplyPath(const QString &newReplyPath)
+{
+    mReplyPath = newReplyPath;
+}
+
 quint16 HttpServerSubscriber::portNumber() const
 {
     return mPortNumber;

@@ -30,6 +30,7 @@ void IbisIpSubscriber::start()
 {
     qDebug()<<Q_FUNC_INFO;
 
+    httpServerSubscriber.setReplyPath(mReplyPath);
     httpServerSubscriber.start();
     allConnects();
 }
@@ -48,6 +49,7 @@ QString IbisIpSubscriber::replyPath() const
 void IbisIpSubscriber::setReplyPath(const QString &newReplyPath)
 {
     mReplyPath = newReplyPath;
+    httpServerSubscriber.setReplyPath(mReplyPath);
 }
 
 QString IbisIpSubscriber::structureName() const

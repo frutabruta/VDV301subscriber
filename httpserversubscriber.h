@@ -43,6 +43,9 @@ public:
     quint16 portNumber() const;
     void setPortNumber(quint16 newPortNumber);
 
+    QString replyPath() const;
+    void setReplyPath(const QString &newReplyPath);
+
 private:
     QString createOkResponse();
     QMap<QString,QString> contentBodyMap;

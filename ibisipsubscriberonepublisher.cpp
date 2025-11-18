@@ -20,6 +20,7 @@ void IbisIpSubscriberOnePublisher::start()
 {
     qDebug()<<Q_FUNC_INFO;
     timerHeartbeatCheck.start(heartbeatCheckInterval);
+    httpServerSubscriber.setReplyPath(mReplyPath);
     httpServerSubscriber.start();
     allConnects();
     allConnects2();
