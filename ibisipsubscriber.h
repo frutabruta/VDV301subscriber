@@ -5,6 +5,7 @@
 #include <QtHttpServer>
 #include <QtXml>
 #include <QPointer>
+#include <QLoggingCategory>
 
 #include "httpserversubscriber.h"
 #include "QtZeroConf/qzeroconf.h"
@@ -84,7 +85,8 @@ protected:
 
     bool mIsIpSet=false;
 
-    int mSubnetMask=16;
+    //int mSubnetMask=16; // 16 255.255.0.0
+    int mSubnetMask=24;                  //24 255.255.0.0
 
     //funkce
     QUrl createSubscribeDestination(PublisherStruct publisherStruct);

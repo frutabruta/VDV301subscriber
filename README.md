@@ -6,6 +6,11 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20251129_0134
+    - qCDebug implementations:
+      - IbisIpSubscriber
+      - IbisIpSubscriberOnePublisher 
+      
 - 20251118_1558
   - replyPath fix for http server (worked only with xxx)
   - added HttpServerSubscriber::setReplyPath
