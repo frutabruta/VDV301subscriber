@@ -30,7 +30,7 @@ public:
 
 
     QNetworkAccessManager postManager;
-    QPointer<QNetworkReply> reply;
+   // QPointer<QNetworkReply> reply;
 
     //options
     bool blockBonjour=false;

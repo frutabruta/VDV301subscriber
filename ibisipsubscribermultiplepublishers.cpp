@@ -54,7 +54,7 @@ void IbisIpSubscriberMultiplePublishers::postSubscribe(QUrl subscriberAddress, Q
 
     QByteArray postRequestContentQByteArray=postRequestContent.toUtf8() ;
 
-    reply=postManager.post(postRequest,postRequestContentQByteArray);
+    QPointer<QNetworkReply> reply=postManager.post(postRequest,postRequestContentQByteArray);
     connect(reply, &QNetworkReply::finished, this, &IbisIpSubscriberMultiplePublishers::slotHttpRequestSubscriptionFinished);
 
 }
@@ -84,12 +84,12 @@ void IbisIpSubscriberMultiplePublishers::postUnsubscribe(QUrl subscriberAddress,
 
     QByteArray postRequestContentQByteArray=postRequestContent.toUtf8() ;
 
-    reply=postManager.post(postRequest,postRequestContentQByteArray);
+    QPointer<QNetworkReply> reply=postManager.post(postRequest,postRequestContentQByteArray);
     connect(reply, &QNetworkReply::finished, this, &IbisIpSubscriberMultiplePublishers::slotHttpRequestUnsubscriptionFinished);
 
 }
 
-
+/*
 void IbisIpSubscriberMultiplePublishers::slotHttpRequestSubscriptionFinished()
 {
     qDebug() <<  Q_FUNC_INFO;
@@ -144,11 +144,96 @@ void IbisIpSubscriberMultiplePublishers::slotHttpRequestSubscriptionFinished()
 
     reply->deleteLater();
     //reply = nullptr;
+}*/
+
+
+
+void IbisIpSubscriberMultiplePublishers::slotHttpRequestSubscriptionFinished()
+{
+    QPointer<QNetworkReply> reply = qobject_cast<QNetworkReply*>(sender());
+    if (!reply)
+    {
+        qDebug() << "Subscription slot without valid QNetworkReply sender";
+        emit signalIsSubscriptionSuccessful(false);
+        return;
+    }
+
+    qDebug() << Q_FUNC_INFO
+             << "URL:" << reply->url()
+             << "HTTP status:" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+    if (!reply->isOpen())
+    {
+        qDebug() << "Reply device not open";
+        emit signalIsSubscriptionSuccessful(false);
+        reply->deleteLater();
+        return;
+    }
+
+    const QByteArray bts = reply->readAll();
+    const QString str = QString::fromUtf8(bts);
+    qDebug() << "subscribe response:";
+    qDebug().noquote() << str;
+
+    if (reply->error() != QNetworkReply::NoError)
+    {
+        qDebug() << "Network error:" << reply->errorString();
+        emit signalIsSubscriptionSuccessful(false);
+        reply->deleteLater();
+        return;
+    }
+
+    QDomDocument doc;
+    QString parseErrorMsg;
+    int parseErrorLine = 0, parseErrorCol = 0;
+    if (!doc.setContent(str, &parseErrorMsg, &parseErrorLine, &parseErrorCol))
+    {
+        qDebug() << "XML parse error:" << parseErrorMsg << "at" << parseErrorLine << ":" << parseErrorCol;
+        emit signalIsSubscriptionSuccessful(false);
+        emit signalError(QString("Invalid XML: %1 at %2:%3").arg(parseErrorMsg).arg(parseErrorLine).arg(parseErrorCol));
+        reply->deleteLater();
+        return;
+    }
+
+    const QDomNodeList activeNodes = doc.elementsByTagName("Active");
+    if (activeNodes.isEmpty())
+    {
+        qDebug() << "Missing <Active> element";
+        if (!ignoreSubscribeError) {
+            emit signalIsSubscriptionSuccessful(false);
+            emit signalError(doc.toString());
+        }
+        reply->deleteLater();
+        return;
+    }
+
+    const QString subscriptionResult = activeNodes.at(0).firstChildElement("Value").firstChild().nodeValue();
+
+    qDebug() << "subscription result:" << subscriptionResult;
+
+    const bool isActiveTrue = (subscriptionResult.compare("true", Qt::CaseInsensitive) == 0);
+
+    if (isActiveTrue || ignoreSubscribeError)
+    {
+        qDebug() << "subscription successful";
+        publisherList << publisherServiceCandidate;
+        emit signalSubscriptionSuccessful(publisherServiceCandidate);
+
+        // If you also want to notify the 'success' boolean explicitly:
+        emit signalIsSubscriptionSuccessful(true);
+    }
+    else
+    {
+        qDebug() << "subscription failed";
+        emit signalIsSubscriptionSuccessful(false);
+        emit signalError(doc.toString());
+    }
+
+    reply->deleteLater();
 }
 
 
-
-
+/*
 
 void IbisIpSubscriberMultiplePublishers::slotHttpRequestUnsubscriptionFinished()
 {
@@ -208,6 +293,103 @@ void IbisIpSubscriberMultiplePublishers::slotHttpRequestUnsubscriptionFinished()
 }
 
 
+*/
+
+
+
+void IbisIpSubscriberMultiplePublishers::slotHttpRequestUnsubscriptionFinished()
+{
+    QPointer<QNetworkReply> reply = qobject_cast<QNetworkReply*>(sender());
+    if (reply == nullptr)
+    {
+        qDebug() << "Unsubscription slot without valid QNetworkReply sender";
+        emit signalIsUnsubscriptionSuccesful(false);
+        return;
+    }
+
+    qDebug() << Q_FUNC_INFO
+             << "URL:" << reply->url()
+             << "HTTP status:" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+    // Prevent QIODevice::read ... device not open
+    if (!reply->isOpen())
+    {
+        qDebug() << "Reply device not open";
+        emit signalIsUnsubscriptionSuccesful(false);
+        reply->deleteLater();
+        return;
+    }
+
+    const QByteArray bts = reply->readAll();
+    const QString str = QString::fromUtf8(bts);
+    qDebug() << "unsubscription response:";
+    qDebug().noquote() << str;
+
+    if (reply->error() != QNetworkReply::NoError)
+    {
+        qDebug() << "Network error:" << reply->errorString();
+        emit signalIsUnsubscriptionSuccesful(false);
+        reply->deleteLater();
+        return;
+    }
+
+    QDomDocument doc;
+    QString parseErrorMsg;
+    int parseErrorLine = 0;
+    int parseErrorCol = 0;
+
+    const bool ok = doc.setContent(str, &parseErrorMsg, &parseErrorLine, &parseErrorCol);
+    if (!ok)
+    {
+        qDebug() << "XML parse error:" << parseErrorMsg << "at" << parseErrorLine << ":" << parseErrorCol;
+        emit signalIsUnsubscriptionSuccesful(false);
+        emit signalError(QString("Invalid XML: %1 at %2:%3").arg(parseErrorMsg).arg(parseErrorLine).arg(parseErrorCol));
+        reply->deleteLater();
+        return;
+    }
+
+    const QDomNodeList activeNodes = doc.elementsByTagName("Active");
+    if (activeNodes.isEmpty())
+    {
+        qDebug() << "Missing <Active> element in unsubscription response";
+        emit signalIsUnsubscriptionSuccesful(false);
+        emit signalError("Missing <Active> element");
+        reply->deleteLater();
+        return;
+    }
+
+    const QDomElement activeElem = activeNodes.at(0).toElement();
+    const QDomElement valueElem = activeElem.firstChildElement("Value");
+    if (valueElem.isNull())
+    {
+        qDebug() << "Missing <Value> element under <Active>";
+        emit signalIsUnsubscriptionSuccesful(false);
+        emit signalError("Missing <Value> element");
+        reply->deleteLater();
+        return;
+    }
+
+    const QString unsubscriptionResult = valueElem.firstChild().nodeValue();
+    qDebug() << "unsubscription result:" << unsubscriptionResult;
+
+    // Treat "false" (case-insensitive) as successful unsubscription
+    const bool isInactive = (unsubscriptionResult.compare("false", Qt::CaseInsensitive) == 0);
+
+    if (isInactive)
+    {
+        emit signalIsUnsubscriptionSuccesful(true);
+        // If you want to emit which publisher/service was unsubscribed, you can:
+        // emit signalUnsubscriptionSuccessful(subscribedService);
+    }
+    else
+    {
+        qDebug() << "unsubscription failed";
+        emit signalIsUnsubscriptionSuccesful(false);
+        emit signalError(doc.toString());
+    }
+
+    reply->deleteLater();
+}
 
 
 void IbisIpSubscriberMultiplePublishers::slotAddServiceManual(PublisherStruct publisher)

@@ -6,6 +6,16 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20251220_1735
+  - IbisIpSubscriber::postGenericRequest
+    - reply defined here
+  - rewritten to achieve better pairing of response and request and already deleted response
+    - IbisIpSubscriber::slotHttpRequestGenericFinished
+    - IbisIpSubscriberMultiplePublishers::slotHttpRequestSubscriptionFinished
+    - IbisIpSubscriberMultiplePublishers::slotHttpRequestUnsubscriptionFinished 
+    - IbisIpSubscriberOnePublisher::slotHttpRequestSubscriptionFinished
+    - IbisIpSubscriberOnePublisher::slotHttpRequestUnsubscriptionFinished
+    
 - 20251129_0134
     - qCDebug implementations:
       - IbisIpSubscriber

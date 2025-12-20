@@ -331,8 +331,9 @@ QHostAddress IbisIpSubscriber::selectNonLoopbackAddressInSubnet(QHostAddress add
         }
     }
 
-    qCDebug(IbisIpSubscriberLog)<<"selected address: "<<output;
 
+    qCDebug(IbisIpSubscriberLog)<<"selected address: "<<output;
+    qCDebug(IbisIpSubscriberLog)<<"is ip set: "<<isIpSet;
     return output;
 }
 
@@ -356,11 +357,12 @@ void IbisIpSubscriber::postGenericRequest(QUrl subscriberAddress, QString postRe
 
     QByteArray postRequestContentQByteArray=postRequestContent.toUtf8() ;
 
-    reply=postManager.post(postRequest,postRequestContentQByteArray);
+    QPointer<QNetworkReply> reply=postManager.post(postRequest,postRequestContentQByteArray);
     connect(reply, &QNetworkReply::finished, this, &IbisIpSubscriber::slotHttpRequestGenericFinished);
 
 }
 
+/*
 void IbisIpSubscriber::slotHttpRequestGenericFinished()
 {
     qCDebug(IbisIpSubscriberLog) <<  Q_FUNC_INFO;
@@ -388,5 +390,64 @@ void IbisIpSubscriber::slotHttpRequestGenericFinished()
 
     reply->deleteLater();
 }
+*/
 
 
+
+void IbisIpSubscriber::slotHttpRequestGenericFinished()
+{
+    QPointer<QNetworkReply> reply = qobject_cast<QNetworkReply*>(sender());
+    if (reply == nullptr)
+    {
+        qCDebug(IbisIpSubscriberLog) << "Generic finished slot without valid QNetworkReply sender";
+        emit signalError("Invalid sender");
+        return;
+    }
+
+    qCDebug(IbisIpSubscriberLog) << Q_FUNC_INFO
+                                 << "URL:" << reply->url()
+                                 << "HTTP status:" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+    // Prevent QIODevice::read ... device not open
+    if (!reply->isOpen())
+    {
+        qCDebug(IbisIpSubscriberLog) << "Reply device not open";
+        emit signalError("Device not open");
+        reply->deleteLater();
+        return;
+    }
+
+    const QByteArray bts = reply->readAll();
+    const QString str = QString::fromUtf8(bts);
+    qCDebug(IbisIpSubscriberLog) << "generic response:";
+    qCDebug(IbisIpSubscriberLog).noquote() << str;
+
+    if (reply->error() != QNetworkReply::NoError)
+    {
+        qCDebug(IbisIpSubscriberLog) << "Network error:" << reply->errorString();
+        emit signalError(reply->errorString());
+        reply->deleteLater();
+        return;
+    }
+
+    // Optional: XML parsing if needed
+    QDomDocument doc;
+    QString parseErrorMsg;
+    int parseErrorLine = 0;
+    int parseErrorCol = 0;
+    if (!doc.setContent(str, &parseErrorMsg, &parseErrorLine, &parseErrorCol))
+    {
+        qCDebug(IbisIpSubscriberLog) << "XML parse error:" << parseErrorMsg << "at" << parseErrorLine << ":" << parseErrorCol;
+        emit signalError(QString("Invalid XML: %1 at %2:%3")
+                             .arg(parseErrorMsg)
+                             .arg(parseErrorLine)
+                             .arg(parseErrorCol));
+        reply->deleteLater();
+        return;
+    }
+
+    // Emit raw response or parsed data
+    emit signalError(bts); // Consider renaming to signalGenericResponse for clarity
+
+    reply->deleteLater();
+}
