@@ -52,12 +52,9 @@ public slots:
     void slotHandleReceivedData(QString receivedData);
 
 protected slots:
-    void slotHttpRequestSubscriptionFinished();
-    void slotHttpRequestUnsubscriptionFinished();
-
-    void slotSubscribeSent(QNetworkReply *subscriptionReply);
     void slotServiceRemoved(QZeroConfService zcs);
 
+    void slotHandleResponseContent(QString responseContent);
 signals:
     void signalSubscriptionSuccessful(PublisherStruct zcs);
     void signalIsSubscriptionSuccesful(bool result);

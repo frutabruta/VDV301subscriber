@@ -30,7 +30,7 @@ public:
 
 
     QNetworkAccessManager postManager;
-   // QPointer<QNetworkReply> reply;
+    // QPointer<QNetworkReply> reply;
 
     //options
     bool blockBonjour=false;
@@ -103,11 +103,13 @@ signals:
     int signalError (QString errorText);
     void signalUpdateDeviceList();
     void signalSubscriptionLost();
+    void signalResponseNotEmpty(QString response);
 
     //public slots:
 
 protected slots:
-    void slotHttpRequestGenericFinished();
+  //  void slotHttpRequestGenericFinished();
+    void slotHttpRequestFinished();
 private slots:
 
 

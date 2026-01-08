@@ -47,6 +47,9 @@ void IbisIpSubscriberOnePublisher::allConnects2()
     connect(&zeroConf, &QZeroConf::serviceAdded, this, &IbisIpSubscriberOnePublisher::slotAddService);
     connect(&zeroConf, &QZeroConf::serviceUpdated, this, &IbisIpSubscriberOnePublisher::slotUpdateService);
     connect(&zeroConf, &QZeroConf::serviceRemoved, this, &IbisIpSubscriberOnePublisher::slotServiceRemoved);
+
+    //experimental
+    connect(this,&IbisIpSubscriberOnePublisher::signalResponseNotEmpty,this,&IbisIpSubscriberOnePublisher::slotHandleResponseContent);
 }
 
 void IbisIpSubscriberOnePublisher::newSubscribeRequest()
@@ -79,7 +82,7 @@ void IbisIpSubscriberOnePublisher::postSubscribe(QUrl subscriberAddress, QString
     QByteArray postRequestContentQByteArray=postRequestContent.toUtf8() ; 
 
     QPointer<QNetworkReply> reply=postManager.post(postRequest,postRequestContentQByteArray);
-    connect(reply, &QNetworkReply::finished, this, &IbisIpSubscriberOnePublisher::slotHttpRequestSubscriptionFinished);
+    connect(reply, &QNetworkReply::finished, this, &IbisIpSubscriberOnePublisher::slotHttpRequestFinished);
 
 }
 
@@ -103,7 +106,8 @@ void IbisIpSubscriberOnePublisher::postUnsubscribe(QUrl subscriberAddress, QStri
     QByteArray postRequestContentQByteArray=postRequestContent.toUtf8() ;
 
     QPointer<QNetworkReply> reply=postManager.post(postRequest,postRequestContentQByteArray);
-    connect(reply, &QNetworkReply::finished, this, &IbisIpSubscriberOnePublisher::slotHttpRequestUnsubscriptionFinished);
+  //  connect(reply, &QNetworkReply::finished, this, &IbisIpSubscriberOnePublisher::slotHttpRequestUnsubscriptionFinished);
+    connect(reply, &QNetworkReply::finished, this, &IbisIpSubscriberOnePublisher::slotHttpRequestFinished);
 
 }
 
@@ -324,291 +328,102 @@ void IbisIpSubscriberOnePublisher::slotHeartbeatTimeout()
 }
 
 
-/*
-void IbisIpSubscriberOnePublisher::slotHttpRequestSubscriptionFinished()
+
+
+
+
+void IbisIpSubscriberOnePublisher::slotHandleResponseContent(QString responseContent)
 {
-    qCDebug(IbisIpSubscriberOnePublisherLog) <<  Q_FUNC_INFO;
-
-    QByteArray bts = reply->readAll();
-    QString str(bts);
-    qCDebug(IbisIpSubscriberOnePublisherLog)<<"subscribe response:"<<str;
-
-    if(reply->error()!=QNetworkReply::NoError)
-    {
-        qCDebug(IbisIpSubscriberOnePublisherLog)<<reply->errorString();
-        emit signalIsSubscriptionSuccesful(false);
-        return;
-    }
-
-    QDomDocument qDomResponse;
-    bool setContentResult=false;
-    if(qDomResponse.setContent(str))
-    {
-        setContentResult=true;
-    }
-
-
-
-    if(setContentResult)
-    {
-        QString subscriptionResult=qDomResponse.elementsByTagName("Active").at(0).firstChildElement("Value").firstChild().nodeValue();
-        qCDebug(IbisIpSubscriberOnePublisherLog)<<"subscription result: "<<subscriptionResult;
-        if((subscriptionResult=="true")||(subscriptionResult=="True"))
-        {
-            subscribedService=subscribeServiceCandidate;
-            this->isSubscriptionActive=true;
-            emit signalIsSubscriptionSuccesful(true);
-            emit signalSubscriptionSuccessful(subscribedService);
-        }
-        else
-        {
-            qCDebug(IbisIpSubscriberOnePublisherLog)<<"subscription failed";
-            emit signalIsSubscriptionSuccesful(false);
-            emit signalError(qDomResponse.toString());
-        }
-    }
-    else
-    {
-        emit signalIsSubscriptionSuccesful(false);
-    }
-
-    reply->deleteLater();
-}
-
-*/
-
-
-void IbisIpSubscriberOnePublisher::slotHttpRequestSubscriptionFinished()
-{
-    qCDebug(IbisIpSubscriberOnePublisherLog) << Q_FUNC_INFO;
-
-    QPointer<QNetworkReply> reply = qobject_cast<QNetworkReply*>(sender());
-    if (!reply)
-    {
-        qCDebug(IbisIpSubscriberOnePublisherLog) << "finished slot without sender() QNetworkReply";
-        emit signalIsSubscriptionSuccesful(false);
-        return;
-    }
-
-
-
-    // Optional: check if it's open
-    if (!reply->isOpen())
-    {
-        qCDebug(IbisIpSubscriberOnePublisherLog) << "Reply device not open";
-        emit signalIsSubscriptionSuccesful(false);
-        reply->deleteLater();
-        return;
-    }
-
-    const QByteArray bts = reply->readAll();
-    const QString str = QString::fromUtf8(bts);
-    qCDebug(IbisIpSubscriberOnePublisherLog) << "subscribe response:" << str;
-
-    if (reply->error() != QNetworkReply::NoError)
-    {
-        qCDebug(IbisIpSubscriberOnePublisherLog) << reply->errorString();
-        emit signalIsSubscriptionSuccesful(false);
-        reply->deleteLater();
-        return;
-    }
+    qCDebug(IbisIpSubscriberOnePublisherLog) << "data response:" << responseContent;
 
     QDomDocument doc;
     QString parseErrorMsg;
     int parseErrorLine = 0;
     int parseErrorCol = 0;
 
-    if (!doc.setContent(str, &parseErrorMsg, &parseErrorLine, &parseErrorCol))
+    if (!doc.setContent(responseContent, &parseErrorMsg, &parseErrorLine, &parseErrorCol))
     {
         qCDebug(IbisIpSubscriberOnePublisherLog)
         << "XML parse error:" << parseErrorMsg << "at" << parseErrorLine << ":" << parseErrorCol;
-        emit signalIsSubscriptionSuccesful(false);
-        reply->deleteLater();
+        emit signalIsSubscriptionSuccesful(false); //check
         return;
     }
 
-    QDomNodeList activeNodes = doc.elementsByTagName("Active");
-    if (activeNodes.isEmpty())
+    QString rootTag=doc.firstChild().nodeName();
+    if(rootTag=="xml")
     {
-        qCDebug(IbisIpSubscriberOnePublisherLog) << "Missing <Active> element";
-        emit signalIsSubscriptionSuccesful(false);
-        emit signalError(doc.toString());
-        reply->deleteLater();
-        return;
+        rootTag=doc.firstChild().nextSibling().nodeName();
     }
+    qDebug()<<"rootTag "<<rootTag;
 
-    const QString subscriptionResult = activeNodes.at(0).firstChildElement("Value").firstChild().nodeValue();
-
-    qCDebug(IbisIpSubscriberOnePublisherLog) << "subscription result:" << subscriptionResult;
-
-    if (subscriptionResult.compare("true", Qt::CaseInsensitive) == 0)
+    if(rootTag=="SubscribeResponse")
     {
-        subscribedService = subscribeServiceCandidate;
-        this->isSubscriptionActive = true;
-        emit signalIsSubscriptionSuccesful(true);
-        emit signalSubscriptionSuccessful(subscribedService);
-    }
-    else
-    {
-        qCDebug(IbisIpSubscriberOnePublisherLog) << "subscription failed";
-        emit signalIsSubscriptionSuccesful(false);
-        emit signalError(doc.toString());
-    }
-
-    reply->deleteLater();
-}
-
-
-
-/*
-void IbisIpSubscriberOnePublisher::slotHttpRequestUnsubscriptionFinished()
-{
-    qCDebug(IbisIpSubscriberOnePublisherLog) <<  Q_FUNC_INFO;
-
-    QByteArray bts = reply->readAll();
-    QString str(bts);
-    qCDebug(IbisIpSubscriberOnePublisherLog)<<"unsusbscription response:";
-    qCDebug(IbisIpSubscriberOnePublisherLog).noquote()<<str;
-
-    if(reply->error()!=QNetworkReply::NoError)
-    {
-        qCDebug(IbisIpSubscriberOnePublisherLog)<<reply->errorString();
-        emit signalIsUnsubscriptionSuccesful(false);
-        reply->deleteLater();
-        return;
-    }
-
-    // subscribedService=subscribeServiceCandidate;
-    QDomDocument qDomResponse;
-    bool setContentResult=false;
-
-    if(qDomResponse.setContent(str))
-    {
-        setContentResult=true;
-    }
-
-
-    if(setContentResult)
-    {
-        QString unsubscriptionResult=qDomResponse.elementsByTagName("Active").at(0).firstChildElement("Value").firstChild().nodeValue();
-        qCDebug(IbisIpSubscriberOnePublisherLog)<<"unsubscription result: "<<unsubscriptionResult;
-        if((unsubscriptionResult=="false")||(unsubscriptionResult=="False"))
+        QDomNodeList activeNodes = doc.elementsByTagName("Active");
+        if (activeNodes.isEmpty())
         {
-            this->isSubscriptionActive=false;
+            qCDebug(IbisIpSubscriberOnePublisherLog) << "Missing <Active> element";
+            emit signalIsSubscriptionSuccesful(false);
+            emit signalError(doc.toString());
+            return;
+        }
+
+        const QString subscriptionResult = activeNodes.at(0).firstChildElement("Value").firstChild().nodeValue();
+
+        qCDebug(IbisIpSubscriberOnePublisherLog) << "subscription result:" << subscriptionResult;
+
+        if (subscriptionResult.compare("true", Qt::CaseInsensitive) == 0)
+        {
+            subscribedService = subscribeServiceCandidate;
+            this->isSubscriptionActive = true;
+            emit signalIsSubscriptionSuccesful(true);
+            emit signalSubscriptionSuccessful(subscribedService);
+        }
+        else
+        {
+            qCDebug(IbisIpSubscriberOnePublisherLog) << "subscription failed";
+            emit signalIsSubscriptionSuccesful(false);
+            emit signalError(doc.toString());
+        }
+    }
+    else if(rootTag=="UnsubscribeResponse")
+    {
+        const QDomNodeList activeNodes = doc.elementsByTagName("Active");
+        if (activeNodes.isEmpty())
+        {
+            qCDebug(IbisIpSubscriberOnePublisherLog) << "Missing <Active> element in unsubscription response";
+            emit signalIsUnsubscriptionSuccesful(false);
+            emit signalError("Missing <Active> element");
+            return;
+        }
+
+        const QString unsubscriptionResult = activeNodes.at(0).firstChildElement("Value").firstChild().nodeValue();
+
+        qCDebug(IbisIpSubscriberOnePublisherLog) << "unsubscription result:" << unsubscriptionResult;
+
+        if (unsubscriptionResult.compare("false", Qt::CaseInsensitive) == 0)
+        {
+            this->isSubscriptionActive = false;
             emit signalIsUnsubscriptionSuccesful(true);
             emit signalUnsubscriptionSuccessful(subscribedService);
         }
         else
         {
-            qCDebug(IbisIpSubscriberOnePublisherLog)<<"unsubscription failed";
+            qCDebug(IbisIpSubscriberOnePublisherLog) << "unsubscription failed";
             emit signalIsUnsubscriptionSuccesful(false);
             emit signalError("unsubscription failed");
         }
     }
     else
     {
-        emit signalIsUnsubscriptionSuccesful(false);
-        emit signalError("unsubscription reply empty");
+        qCDebug(IbisIpSubscriberOnePublisherLog)<<" unexpected tag "<<rootTag;
     }
 
-    reply->deleteLater();
-}
-*/
 
-
-void IbisIpSubscriberOnePublisher::slotHttpRequestUnsubscriptionFinished()
-{
-    auto reply = qobject_cast<QNetworkReply*>(sender());
-    if (!reply)
-    {
-        qCDebug(IbisIpSubscriberOnePublisherLog) << "Unsubscription slot without valid QNetworkReply sender";
-        emit signalIsUnsubscriptionSuccesful(false);
-        return;
-    }
-
-    qCDebug(IbisIpSubscriberOnePublisherLog) << Q_FUNC_INFO;
-
-    // Optional: check if device is open
-    if (!reply->isOpen())
-    {
-        qCDebug(IbisIpSubscriberOnePublisherLog) << "Reply device not open";
-        emit signalIsUnsubscriptionSuccesful(false);
-        reply->deleteLater();
-        return;
-    }
-
-    const QByteArray bts = reply->readAll();
-    const QString str = QString::fromUtf8(bts);
-    qCDebug(IbisIpSubscriberOnePublisherLog) << "unsubscription response:";
-    qCDebug(IbisIpSubscriberOnePublisherLog).noquote() << str;
-
-    if (reply->error() != QNetworkReply::NoError)
-    {
-        qCDebug(IbisIpSubscriberOnePublisherLog) << reply->errorString();
-        emit signalIsUnsubscriptionSuccesful(false);
-        reply->deleteLater();
-        return;
-    }
-
-    QDomDocument doc;
-    QString parseErrorMsg;
-    int parseErrorLine = 0, parseErrorCol = 0;
-    if (!doc.setContent(str, &parseErrorMsg, &parseErrorLine, &parseErrorCol))
-    {
-        qCDebug(IbisIpSubscriberOnePublisherLog)
-        << "XML parse error:" << parseErrorMsg << "at" << parseErrorLine << ":" << parseErrorCol;
-        emit signalIsUnsubscriptionSuccesful(false);
-        emit signalError("Invalid XML in unsubscription response");
-        reply->deleteLater();
-        return;
-    }
-
-    const auto activeNodes = doc.elementsByTagName("Active");
-    if (activeNodes.isEmpty())
-    {
-        qCDebug(IbisIpSubscriberOnePublisherLog) << "Missing <Active> element in unsubscription response";
-        emit signalIsUnsubscriptionSuccesful(false);
-        emit signalError("Missing <Active> element");
-        reply->deleteLater();
-        return;
-    }
-
-    const QString unsubscriptionResult = activeNodes.at(0).firstChildElement("Value").firstChild().nodeValue();
-
-    qCDebug(IbisIpSubscriberOnePublisherLog) << "unsubscription result:" << unsubscriptionResult;
-
-    if (unsubscriptionResult.compare("false", Qt::CaseInsensitive) == 0)
-    {
-        this->isSubscriptionActive = false;
-        emit signalIsUnsubscriptionSuccesful(true);
-        emit signalUnsubscriptionSuccessful(subscribedService);
-    }
-    else
-    {
-        qCDebug(IbisIpSubscriberOnePublisherLog) << "unsubscription failed";
-        emit signalIsUnsubscriptionSuccesful(false);
-        emit signalError("unsubscription failed");
-    }
-
-    reply->deleteLater();
 }
 
 
 
-void IbisIpSubscriberOnePublisher::slotSubscribeSent(QNetworkReply *subscriptionReply)
-{
-    qCDebug(IbisIpSubscriberOnePublisherLog) <<  Q_FUNC_INFO;
-    QByteArray replyContent = subscriptionReply->readAll();
-    QString replyString(replyContent);
-    qCDebug(IbisIpSubscriberOnePublisherLog)<<"odpoved na subscribe:"<<replyString;
 
-    subscribedService=subscribeServiceCandidate;
-
-    //check if subscribe is successful should be here!
-
-    this->isSubscriptionActive=true;
-
-}
 
 void IbisIpSubscriberOnePublisher::slotServiceRemoved(QZeroConfService zcs)
 {
