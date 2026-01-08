@@ -60,6 +60,7 @@ void DevMgmtSubscriber2::slotNewDnsSd(QZeroConfService zcs)
     emit signalUpdateDeviceList();
 }
 
+/*
 
 void DevMgmtSubscriber2::postSubscribe(QUrl subscriberAddress, QString postRequestContent)
 {
@@ -83,7 +84,10 @@ void DevMgmtSubscriber2::postSubscribe(QUrl subscriberAddress, QString postReque
     connect(reply, &QNetworkReply::finished, this, &DevMgmtSubscriber2::slotHttpRequestSubscriptionFinished);
 
 }
+*/
 
+
+/*
 
 void DevMgmtSubscriber2::postUnsubscribe(QUrl subscriberAddress, QString postRequestContent)
 {
@@ -108,7 +112,9 @@ void DevMgmtSubscriber2::postUnsubscribe(QUrl subscriberAddress, QString postReq
 
 }
 
+*/
 
+/*
 void DevMgmtSubscriber2::slotHttpRequestSubscriptionFinished()
 {
     qDebug() <<  Q_FUNC_INFO;
@@ -177,9 +183,10 @@ void DevMgmtSubscriber2::slotHttpRequestSubscriptionFinished()
     reply->deleteLater();
     //reply = nullptr;
 }
+*/
 
+/*
 
-// void IbisIpSubscriberOnePublisher::slotHttpRequestUnsubscriptionFinished()
 void DevMgmtSubscriber2::slotHttpRequestUnsubscriptionFinished()
 {
     qDebug() <<  Q_FUNC_INFO;
@@ -229,6 +236,7 @@ void DevMgmtSubscriber2::slotHttpRequestUnsubscriptionFinished()
 
     reply->deleteLater();
 }
+*/
 
 void DevMgmtSubscriber2::slotHandleReceivedData(QString receivedData)
 {

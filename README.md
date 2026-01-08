@@ -6,6 +6,18 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20260108_1715
+  - DevMgmtSubscriber::postSetDeviceConfiguration
+    - reply pointer fix
+  - DevMgmtSubscriber::slotSetSetDeviceConfigurationFinished
+    - reply pointer fix
+  - DevMgmtSubscriber2
+    - removed duplicate functions - using ones from base function instead
+      - slotHttpRequestSubscriptionFinished
+      - slotHttpRequestUnsubscriptionFinished
+      - postSubscribe
+      - postUnsubscribe
+      
 - 20251220_1735
   - IbisIpSubscriber::postGenericRequest
     - reply defined here

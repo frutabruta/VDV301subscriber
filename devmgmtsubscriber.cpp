@@ -227,7 +227,7 @@ void DevMgmtSubscriber::postSetDeviceConfiguration(QUrl subscriberAddress, QStri
 
     QByteArray postRequestContentQByteArray=postRequestContent.toUtf8() ;
 
-    reply=postManager.post(postRequest,postRequestContentQByteArray);
+    QPointer<QNetworkReply> reply=postManager.post(postRequest,postRequestContentQByteArray);
     connect(reply, &QNetworkReply::finished, this, &DevMgmtSubscriber::slotSetSetDeviceConfigurationFinished);
 
 }
@@ -235,6 +235,8 @@ void DevMgmtSubscriber::postSetDeviceConfiguration(QUrl subscriberAddress, QStri
 void DevMgmtSubscriber::slotSetSetDeviceConfigurationFinished()
 {
     qDebug() <<  Q_FUNC_INFO;
+
+    QPointer<QNetworkReply> reply = qobject_cast<QNetworkReply*>(sender());
 
     QByteArray bts = reply->readAll();
     QString str(bts);
