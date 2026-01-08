@@ -45,9 +45,9 @@ protected:
 
     void tryToAddPublisher(PublisherStruct publisher);
 protected slots:
-    void slotHttpRequestUnsubscriptionFinished();
-    void slotHttpRequestSubscriptionFinished();
-
+ //   void slotHttpRequestUnsubscriptionFinished();
+ //   void slotHttpRequestSubscriptionFinished();
+    void slotHandleResponseContent(QString responseContent);
 signals:
     void signalSubscriptionSuccessful(PublisherStruct zcs);
     void signalIsSubscriptionSuccessful(bool result);
@@ -56,6 +56,8 @@ signals:
     void signalNewPublisherDiscovered(PublisherStruct publisher);
 
 
+
+private slots:
 
 };
 

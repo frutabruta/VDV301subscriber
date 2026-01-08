@@ -18,6 +18,18 @@ Qt C++ library to be used in VDV301 subscriber devices
       - postSubscribe
       - postUnsubscribe
       
+- 20260108_1509
+  - IbisIpSubscriber::slotHttpRequestGenericFinished() 
+    - reworked to IbisIpSubscriber::slotHttpRequestFinished
+    - new signal signalResponseNotEmpty(QString response);
+  - IbisIpSubscriberOnePublisher::slotHandleResponseContent
+    - new slot
+  - removed slots
+    - IbisIpSubscriberOnePublisher::slotHttpRequestSubscriptionFinished();
+    - IbisIpSubscriberOnePublisher::slotHttpRequestUnsubscriptionFinished();
+    - IbisIpSubscriberOnePublisher::slotSubscribeSent(QNetworkReply *subscriptionReply);
+    - IbisIpSubscriberMultiplePublishers::slotHttpRequestUnsubscriptionFinished();
+    - IbisIpSubscriberMultiplePublishers::slotHttpRequestSubscriptionFinished();
 - 20251220_1735
   - IbisIpSubscriber::postGenericRequest
     - reply defined here
