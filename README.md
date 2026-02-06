@@ -6,6 +6,10 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20260206_1415
+  - HttpServerSubscriber
+    - implemented QLoggingCategory
+
 - 20260108_1715
   - DevMgmtSubscriber::postSetDeviceConfiguration
     - reply pointer fix

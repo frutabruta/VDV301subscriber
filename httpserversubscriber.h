@@ -3,8 +3,8 @@
 
 #include <QObject>
 #include <QWidget>
-
 #include <QtHttpServer>
+#include <QLoggingCategory>
 
 class HttpServerRequest
 {
