@@ -91,6 +91,7 @@ protected:
     //funkce
     QUrl createSubscribeDestination(PublisherStruct publisherStruct);
     int isTheServiceRequestedOne(QString selectedServiceName,QString selectedVersion, QZeroConfService zcs);
+    int isTheServiceRequestedOne(QString selectedServiceName, QString selectedVersion, PublisherStruct publisherStruct);
     int isTheServiceRequestedOne(QString selectedServiceName, QString selectedVersion, QString testedServiceName, QString testedVersion);
     int deleteServiceFromList(QVector<QZeroConfService> &serviceList, QZeroConfService selectedService);
     QHostAddress selectNonLoopbackAddress();
@@ -105,13 +106,17 @@ signals:
     void signalSubscriptionLost();
     void signalResponseNotEmpty(QString response);
 
+    void signalAddressUpdate(QHostAddress address);
+    void signalIsSubscriptionSuccesful(bool result);
+
     //public slots:
 
 protected slots:
   //  void slotHttpRequestGenericFinished();
     void slotHttpRequestFinished();
-private slots:
 
+public slots:
+    void slotHttpRequestErrorHappened(QNetworkReply::NetworkError code);
 
 };
 

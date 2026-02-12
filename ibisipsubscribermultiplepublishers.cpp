@@ -102,7 +102,7 @@ void IbisIpSubscriberMultiplePublishers::slotAddServiceManual(PublisherStruct pu
     emit signalUpdateDeviceList();
 
 
-    if (isTheServiceRequestedOne(mServiceName,mVersion,publisher.serviceName,publisher.ibisIpVersion))
+    if (isTheServiceRequestedOne(mServiceName,mVersion,publisher))
     {
         if(publisherList.contains(publisher)==false)
         {
@@ -134,7 +134,7 @@ void IbisIpSubscriberMultiplePublishers::slotAddServiceManualForce(PublisherStru
 
     emit signalUpdateDeviceList();
 
-    if (isTheServiceRequestedOne(mServiceName,mVersion,publisher.serviceName,publisher.ibisIpVersion))
+    if (isTheServiceRequestedOne(mServiceName,mVersion,publisher))
     {
         if(publisherList.contains(publisher)==false)
         {

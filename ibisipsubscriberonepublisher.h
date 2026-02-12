@@ -24,6 +24,7 @@ public:
 
     PublisherStruct subscribedService;
     PublisherStruct subscribeServiceCandidate;
+    QVector<PublisherStruct> subscribeCandidateList;
 
     //functions
     void start();
@@ -37,8 +38,7 @@ public:
 
     void unsubscribe();
 
-    void slotAddServiceManual(QString serviceName, QString version, QString ipAddress, int portNumber);
-    void slotAddServiceManualForce(QString serviceName, QString version, QString ipAddress, int portNumber);
+
 private:
     void allConnects();
 
@@ -48,16 +48,22 @@ private:
 public slots:
     void slotHeartbeatTimeout();
     void slotAddService(QZeroConfService zcs);
+    void slotAddService(PublisherStruct publisherStruct);
+    void slotAddServiceManual(QString serviceName, QString version, QString ipAddress, int portNumber);
+    void slotAddServiceManual(PublisherStruct addedPublisher);
+    void slotAddServiceManualForce(QString serviceName, QString version, QString ipAddress, int portNumber); //unused
     void slotUpdateService(QZeroConfService zcs);
     void slotHandleReceivedData(QString receivedData);
+
+
 
 protected slots:
     void slotServiceRemoved(QZeroConfService zcs);
 
     void slotHandleResponseContent(QString responseContent);
+    void slotSubscriptionFailed(bool subscriptionSuccesful);
 signals:
     void signalSubscriptionSuccessful(PublisherStruct zcs);
-    void signalIsSubscriptionSuccesful(bool result);
     void signalUnsubscriptionSuccessful(PublisherStruct zcs);
     void signalIsUnsubscriptionSuccesful(bool result);
 };

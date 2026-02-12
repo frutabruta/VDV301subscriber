@@ -175,26 +175,15 @@ int IbisIpSubscriber::deleteServiceFromList(QVector<QZeroConfService> &serviceLi
 int IbisIpSubscriber::isTheServiceRequestedOne(QString selectedServiceName,QString selectedVersion, QZeroConfService zcs)
 {
     qCDebug(IbisIpSubscriberLog) <<  Q_FUNC_INFO;
-    QString testedVersion=zcs.data()->txt().value("ver");
-    QString testedServiceName=zcs->name();
-    qCDebug(IbisIpSubscriberLog)<<"tested service: "<<testedServiceName<<" "<<testedVersion;
-    if (testedServiceName.startsWith(selectedServiceName))
-    {
-        qCDebug(IbisIpSubscriberLog)<<"requested service found "<<testedServiceName;
-        if(testedVersion==selectedVersion)
-        {
-            qCDebug(IbisIpSubscriberLog)<<"1 requested version:"<<selectedVersion<<" found version:"<<testedVersion;
-            //this->vytvorSubscribeRequest(projedAdresy(),cisloPortuInterni);
-            return 1;
-        }
-        else
-        {
-            qCDebug(IbisIpSubscriberLog)<<"1 requested version:"<<selectedVersion<<" found version:"<<testedVersion;
-            return 0;
-        }
-    }
 
-    return 0;
+    return isTheServiceRequestedOne(selectedServiceName, selectedVersion, PublisherStruct(zcs));
+}
+
+int IbisIpSubscriber::isTheServiceRequestedOne(QString selectedServiceName,QString selectedVersion, PublisherStruct publisherStruct)
+{
+    qCDebug(IbisIpSubscriberLog) <<  Q_FUNC_INFO;
+
+    return isTheServiceRequestedOne(selectedServiceName,selectedVersion,publisherStruct.serviceName,publisherStruct.ibisIpVersion);
 }
 
 
@@ -250,8 +239,6 @@ QHostAddress IbisIpSubscriber::selectNonLoopbackAddress()
     QList<QHostAddress> list = QNetworkInterface::allAddresses();
     QHostAddress output;
 
-
-
     foreach(QHostAddress selectedAddress, list)
     {
         qCDebug(IbisIpSubscriberLog) <<" "<<selectedAddress.toString();
@@ -262,7 +249,6 @@ QHostAddress IbisIpSubscriber::selectNonLoopbackAddress()
                 qCDebug(IbisIpSubscriberLog) <<" not loopback"<< selectedAddress.toString();
                 if(mIsIpSet==false)
                 {
-
                     output=selectedAddress;
                     mIsIpSet=true;
                 }
@@ -273,6 +259,7 @@ QHostAddress IbisIpSubscriber::selectNonLoopbackAddress()
     if(mIsIpSet)
     {
         qCDebug(IbisIpSubscriberLog)<<"address found";
+        qCInfo(IbisIpSubscriberLog)<<" selected non-loopback address"<<output.toString();
     }
     else
     {
@@ -280,11 +267,15 @@ QHostAddress IbisIpSubscriber::selectNonLoopbackAddress()
         if(allowLoopback)
         {
             output=QHostAddress::LocalHost;
-            qCDebug(IbisIpSubscriberLog)<<"non-loopback address allowed, setting localhost";
+            qCInfo(IbisIpSubscriberLog)<<"non-loopback address allowed, setting localhost "<<output.toString();
+        }
+        else
+        {
+            qCInfo(IbisIpSubscriberLog)<<"non-loopback address not allowed";
         }
     }
 
-
+    emit signalAddressUpdate(output);
     return output;
 }
 
@@ -318,6 +309,8 @@ QHostAddress IbisIpSubscriber::selectNonLoopbackAddressInSubnet(QHostAddress add
                         if(selectedAddress.isInSubnet(addressOfPublisher,mask))
                         {
                             qCDebug(IbisIpSubscriberLog)<<" address "<<selectedAddress<<" is in subnet of "<<addressOfPublisher<<" mask: "<<mask;
+                            qCInfo(IbisIpSubscriberLog)<<"selected address "<<selectedAddress<<" in subnet of "<<addressOfPublisher<<" mask: "<<mask;
+
                             output=selectedAddress;
                             isIpSet=true;
                         }
@@ -334,6 +327,7 @@ QHostAddress IbisIpSubscriber::selectNonLoopbackAddressInSubnet(QHostAddress add
 
     qCDebug(IbisIpSubscriberLog)<<"selected address: "<<output;
     qCDebug(IbisIpSubscriberLog)<<"is ip set: "<<isIpSet;
+    emit signalAddressUpdate(output);
     return output;
 }
 
@@ -404,23 +398,29 @@ void IbisIpSubscriber::slotHttpRequestFinished()
     if (!reply)
     {
         qCDebug(IbisIpSubscriberLog) << "finished slot without sender() QNetworkReply";
+        qCWarning(IbisIpSubscriberLog)<<"empty reply to subscribe request";
+        emit signalIsSubscriptionSuccesful(false);
         return;
     }
     qCDebug(IbisIpSubscriberLog) << Q_FUNC_INFO
-                                             << "URL:" << reply->url()
-                                             << "HTTP status:" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+                                 << "URL:" << reply->url()
+                                 << "HTTP status:" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
     if (!reply->isOpen())
     {
         qCDebug(IbisIpSubscriberLog) << "Reply device not open";
+        qCWarning(IbisIpSubscriberLog)<<" reply device "<<reply->url()<<" not open";
         reply->deleteLater();
+        emit signalIsSubscriptionSuccesful(false);
         return;
     }
 
     if (reply->error() != QNetworkReply::NoError)
     {
         qCDebug(IbisIpSubscriberLog) << reply->errorString();
+        qCWarning(IbisIpSubscriberLog)<<" subscription to "<<reply->url()<<" failed with error"<<reply->errorString();
         reply->deleteLater();
+        emit signalIsSubscriptionSuccesful(false);
         return;
     }
 
@@ -431,3 +431,37 @@ void IbisIpSubscriber::slotHttpRequestFinished()
 
     reply->deleteLater();
 }
+
+
+
+void IbisIpSubscriber::slotHttpRequestErrorHappened(QNetworkReply::NetworkError code)
+{
+    qCDebug(IbisIpSubscriberLog) << Q_FUNC_INFO;
+
+    QPointer<QNetworkReply> reply = qobject_cast<QNetworkReply*>(sender());
+
+    qCWarning(IbisIpSubscriberLog)<<" network code:"<<code;
+
+    if (!reply.isNull())
+    {
+        qCWarning(IbisIpSubscriberLog) <<"subscription failed, Network error occurred:"
+                                      << static_cast<int>(reply->error())
+                                      << reply->errorString();
+
+        qCWarning(IbisIpSubscriberLog)<<" subscription to "<<reply->url()<<" failed with error"<<reply->errorString();
+
+    }
+    else
+    {
+        qCDebug(IbisIpSubscriberLog) << "finished slot without sender() QNetworkReply";
+        qCWarning(IbisIpSubscriberLog)<<"empty reply to subscribe request";
+        //    reply->deleteLater();
+
+
+    }
+
+    reply->deleteLater();
+}
+
+
+

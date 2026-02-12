@@ -70,7 +70,7 @@ int HttpServerSubscriber::route(QString &getRequestContent,  QMap<QString,QStrin
 #if QT_VERSION > QT_VERSION_CHECK(6, 5, 0)
                          requestReturnValue.port=request.remotePort();
 #endif
-
+                         qCInfo(HttpServerSubscriberLog)<<" received data from "<<replyPath<<" size:"<<requestReturnValue.body.size()<<" from:"<<requestReturnValue.hostAddress<<":"<<requestReturnValue.port;
                          emit signalDataReceived(requestReturnValue.body);
                          emit signalWholeRequest(requestReturnValue);
 
@@ -85,6 +85,7 @@ int HttpServerSubscriber::route(QString &getRequestContent,  QMap<QString,QStrin
                          HttpServerRequest requestReturnValue;
                          requestReturnValue.body=request.body();
                          requestReturnValue.hostAddress=request.remoteAddress();
+                         qCInfo(HttpServerSubscriberLog)<<" received data from "<<replyPath<<" size:"<<requestReturnValue.body.size()<<" from:"<<requestReturnValue.hostAddress<<":"<<requestReturnValue.port;
 
 #if QT_VERSION > QT_VERSION_CHECK(6, 5, 0)
                          requestReturnValue.port=request.remotePort();

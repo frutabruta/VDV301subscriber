@@ -6,6 +6,33 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20260212_2142
+  - IbisIpSubscriberOnePublisher
+      - added a subscribeCandidateList to handle CIS published on multiple IPs (wait for timeout - then try next)
+      - new slot slotSubscriptionFailed
+      - IbisIpSubscriberOnePublisher::postSubscribe
+        - added debug statements
+      - IbisIpSubscriberOnePublisher::slotAddService
+        - reduced common parts between overloaded functions
+        - subscribeCandidateList handling
+      - IbisIpSubscriberOnePublisher::slotSubscriptionFailed
+        - new slot
+  - HttpServerSubscriber::route
+    - added a logging statement
+  - IbisIpSubscriber::isTheServiceRequestedOne
+    - merging content of overloaded function
+  - IbisIpSubscriber::selectNonLoopbackAddress
+    - added debug statements
+  - IbisIpSubscriber::slotHttpRequestFinished
+    - added debug statements
+    - usage of signalIsSubscriptionSuccesful
+  - signal moved to IbisIpSubscriber::slotHttpRequestErrorHappened
+  - new signal signalAddressUpdate
+  - IbisIpSubscriberMultiplePublishers::slotAddServiceManual
+    - different call for isTheServiceRequestedOne
+
+
+
 - 20260206_1415
   - HttpServerSubscriber
     - implemented QLoggingCategory
