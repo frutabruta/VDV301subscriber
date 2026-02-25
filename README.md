@@ -6,6 +6,10 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20260225_1928
+  - VDV301DataStructures
+    - vehicleState secondsDelay
+    
 - 20260212_2142
   - IbisIpSubscriberOnePublisher
       - added a subscribeCandidateList to handle CIS published on multiple IPs (wait for timeout - then try next)
