@@ -6,6 +6,10 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20260416_0124
+  - VDV301DataStructures 
+    - added Vdv301CurrentDisplayContent2_3CZ1_0
+
 - 20260225_1928
   - VDV301DataStructures
     - vehicleState secondsDelay
