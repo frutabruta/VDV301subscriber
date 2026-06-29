@@ -6,6 +6,10 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20260629_1612
+  - VDV301DataStructures
+    - added VehicleState::getCurrentStopPointDestination  
+  
 - 20260416_0124
   - VDV301DataStructures 
     - added Vdv301CurrentDisplayContent2_3CZ1_0
