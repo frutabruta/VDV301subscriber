@@ -18,6 +18,7 @@ SOURCES += \
     ../../httpserversubscriber.cpp \
     ../../ibisipsubscriber.cpp \
     ../../ibisipsubscriberonepublisher.cpp \
+    ../../publisherstruct.cpp \
     ../../xmlgeneratorsubscriber.cpp \
     main.cpp \
     mainwindow.cpp
@@ -27,6 +28,7 @@ HEADERS += \
     ../../httpserversubscriber.h \
     ../../ibisipsubscriber.h \
     ../../ibisipsubscriberonepublisher.h \
+    ../../publisherstruct.h \
     ../../xmlgeneratorsubscriber.h \
     mainwindow.h
 
