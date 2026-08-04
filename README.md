@@ -6,6 +6,11 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20260729_1756
+  - VDV301DataStructures
+    - StopPointDestination 
+      - removed unused includes
+  
 - 20260729_1900
   - Vdv301SubscriberMinimalExample update 
   
