@@ -1,11 +1,12 @@
 #ifndef DEVMGMTSUBSCRIBER_H
 #define DEVMGMTSUBSCRIBER_H
-#include "ibisipsubscriber.h"
+
+#include "ibisipsubscribermultiplepublishers.h"
 #include "devmgmtpublisherstruct.h"
 #include "xmlgeneratorsubscriber.h"
 #include "xmlparsersubscriber.h"
 
-class DevMgmtSubscriber : public IbisIpSubscriber
+class DevMgmtSubscriber : public IbisIpSubscriberMultiplePublishers
 {
     Q_OBJECT
 public:
@@ -25,9 +26,6 @@ public:
     QVector<DevMgmtPublisherStruct> deviceListConfigured;
 
     //functions
-    bool getDeviceConfiguration(QZeroConfService zcs);
-    bool getDeviceInformation(QZeroConfService zcs);
-
     QString getVersion(QDomDocument document, QString element);
 
 
@@ -35,6 +33,7 @@ public:
     bool getDeviceConfiguration(DevMgmtPublisherStruct &device);
     void postSetDeviceConfiguration(QUrl subscriberAddress, QString deviceId);
     void slotSetSetDeviceConfigurationFinished();
+    void start();
 protected:
     /*
     void deviceInformationToDevice(QDomDocument &domDocument, DevMgmtPublisherStruct &device);

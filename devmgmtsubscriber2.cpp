@@ -28,57 +28,39 @@ void DevMgmtSubscriber2::slotNewDnsSd(QZeroConfService zcs)
 {
     qDebug() <<  Q_FUNC_INFO;
 
-    DevMgmtPublisherStruct newDevice;
-    newDevice.serviceName=zcs->name();
+    DevMgmtPublisherStruct newDevice(zcs);
+
 
     //   if(newDevice.serviceName.contains("DeviceManagementService"))
     if(isTheServiceRequestedOne(mServiceName,mVersion,zcs))
     {
-        qDebug()<<"DP1";
-        newDevice.hostAddress=zcs->ip();
-        newDevice.portNumber=zcs->port();
-        newDevice.deviceClass="";
-        newDevice.deviceId="";
-        newDevice.hostname=zcs->host();
-        newDevice.ibisIpVersion=zcs.data()->txt().value("ver");
-
-
         if(!deviceListDetected.contains(newDevice))
         {
-            qDebug()<<"DP2";
-            //subscribe here
             getDeviceConfiguration(newDevice);
             getDeviceInformation(newDevice);
 
-            qDebug()<<"DP5";
 
-            qDebug()<<"sending subscribe request to  "<<newDevice.hostAddress<<":"<<QString::number(newDevice.portNumber)<<" service "<<zcs->name();
+            qDebug()<<"sending subscribe request to "<<newDevice.dumpToQString();
 
-            QString addressAfterBackslash="/"+mServiceName+"/Subscribe"+mStructureName;
-            QString addressComplete="http://"+zcs->ip().toString()+":"+QString::number(zcs->port())+addressAfterBackslash;
-            qDebug()<<"adresaCile string "<<addressComplete;
-            QUrl subscriptionDestination=QUrl(addressComplete);
-            if(!isIpSet() )
-            {
-                deviceAddress=selectNonLoopbackAddress();
-            }
-            postSubscribe(subscriptionDestination,xmlGeneratorSubscriber.createSubscribeRequest(deviceAddress,httpServerSubscriber.portNumber()));
+
+            postSubscribe(createSubscribeDestination(newDevice),xmlGeneratorSubscriber.createSubscribeRequest(deviceAddress,httpServerSubscriber.portNumber()));
             deviceListDetected.push_back(newDevice);
 
         }
         else
         {
-            qDebug()<<"zarizeni uz je na seznamu";
+            qDebug()<<"device is already on the list";
         }
     }
     else
     {
-        qDebug()<<"jina sluzba";
+        qDebug()<<"wrong service name";
     }
 
     emit signalUpdateDeviceList();
 }
 
+/*
 
 void DevMgmtSubscriber2::postSubscribe(QUrl subscriberAddress, QString postRequestContent)
 {
@@ -102,7 +84,10 @@ void DevMgmtSubscriber2::postSubscribe(QUrl subscriberAddress, QString postReque
     connect(reply, &QNetworkReply::finished, this, &DevMgmtSubscriber2::slotHttpRequestSubscriptionFinished);
 
 }
+*/
 
+
+/*
 
 void DevMgmtSubscriber2::postUnsubscribe(QUrl subscriberAddress, QString postRequestContent)
 {
@@ -127,11 +112,21 @@ void DevMgmtSubscriber2::postUnsubscribe(QUrl subscriberAddress, QString postReq
 
 }
 
+*/
 
-//void IbisIpSubscriberOnePublisher::slotHttpRequestSubscriptionFinished()
+/*
 void DevMgmtSubscriber2::slotHttpRequestSubscriptionFinished()
 {
     qDebug() <<  Q_FUNC_INFO;
+
+    if(reply==nullptr)
+    {
+        qDebug()<<"reply is nullptr";
+        emit signalIsSubscriptionSuccessful2(false);
+
+        return;
+    }
+
 
     QByteArray bts = reply->readAll();
     QString str(bts);
@@ -154,19 +149,30 @@ void DevMgmtSubscriber2::slotHttpRequestSubscriptionFinished()
     if(setContentResult)
     {
         QString subscriptionResult=qDomResponse.elementsByTagName("Active").at(0).firstChildElement("Value").firstChild().nodeValue();
-        qDebug()<<"subscription result: "<<subscriptionResult;
-        if((subscriptionResult=="true")||(subscriptionResult=="True"))
+
+        if(subscriptionResult.isEmpty())
         {
-            // subscribedService=subscribeServiceCandidate;
-            //   this->isSubscriptionActive=true;
-            emit signalIsSubscriptionSuccessful2(true);
-            //  emit signalSubscriptionSuccessful(subscribedService);
+            qDebug()<<"subscription result is empty";
+            emit signalIsSubscriptionSuccessful2(false);
         }
         else
         {
-            qDebug()<<"unsubscription failed";
-            emit signalIsSubscriptionSuccessful2(false);
+            qDebug().noquote()<<"subscription result: \n"<<subscriptionResult;
+            if((subscriptionResult=="true")||(subscriptionResult=="True"))
+            {
+                // subscribedService=subscribeServiceCandidate;
+                //   this->isSubscriptionActive=true;
+                emit signalIsSubscriptionSuccessful2(true);
+                //  emit signalSubscriptionSuccessful(subscribedService);
+            }
+            else
+            {
+                qDebug()<<"subscription failed";
+                emit signalIsSubscriptionSuccessful2(false);
+            }
         }
+
+
     }
     else
     {
@@ -177,9 +183,10 @@ void DevMgmtSubscriber2::slotHttpRequestSubscriptionFinished()
     reply->deleteLater();
     //reply = nullptr;
 }
+*/
 
+/*
 
-// void IbisIpSubscriberOnePublisher::slotHttpRequestUnsubscriptionFinished()
 void DevMgmtSubscriber2::slotHttpRequestUnsubscriptionFinished()
 {
     qDebug() <<  Q_FUNC_INFO;
@@ -229,6 +236,7 @@ void DevMgmtSubscriber2::slotHttpRequestUnsubscriptionFinished()
 
     reply->deleteLater();
 }
+*/
 
 void DevMgmtSubscriber2::slotHandleReceivedData(QString receivedData)
 {

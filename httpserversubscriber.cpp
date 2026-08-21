@@ -1,11 +1,24 @@
 #include "httpserversubscriber.h"
 
-HttpServerSubscriber::HttpServerSubscriber(quint16 portNumber)
+Q_LOGGING_CATEGORY(HttpServerSubscriberLog, "HttpServerSubscriber")
+
+HttpServerSubscriber::HttpServerSubscriber(quint16 portNumber, QString replyPath)
 {
     mPortNumber=portNumber;
+    mReplyPath=replyPath;
     contentRoot=createOkResponse();
     //start();
 
+}
+
+QString HttpServerSubscriber::replyPath() const
+{
+    return mReplyPath;
+}
+
+void HttpServerSubscriber::setReplyPath(const QString &newReplyPath)
+{
+    mReplyPath = newReplyPath;
 }
 
 quint16 HttpServerSubscriber::portNumber() const
@@ -20,32 +33,97 @@ void HttpServerSubscriber::setPortNumber(quint16 newPortNumber)
 
 int HttpServerSubscriber::start()
 {
-    qDebug() <<Q_FUNC_INFO;
+    qCDebug(HttpServerSubscriberLog) <<Q_FUNC_INFO;
 
-    this->route(contentGet,contentBodyMap);
+
+    this->route(contentGet,contentBodyMap,mReplyPath);
     this->listen();
 
     return 1;
 }
 
 
-int HttpServerSubscriber::route(QString &getRequestContent,  QMap<QString,QString> &contentBodyList)
+int HttpServerSubscriber::route(QString &getRequestContent,  QMap<QString,QString> &contentBodyList, QString replyPath)
 {
 
-    qDebug() <<Q_FUNC_INFO;
+    qCDebug(HttpServerSubscriberLog) <<Q_FUNC_INFO;
 
-    qDebug()<<"get request content="<<getRequestContent;
+    qCDebug(HttpServerSubscriberLog)<<"get request content="<<getRequestContent;
     httpServer.route("/CustomerInformationService/Get<arg>", [&contentBodyList](const QUrl &url,const QHttpServerRequest &request)
                      {
                          QString struktura= QStringLiteral("%1").arg(url.path());
-                         qDebug()<<"argument "<<struktura;
+                         qCDebug(HttpServerSubscriberLog)<<"argument "<<struktura;
 
-                         qDebug()<<"request "<<"/CustomerInformationService/Get<arg>";
+                         qCDebug(HttpServerSubscriberLog)<<"request "<<"/CustomerInformationService/Get<arg>";
 
                          return contentBodyList.value(struktura);
 
                      });
 
+    httpServer.route(replyPath, [replyPath,this](const QHttpServerRequest &request)
+                     {
+                         qCDebug(HttpServerSubscriberLog)<<"replyPath: "<<replyPath;
+                         HttpServerRequest requestReturnValue;
+                         requestReturnValue.body=request.body();
+                         requestReturnValue.hostAddress=request.remoteAddress();
+
+#if QT_VERSION > QT_VERSION_CHECK(6, 5, 0)
+                         requestReturnValue.port=request.remotePort();
+#endif
+                         qCInfo(HttpServerSubscriberLog)<<" received data from "<<replyPath<<" size:"<<requestReturnValue.body.size()<<" from:"<<requestReturnValue.hostAddress<<":"<<requestReturnValue.port;
+                         emit signalDataReceived(requestReturnValue.body);
+                         emit signalWholeRequest(requestReturnValue);
+
+                         QString okResponse="HTTP/1.1 200 OK";
+                         //return this->obsahRoot;
+                         return "";
+                         //return intObsahGet;
+                     });
+    httpServer.route("/"+replyPath, [replyPath,this](const QHttpServerRequest &request)
+                     {
+                         qCDebug(HttpServerSubscriberLog)<<"replyPath : /"<<replyPath;
+                         HttpServerRequest requestReturnValue;
+                         requestReturnValue.body=request.body();
+                         requestReturnValue.hostAddress=request.remoteAddress();
+                         qCInfo(HttpServerSubscriberLog)<<" received data from "<<replyPath<<" size:"<<requestReturnValue.body.size()<<" from:"<<requestReturnValue.hostAddress<<":"<<requestReturnValue.port;
+
+#if QT_VERSION > QT_VERSION_CHECK(6, 5, 0)
+                         requestReturnValue.port=request.remotePort();
+#endif
+
+                         emit signalDataReceived(requestReturnValue.body);
+                         emit signalWholeRequest(requestReturnValue);
+
+                         QString okResponse="HTTP/1.1 200 OK";
+                         //return this->obsahRoot;
+                         return "";
+                         //return intObsahGet;
+                     });
+    if(replyPath!="")
+    {
+        httpServer.route("/", [this](const QHttpServerRequest &request)
+                         {
+                             qCDebug(HttpServerSubscriberLog)<<"OBU doesn't respect ReplyPath";
+
+                             HttpServerRequest requestReturnValue;
+                             requestReturnValue.body=request.body();
+                             requestReturnValue.hostAddress=request.remoteAddress();
+
+#if QT_VERSION > QT_VERSION_CHECK(6, 5, 0)
+                             requestReturnValue.port=request.remotePort();
+#endif
+
+                             emit signalDataReceived(requestReturnValue.body);
+                             emit signalWholeRequest(requestReturnValue);
+
+                             QString okResponse="HTTP/1.1 200 OK";
+                             //return this->obsahRoot;
+                             return "";
+
+                         });
+    }
+
+/*
     httpServer.route("/", [this](const QHttpServerRequest &request)
                      {
 
@@ -65,6 +143,7 @@ int HttpServerSubscriber::route(QString &getRequestContent,  QMap<QString,QStrin
                          return "";
                          //return intObsahGet;
                      });
+*/
 #if QT_VERSION > QT_VERSION_CHECK(6, 0, 0)
     httpServer.afterRequest([](QHttpServerResponse &&resp)
                             {
@@ -78,7 +157,7 @@ int HttpServerSubscriber::route(QString &getRequestContent,  QMap<QString,QStrin
 
 int HttpServerSubscriber::listen()
 {
-    qDebug() <<Q_FUNC_INFO;
+    qCDebug(HttpServerSubscriberLog) <<Q_FUNC_INFO;
 
     quint16 newPort;
     if(mPortNumber==0)
@@ -94,7 +173,7 @@ int HttpServerSubscriber::listen()
     // manualni port:  const auto port = httpServer.listen(QHostAddress::Any,cisloPortu);
     if (!newPort)
     {
-        qDebug() << QCoreApplication::translate(
+        qCDebug(HttpServerSubscriberLog) << QCoreApplication::translate(
             "QHttpServerExample", "Server failed to listen on a port.");
         return 0;
     }
@@ -103,36 +182,36 @@ int HttpServerSubscriber::listen()
     /* automaticky port
      const auto port = httpServer.listen(QHostAddress::Any);
     if (!port) {
-        qDebug() << QCoreApplication::translate(
+        qCDebug(HttpServerSubscribeLog) << QCoreApplication::translate(
                 "QHttpServerExample", "Server failed to listen on a port.");
         return 0;
     }
     */
-    qDebug() << QCoreApplication::translate("QHttpServerExample", "Running on http://127.0.0.1:%1/ (Press CTRL+C to quit)").arg(newPort);
+    qCDebug(HttpServerSubscriberLog) << QCoreApplication::translate("QHttpServerExample", "Running on http://127.0.0.1:%1/ (Press CTRL+C to quit)").arg(newPort);
     return 1;
 }
 
 
 void HttpServerSubscriber::setContentGet(QString input)
 {
-    qDebug() <<Q_FUNC_INFO;
+    qCDebug(HttpServerSubscriberLog) <<Q_FUNC_INFO;
     this->contentGet=input;
 
 }
 
 void HttpServerSubscriber::setContentSubscribe(QString input)
 {
-    qDebug() <<Q_FUNC_INFO;
+    qCDebug(HttpServerSubscriberLog) <<Q_FUNC_INFO;
     this->subscribeResponseContent=input;
 }
 
 int HttpServerSubscriber::setContentBody(QMap<QString,QString> input )
 {
-    qDebug() <<Q_FUNC_INFO;
+    qCDebug(HttpServerSubscriberLog) <<Q_FUNC_INFO;
     contentBodyMap=input;
 
 
-    //qDebug()<<"obsah CDC z pole: "<<obsahTelaPole.value("CurrentDisplayContent");
+    //qCDebug(HttpServerSubscribeLog)<<"obsah CDC z pole: "<<obsahTelaPole.value("CurrentDisplayContent");
 
     return 1;
 }
@@ -140,7 +219,7 @@ int HttpServerSubscriber::setContentBody(QMap<QString,QString> input )
 
 QString HttpServerSubscriber::createOkResponse()
 {
-    qDebug() <<Q_FUNC_INFO;
+    qCDebug(HttpServerSubscriberLog) <<Q_FUNC_INFO;
     QString header;
     header+=("HTTP/1.1 200 OK\r\n");       // \r needs to be before \n
     header+=("Content-Type: application/xml\r\n");

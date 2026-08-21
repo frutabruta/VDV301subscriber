@@ -4,7 +4,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , cisSubscriber("CustomerInformationService","AllData","2.2CZ1.0","_ibisip_http._tcp",48479)//puvodni port 48479, novy 59631
+    , cisSubscriber("CustomerInformationService","AllData","2.3CZ1.0","_ibisip_http._tcp",48479)//puvodni port 48479, novy 59631
 
 {
     ui->setupUi(this);

@@ -10,25 +10,23 @@ class IbisIpSubscriberOnePublisher : public IbisIpSubscriber
     Q_OBJECT
 public:
 
-
-    //konstruktor a destruktor
-    explicit IbisIpSubscriberOnePublisher(QString serviceName, QString structureName, QString version, QString serviceType, int portName);
+    //construktor a destructor
+    explicit IbisIpSubscriberOnePublisher(QString serviceName, QString structureName, QString version, QString serviceType, int portName, QString replyPath="");
     ~IbisIpSubscriberOnePublisher();
 
     //instance knihoven
-   // QTimer *timerHeartbeatCheck = new QTimer(this);
-    QTimer timerHeartbeatCheck;
-    //promenne
+    QTimer timerHeartbeatCheck;    
+
+    //variables
     int heartbeatCheckInterval=120000;
     bool isSubscriptionActive=false;
     bool isCandidateSelected=false;
 
-    QZeroConfService subscribedService;
-    QZeroConfService subscribeServiceCandidate;
+    PublisherStruct subscribedService;
+    PublisherStruct subscribeServiceCandidate;
+    QVector<PublisherStruct> subscribeCandidateList;
 
-
-    //funkce
-
+    //functions
     void start();
     void newSubscribeRequest();
 
@@ -40,6 +38,7 @@ public:
 
     void unsubscribe();
 
+
 private:
     void allConnects();
 
@@ -49,21 +48,24 @@ private:
 public slots:
     void slotHeartbeatTimeout();
     void slotAddService(QZeroConfService zcs);
+    void slotAddService(PublisherStruct publisherStruct);
+    void slotAddServiceManual(QString serviceName, QString version, QString ipAddress, int portNumber);
+    void slotAddServiceManual(PublisherStruct addedPublisher);
+    void slotAddServiceManualForce(QString serviceName, QString version, QString ipAddress, int portNumber); //unused
     void slotUpdateService(QZeroConfService zcs);
     void slotHandleReceivedData(QString receivedData);
-private slots:
-    void slotHttpRequestSubscriptionFinished();
-    void slotSubscribeSent(QNetworkReply *subscriptionReply);
+
+
+
+protected slots:
     void slotServiceRemoved(QZeroConfService zcs);
 
-    void slotHttpRequestUnsubscriptionFinished();
+    void slotHandleResponseContent(QString responseContent);
+    void slotSubscriptionFailed(bool subscriptionSuccesful);
 signals:
-    void signalSubscriptionSuccessful(QZeroConfService zcs);
-    void signalIsSubscriptionSuccesful(bool result);
-    void signalUnsubscriptionSuccessful(QZeroConfService zcs);
+    void signalSubscriptionSuccessful(PublisherStruct zcs);
+    void signalUnsubscriptionSuccessful(PublisherStruct zcs);
     void signalIsUnsubscriptionSuccesful(bool result);
-
-
 };
 
 #endif // IBISIPSUBSCRIBERONEPUBLISHER_H

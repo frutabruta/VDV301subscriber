@@ -1,21 +1,20 @@
 #ifndef DEVMGMTPUBLISHERSTRUCT_H
 #define DEVMGMTPUBLISHERSTRUCT_H
 
-#include <QHostAddress>
-#include <QMap>
 
-class DevMgmtPublisherStruct
+
+#include "publisherstruct.h"
+
+class DevMgmtPublisherStruct : public PublisherStruct
 {
 public:
     DevMgmtPublisherStruct();
-    QHostAddress hostAddress;
-    int portNumber;
+    DevMgmtPublisherStruct(const PublisherStruct &pubStruct);
+
     QString deviceId;
     QString deviceClass;
     QString deviceName;
-    QString hostname;
-    QString serviceName;
-    QString ibisIpVersion;
+
     QString swVersion;
     QString manufacturer;
     QString serialNumber;
@@ -26,10 +25,9 @@ public:
     bool isSubscriptionActive=false;
 
 
-
-    bool operator ==(const DevMgmtPublisherStruct &node) const;
     QMap<QString, QVariant> toQMap();
     bool isInListByIdClass(QVector<DevMgmtPublisherStruct> publisherList);
+
 private:
 
 };

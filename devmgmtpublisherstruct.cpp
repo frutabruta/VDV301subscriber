@@ -16,12 +16,14 @@ DevMgmtPublisherStruct::DevMgmtPublisherStruct()
 }
 
 
+DevMgmtPublisherStruct::DevMgmtPublisherStruct(const PublisherStruct& pubStruct) : PublisherStruct(pubStruct) {}
 
 
+/*
 bool DevMgmtPublisherStruct::operator==(const DevMgmtPublisherStruct &node) const
 {
     return portNumber == node.portNumber && hostAddress == node.hostAddress;
-}
+}*/
 
 QMap<QString, QVariant> DevMgmtPublisherStruct::toQMap()
 {
