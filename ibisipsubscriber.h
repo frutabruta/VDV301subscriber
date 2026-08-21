@@ -62,6 +62,12 @@ public:
     QString replyPath() const;
     void setReplyPath(const QString &newReplyPath);
 
+    QString serviceName() const;
+    void setServiceName(const QString &newServiceName);
+
+    QString serviceType() const;
+    void setServiceType(const QString &newServiceType);
+
 private:
 
     void allConnects();

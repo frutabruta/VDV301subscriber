@@ -6,6 +6,15 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20260821_2125
+  - Vdv301SubscriberConfigExample
+    - new example, which can be configured using settings.ini
+  - added
+    - IbisIpSubscriber::serviceType
+    - IbisIpSubscriber::setServiceType
+    - IbisIpSubscriber::serviceName
+    - IbisIpSubscriber::setServiceName
+
 - 20260729_1756
   - VDV301DataStructures
     - StopPointDestination 

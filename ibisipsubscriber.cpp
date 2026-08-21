@@ -42,6 +42,26 @@ void IbisIpSubscriber::allConnects()
 
 }
 
+QString IbisIpSubscriber::serviceType() const
+{
+    return mServiceType;
+}
+
+void IbisIpSubscriber::setServiceType(const QString &newServiceType)
+{
+    mServiceType = newServiceType;
+}
+
+QString IbisIpSubscriber::serviceName() const
+{
+    return mServiceName;
+}
+
+void IbisIpSubscriber::setServiceName(const QString &newServiceName)
+{
+    mServiceName = newServiceName;
+}
+
 QString IbisIpSubscriber::replyPath() const
 {
     return mReplyPath;
