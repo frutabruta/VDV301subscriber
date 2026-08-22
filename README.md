@@ -6,6 +6,12 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20260822_2359
+  - new class RemoteControlSubscriber
+  - new class XmlParserRemoteControl
+  - VDV301DataStructures
+    - enumerations update
+    
 - 20260821_2125
   - Vdv301SubscriberConfigExample
     - new example, which can be configured using settings.ini
