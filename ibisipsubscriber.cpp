@@ -145,8 +145,19 @@ QByteArray IbisIpSubscriber::createOkResponse()
 
 QUrl IbisIpSubscriber::createSubscribeDestination(PublisherStruct publisherStruct)
 {
+    // VDV 301-2 section 5.5 (Publication of HTTP Services) provides examples of service addresses like so:
+    // <hostname>:<port>/(path?/)<ServiceName>/<OperationName>
 
-    QString addressAfterBackslash="/"+mServiceName+"/Subscribe"+mStructureName;
+    QString addressAfterBackslash;
+    QString& path = publisherStruct.servicePath;
+    if (!path.isEmpty()) {
+        // add leading slash if not present
+        if (!path.startsWith('/')) {
+            addressAfterBackslash += '/';
+        }
+        addressAfterBackslash += path;
+    }
+    addressAfterBackslash+="/"+mServiceName+"/Subscribe"+mStructureName;
     QString addressComplete="http://"+publisherStruct.hostAddress.toString()+":"+QString::number(publisherStruct.portNumber)+addressAfterBackslash;
     qCDebug(IbisIpSubscriberLog)<<"adresaCile string "<<addressComplete;
     return QUrl(addressComplete);

@@ -18,6 +18,7 @@ public:
 
     QString serviceName;
     QString ibisIpVersion;
+    QString servicePath;
 
 
     QMap<QString, QVariant> toQMap();

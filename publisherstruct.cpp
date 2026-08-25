@@ -8,6 +8,7 @@ PublisherStruct::PublisherStruct(QZeroConfService zcs) {
     portNumber=zcs->port();
     hostname=zcs->host();
     ibisIpVersion=zcs.data()->txt().value("ver");
+    servicePath=zcs.data()->txt().value("path", "");
 }
 
 
@@ -19,6 +20,7 @@ QMap<QString, QVariant> PublisherStruct::toQMap()
     output["hostname"]=hostname;
     output["serviceName"]=serviceName;
     output["ibisIpVersion"]=ibisIpVersion;
+    output["servicePath"]=servicePath;
 
     return output;
 }
@@ -33,6 +35,7 @@ QString PublisherStruct::dumpToQString()
     list<<hostname;
     list<<serviceName;
     list<<ibisIpVersion;
+    list<<servicePath;
 
     return list.join(" ");
 }
@@ -40,5 +43,5 @@ QString PublisherStruct::dumpToQString()
 
 bool PublisherStruct::operator==(const PublisherStruct &node) const
 {
-    return portNumber == node.portNumber && hostAddress == node.hostAddress;
+    return portNumber == node.portNumber && hostAddress == node.hostAddress && servicePath == node.servicePath;
 }
