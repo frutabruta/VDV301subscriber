@@ -12,7 +12,7 @@ class DevMgmtSubscriber : public IbisIpSubscriberMultiplePublishers
 public:
 
     //constructor
-    explicit DevMgmtSubscriber(QString serviceName, QString structureName, QString  version, QString  serviceType, int portNumber);
+    explicit DevMgmtSubscriber(QZeroConf& zeroConf, QString serviceName, QString structureName, QString  version, QString  serviceType, int portNumber);
 
     ~DevMgmtSubscriber();
 

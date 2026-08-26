@@ -12,7 +12,7 @@ class IbisIpSubscriberMultiplePublishers : public IbisIpSubscriber
     Q_OBJECT
 public:
     //constructor
-    explicit IbisIpSubscriberMultiplePublishers(QString serviceName, QString structureName, QString version, QString serviceType, int portNumber);
+    explicit IbisIpSubscriberMultiplePublishers(QZeroConf& zeroConf, QString serviceName, QString structureName, QString version, QString serviceType, int portNumber);
     ~IbisIpSubscriberMultiplePublishers();
 
     QVector<PublisherStruct> publisherList;

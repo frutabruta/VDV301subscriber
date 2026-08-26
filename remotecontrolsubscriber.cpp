@@ -1,6 +1,7 @@
 #include "remotecontrolsubscriber.h"
 
-RemoteControlSubscriber::RemoteControlSubscriber(QString serviceName,QString structureName,QString version,QString serviceType, int portNumber, QString replyPath): IbisIpSubscriberOnePublisher(serviceName,structureName,version, serviceType, portNumber, replyPath)
+RemoteControlSubscriber::RemoteControlSubscriber(QZeroConf& zeroConf, QString serviceName,QString structureName,QString version,QString serviceType, int portNumber, QString replyPath)
+    : IbisIpSubscriberOnePublisher(zeroConf, serviceName,structureName,version, serviceType, portNumber, replyPath)
 {
     connect(this,&IbisIpSubscriber::signalDataReceived,this,&RemoteControlSubscriber::slotHandleMessage);
 }

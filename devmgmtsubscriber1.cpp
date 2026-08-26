@@ -1,6 +1,7 @@
 #include "devmgmtsubscriber1.h"
 
-DevMgmtSubscriber1::DevMgmtSubscriber1(QString serviceName, QString structureName, QString  version, QString  serviceType, int portNumber) : DevMgmtSubscriber(serviceName,structureName, version,serviceType, portNumber)
+DevMgmtSubscriber1::DevMgmtSubscriber1(QZeroConf& zeroConf, QString serviceName, QString structureName, QString  version, QString  serviceType, int portNumber)
+    : DevMgmtSubscriber(zeroConf, serviceName,structureName, version,serviceType, portNumber)
 {
     qDebug()<<Q_FUNC_INFO;
     allConnects();

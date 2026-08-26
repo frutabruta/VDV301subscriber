@@ -2,7 +2,9 @@
 
 Q_LOGGING_CATEGORY(IbisIpSubscriberLog, "IbisIpSubscriber")
 
-IbisIpSubscriber::IbisIpSubscriber(QString serviceName,QString structureName,QString version,QString serviceType, int portNumber, QString replyPath) : httpServerSubscriber (portNumber, replyPath)
+IbisIpSubscriber::IbisIpSubscriber(QZeroConf& zeroConf, QString serviceName,QString structureName,QString version,QString serviceType, int portNumber, QString replyPath) :
+    httpServerSubscriber (portNumber, replyPath),
+    zeroConf{ zeroConf }
 {
     qCDebug(IbisIpSubscriberLog) <<  Q_FUNC_INFO;
 
@@ -222,6 +224,7 @@ int IbisIpSubscriber::isTheServiceRequestedOne(QString selectedServiceName,QStri
 {
     qCDebug(IbisIpSubscriberLog) <<  Q_FUNC_INFO;
 
+    qCDebug(IbisIpSubscriberLog)<<"requested service: "<<selectedServiceName<<" "<<selectedVersion;
     qCDebug(IbisIpSubscriberLog)<<"tested service: "<<testedServiceName<<" "<<testedVersion;
     if (testedServiceName.startsWith(selectedServiceName))
     {

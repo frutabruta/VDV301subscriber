@@ -18,7 +18,7 @@ public:
 
     //konstruktor a destruktor
     // explicit IbisIpSubscriber(QObject *parent = nullptr);
-    IbisIpSubscriber(QString serviceName, QString structureName, QString version, QString serviceType, int portNumber, QString replyPath="");
+    IbisIpSubscriber(QZeroConf& zeroConf, QString serviceName, QString structureName, QString version, QString serviceType, int portNumber, QString replyPath="");
 
     //instance knihoven
     XmlGeneratorSubscriber xmlGeneratorSubscriber;
@@ -78,7 +78,7 @@ protected:
     HttpServerSubscriber httpServerSubscriber;
 
     //variables
-    QZeroConf zeroConf;
+    QZeroConf& zeroConf;
     QString mServiceType="_ibisip_http._tcp";
 
     // int mPortNumber=0;
