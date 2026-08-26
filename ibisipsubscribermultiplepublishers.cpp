@@ -3,8 +3,8 @@
 Q_LOGGING_CATEGORY(IbisIpSubscriberMultiplePublishersLog, "IbisIpSubscriberMultiplePublishers")
 
 
-IbisIpSubscriberMultiplePublishers::IbisIpSubscriberMultiplePublishers(QZeroConf& zeroConf, QString serviceName, QString structureName, QString  version, QString  serviceType, int portNumber) :
-    IbisIpSubscriber(zeroConf, serviceName,  structureName,  version,  serviceType, portNumber)
+IbisIpSubscriberMultiplePublishers::IbisIpSubscriberMultiplePublishers(QString serviceName, QString structureName, QString  version, QString  serviceType, int portNumber) :
+    IbisIpSubscriber(serviceName,  structureName,  version,  serviceType, portNumber)
 {
     qCDebug(IbisIpSubscriberMultiplePublishersLog)<<Q_FUNC_INFO;
 

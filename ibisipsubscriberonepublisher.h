@@ -11,7 +11,7 @@ class IbisIpSubscriberOnePublisher : public IbisIpSubscriber
 public:
 
     //construktor a destructor
-    explicit IbisIpSubscriberOnePublisher(QZeroConf& zeroConf, QString serviceName, QString structureName, QString version, QString serviceType, int portName, QString replyPath="");
+    explicit IbisIpSubscriberOnePublisher(QString serviceName, QString structureName, QString version, QString serviceType, int portName, QString replyPath="");
     ~IbisIpSubscriberOnePublisher();
 
     //instance knihoven

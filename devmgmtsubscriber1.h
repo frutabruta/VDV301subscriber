@@ -6,7 +6,7 @@
 class DevMgmtSubscriber1: public DevMgmtSubscriber
 {
 public:
-    DevMgmtSubscriber1(QZeroConf& zeroConf, QString serviceName, QString structureName, QString  version, QString  serviceType, int portNumber);
+    DevMgmtSubscriber1(QString serviceName, QString structureName, QString  version, QString  serviceType, int portNumber);
 private:
     void allConnects();
 };

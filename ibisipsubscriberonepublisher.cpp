@@ -2,8 +2,8 @@
 
 Q_LOGGING_CATEGORY(IbisIpSubscriberOnePublisherLog, "IbisIpSubscriberOnePublisher")
 
-IbisIpSubscriberOnePublisher::IbisIpSubscriberOnePublisher(QZeroConf& zeroConf, QString serviceName,QString structureName,QString version,QString serviceType, int portName, QString replyPath)
-    : IbisIpSubscriber(zeroConf, serviceName, structureName, version, serviceType, portName, replyPath)
+IbisIpSubscriberOnePublisher::IbisIpSubscriberOnePublisher(QString serviceName,QString structureName,QString version,QString serviceType, int portName, QString replyPath)
+    : IbisIpSubscriber(serviceName, structureName, version, serviceType, portName, replyPath)
 {
     qCDebug(IbisIpSubscriberOnePublisherLog)<<Q_FUNC_INFO;
 

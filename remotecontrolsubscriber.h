@@ -9,7 +9,7 @@ class RemoteControlSubscriber : public IbisIpSubscriberOnePublisher
 {
     Q_OBJECT
 public:
-    RemoteControlSubscriber(QZeroConf& zeroConf, QString serviceName, QString structureName, QString version, QString serviceType, int portNumber, QString replyPath="");
+    RemoteControlSubscriber(QString serviceName, QString structureName, QString version, QString serviceType, int portNumber, QString replyPath="");
     XmlParserRemoteControl parser;
 private slots:
     void slotHandleMessage(QString data);

@@ -8,7 +8,7 @@ class DevMgmtSubscriber2 : public DevMgmtSubscriber
     Q_OBJECT
 public:
     //DevMgmtSubscriber2();
-    DevMgmtSubscriber2(QZeroConf& zeroConf, QString serviceName, QString structureName, QString version, QString serviceType, int portNumber);
+    DevMgmtSubscriber2(QString serviceName, QString structureName, QString version, QString serviceType, int portNumber);
 private slots:
     void slotNewDnsSd(QZeroConfService zcs);
  //   void slotHttpRequestSubscriptionFinished();
