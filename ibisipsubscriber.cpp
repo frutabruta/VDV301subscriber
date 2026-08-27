@@ -16,6 +16,12 @@ IbisIpSubscriber::IbisIpSubscriber(QString serviceName,QString structureName,QSt
     deviceAddress=selectNonLoopbackAddress();
 }
 
+IbisIpSubscriber::~IbisIpSubscriber() {
+    if (mBrowseRequested) {
+        findServices(mServiceType, 0);
+    }
+}
+
 
 int IbisIpSubscriber::portNumber() const
 {
