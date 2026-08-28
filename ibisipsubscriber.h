@@ -19,6 +19,7 @@ public:
     //konstruktor a destruktor
     // explicit IbisIpSubscriber(QObject *parent = nullptr);
     IbisIpSubscriber(QString serviceName, QString structureName, QString version, QString serviceType, int portNumber, QString replyPath="");
+    ~IbisIpSubscriber();
 
     //instance knihoven
     XmlGeneratorSubscriber xmlGeneratorSubscriber;
@@ -72,14 +73,23 @@ private:
 
     void allConnects();
 
+    void globalStartBrowse();
+    void globalStopBrowse();
+
 protected:
+
+    static constexpr const char* SERVICE_TYPE = "_ibisip_http._tcp";
+
+    static QZeroConf sIbisIpHttpBrowser;
+    static int sBrowseRefCount;
 
     //instance knihoven
     HttpServerSubscriber httpServerSubscriber;
 
     //variables
-    QZeroConf zeroConf;
-    QString mServiceType="_ibisip_http._tcp";
+    QZeroConf& zeroConf;
+    QString mServiceType=SERVICE_TYPE;
+    bool mBrowseRequested=false;
 
     // int mPortNumber=0;
     QString mHeader=""; //unused?

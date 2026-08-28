@@ -5,7 +5,8 @@
 //DevMgmtSubscriber::DevMgmtSubscriber(QString serviceName, QString structureName, QString  version, QString  serviceType, int portNumber) : IbisIpSubscriber(serviceName,  structureName,  version,  serviceType, portNumber)
 
 
-DevMgmtSubscriber2::DevMgmtSubscriber2(QString serviceName, QString structureName, QString  version, QString  serviceType, int portNumber) : DevMgmtSubscriber(serviceName,structureName, version,serviceType, portNumber)
+DevMgmtSubscriber2::DevMgmtSubscriber2(QString serviceName, QString structureName, QString  version, QString  serviceType, int portNumber) :
+    DevMgmtSubscriber(serviceName,structureName, version,serviceType, portNumber)
 {
     qDebug()<<Q_FUNC_INFO;
     allConnects();
@@ -14,6 +15,7 @@ DevMgmtSubscriber2::DevMgmtSubscriber2(QString serviceName, QString structureNam
 void DevMgmtSubscriber2::allConnects()
 {
     qDebug()<<Q_FUNC_INFO;
+
     connect(&zeroConf, &QZeroConf::serviceAdded, this, &DevMgmtSubscriber2::slotNewDnsSd);
     // connect(&zeroConf, &QZeroConf::serviceUpdated, this, &DevMgmtSubscriber::slotNewDnsSd);
     connect(&zeroConf, &QZeroConf::serviceRemoved, this, &DevMgmtSubscriber::slotRemoveDnsSd);

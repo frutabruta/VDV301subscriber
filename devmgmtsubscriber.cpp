@@ -1,7 +1,8 @@
 #include "devmgmtsubscriber.h"
 
 
-DevMgmtSubscriber::DevMgmtSubscriber(QString serviceName, QString structureName, QString  version, QString  serviceType, int portNumber) : IbisIpSubscriberMultiplePublishers(serviceName,  structureName,  version,  serviceType, portNumber)
+DevMgmtSubscriber::DevMgmtSubscriber(QString serviceName, QString structureName, QString  version, QString  serviceType, int portNumber) :
+    IbisIpSubscriberMultiplePublishers(serviceName,  structureName,  version,  serviceType, portNumber)
 {
     qDebug()<<Q_FUNC_INFO;
 
