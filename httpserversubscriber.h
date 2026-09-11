@@ -22,6 +22,8 @@ public:
 
     QHttpServer httpServer;
 
+
+
     quint16 mPortNumber=0;
 
     QString contentGet="obsahGet";
@@ -49,6 +51,12 @@ public:
 private:
     QString createOkResponse();
     QMap<QString,QString> contentBodyMap;
+
+#if QT_VERSION > QT_VERSION_CHECK(6, 8, 0)
+    QPointer<QTcpServer> mTcpServer;
+    void addServerHeaders(const QHttpServerRequest &request, QHttpServerResponse &resp);
+#endif
+
 signals:
     void signalContentChanged(QByteArray vysledek,QString struktura) ;
     void signalDataReceived(QString vysledek) ;

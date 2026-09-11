@@ -42,6 +42,20 @@ int HttpServerSubscriber::start()
     return 1;
 }
 
+#if QT_VERSION > QT_VERSION_CHECK(6, 8, 0)
+
+void HttpServerSubscriber::addServerHeaders(const QHttpServerRequest &request, QHttpServerResponse &resp)
+{
+    Q_UNUSED(request);
+
+    QHttpHeaders headers = resp.headers();
+    headers.append(QHttpHeaders::WellKnownHeader::Server, "Super server!");
+    headers.append(QHttpHeaders::WellKnownHeader::ContentType, "text/xml");
+    resp.setHeaders(std::move(headers));
+}
+
+#endif
+
 
 int HttpServerSubscriber::route(QString &getRequestContent,  QMap<QString,QString> &contentBodyList, QString replyPath)
 {
@@ -123,72 +137,108 @@ int HttpServerSubscriber::route(QString &getRequestContent,  QMap<QString,QStrin
                          });
     }
 
-/*
-    httpServer.route("/", [this](const QHttpServerRequest &request)
-                     {
 
-                         HttpServerRequest requestReturnValue;
-                         requestReturnValue.body=request.body();
-                         requestReturnValue.hostAddress=request.remoteAddress();
 
-#if QT_VERSION > QT_VERSION_CHECK(6, 5, 0)
-                         requestReturnValue.port=request.remotePort();
-#endif
 
-                         emit signalDataReceived(requestReturnValue.body);
-                         emit signalWholeRequest(requestReturnValue);
-
-                         QString okResponse="HTTP/1.1 200 OK";
-                         //return this->obsahRoot;
-                         return "";
-                         //return intObsahGet;
-                     });
-*/
 #if QT_VERSION > QT_VERSION_CHECK(6, 0, 0)
+
+//not used on Qt5.15
+#if QT_VERSION < QT_VERSION_CHECK(6, 8, 0)
     httpServer.afterRequest([](QHttpServerResponse &&resp)
                             {
                                 resp.setHeader("Server", "Super server!");
                                 resp.setHeader("Content-Type", "text/xml");
                                 return std::move(resp);
                             });
+#else
+    httpServer.addAfterRequestHandler(this, &HttpServerSubscriber::addServerHeaders);
 #endif
+#endif
+
     return 1;
 }
 
 int HttpServerSubscriber::listen()
 {
-    qCDebug(HttpServerSubscriberLog) <<Q_FUNC_INFO;
+    qCDebug(HttpServerSubscriberLog) << Q_FUNC_INFO;
+#if QT_VERSION > QT_VERSION_CHECK(6, 8, 0)
+    std::unique_ptr<QTcpServer> tcpServer = std::make_unique<QTcpServer>();
 
-    quint16 newPort;
-    if(mPortNumber==0)
+    bool isListening;
+    if (mPortNumber != 0)
     {
-        newPort = httpServer.listen(QHostAddress::Any);
+        /* manual port choice */
+        isListening = tcpServer->listen(QHostAddress::Any, mPortNumber);
     }
     else
     {
-        newPort=httpServer.listen(QHostAddress::Any,mPortNumber);
+        /* automatic port selection */
+        isListening = tcpServer->listen(QHostAddress::Any);
     }
 
-
-    // manualni port:  const auto port = httpServer.listen(QHostAddress::Any,cisloPortu);
-    if (!newPort)
+    if (!isListening)
     {
         qCDebug(HttpServerSubscriberLog) << QCoreApplication::translate(
             "QHttpServerExample", "Server failed to listen on a port.");
         return 0;
     }
-    // nactenyPort=httpServer.listen(QHostAddress::Any,cisloPortu);
 
-    /* automaticky port
-     const auto port = httpServer.listen(QHostAddress::Any);
-    if (!port) {
-        qCDebug(HttpServerSubscribeLog) << QCoreApplication::translate(
-                "QHttpServerExample", "Server failed to listen on a port.");
+
+    if (!httpServer.bind(tcpServer.get()))
+    {
+        qCDebug(HttpServerSubscriberLog) << QCoreApplication::translate(
+            "QHttpServerExample", "Server failed to bind the HTTP server to the TCP server.");
         return 0;
     }
-    */
-    qCDebug(HttpServerSubscriberLog) << QCoreApplication::translate("QHttpServerExample", "Running on http://127.0.0.1:%1/ (Press CTRL+C to quit)").arg(newPort);
+
+
+    // httpServer now owns/parents the QTcpServer, so release our unique_ptr
+    // and keep a non-owning, dangle-safe reference via QPointer.
+    quint16 port = tcpServer->serverPort();
+    mTcpServer = tcpServer.release();
+
+    qCDebug(HttpServerSubscriberLog) << "Starting server at port:" << QString::number(port);
+    qCDebug(HttpServerSubscriberLog) << QCoreApplication::translate(
+                    "QHttpServerExample",
+                    "Running on http://127.0.0.1:%1/ (Press CTRL+C to quit)").arg(port);
+    return port;
+#else
+    if (mPortNumber!=0)
+    {
+        /* manual port choice */
+        const auto port = httpServer.listen(QHostAddress::Any,mPortNumber);
+        if (!port)
+        {
+            qCDebug(HttpServerSubscriberLog) << QCoreApplication::translate(
+                "QHttpServerExample", "Server failed to listen on a port.");
+
+        }
+
+        qCDebug(HttpServerSubscriberLog)<<"Starting server at port:"<<QString::number(port);
+        return port;
+
+        qCDebug(HttpServerSubscriberLog)<< QCoreApplication::translate("QHttpServerExample", "Running on http://127.0.0.1:%1/ (Press CTRL+C to quit)").arg(port);
+
+    }
+    else
+    {
+        /* automatic port selection */
+        const auto port = httpServer.listen(QHostAddress::Any);
+        if (!port) {
+            qCDebug(HttpServerSubscriberLog) << QCoreApplication::translate(
+                "QHttpServerExample", "Server failed to listen on a port.");
+
+        }
+
+        return port;
+
+        qCDebug(HttpServerSubscriberLog) << QCoreApplication::translate("QHttpServerExample", "Running on http://127.0.0.1:%1/ (Press CTRL+C to quit)").arg(port);
+
+    }
+
+
     return 1;
+#endif
 }
 
 

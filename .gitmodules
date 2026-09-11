@@ -1,6 +1,7 @@
 [submodule "QtZeroConf"]
 	path = QtZeroConf
 	url = https://github.com/jbagg/QtZeroConf.git
+	branch = master
 [submodule "VDV301DataStructures"]
 	path = VDV301DataStructures
 	url = https://github.com/frutabruta/VDV301DataStructures
