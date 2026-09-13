@@ -4,7 +4,7 @@ Q_LOGGING_CATEGORY(IbisIpSubscriberLog, "IbisIpSubscriber")
 
 IbisIpSubscriber::IbisIpSubscriber(QString serviceName,QString structureName,QString version,QString serviceType, int portNumber, QString replyPath) :
     httpServerSubscriber (portNumber, replyPath),
-    zeroConf{ sIbisIpHttpBrowser }
+    zeroConf{ sharedBrowser() }
 {
     qCDebug(IbisIpSubscriberLog) <<  Q_FUNC_INFO;
 
@@ -50,19 +50,28 @@ void IbisIpSubscriber::allConnects()
 
 }
 
-QZeroConf IbisIpSubscriber::sIbisIpHttpBrowser;
+QZeroConf& IbisIpSubscriber::sharedBrowser()
+{
+    static QZeroConf instance;   // constructed lazily on first call — well after main()/QApplication exist
+    return instance;
+}
+
 int IbisIpSubscriber::sBrowseRefCount;
 
-void IbisIpSubscriber::globalStartBrowse() {
+
+void IbisIpSubscriber::globalStartBrowse()
+{
     if (sBrowseRefCount++ == 0) {
         qCDebug(IbisIpSubscriberLog)<<"searching for services";
-        sIbisIpHttpBrowser.startBrowser(SERVICE_TYPE);
+        sharedBrowser().startBrowser(SERVICE_TYPE);   // was: sIbisIpHttpBrowser.startBrowser(...)
     }
 }
 
-void IbisIpSubscriber::globalStopBrowse() {
-    if (--sBrowseRefCount == 0) {
-        sIbisIpHttpBrowser.stopBrowser();
+void IbisIpSubscriber::globalStopBrowse()
+{
+    if (--sBrowseRefCount == 0)
+    {
+        sharedBrowser().stopBrowser();   // was: sIbisIpHttpBrowser.stopBrowser();
     }
 }
 

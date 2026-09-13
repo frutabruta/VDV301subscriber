@@ -6,6 +6,11 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20260913_0952
+  - IbisIpSubscriber
+    - changes to avoid crashing on Android level 37
+    - sIbisIpHttpBrowser replaced with sharedBrowser() (Lazy initialization approach)
+    
 - 20260911_1730
   - updated submodule QtZeroConf to https://github.com/HelloOO7/QtZeroConf to work with windows native DNS-SD
   - fixed HttpServerSubscriber to support new syntax in Qt 6.8 and higher

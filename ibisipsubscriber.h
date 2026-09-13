@@ -80,7 +80,8 @@ protected:
 
     static constexpr const char* SERVICE_TYPE = "_ibisip_http._tcp";
 
-    static QZeroConf sIbisIpHttpBrowser;
+    //needed for android level 37
+    static QZeroConf& sharedBrowser();
     static int sBrowseRefCount;
 
     //instance knihoven
