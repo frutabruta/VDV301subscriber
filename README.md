@@ -6,6 +6,11 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20260921
+    - RemoteControlSubscriber
+        - added check for empty message
+        - implemented QLoggingCategory
+
 - 20260913_0952
   - IbisIpSubscriber
     - changes to avoid crashing on Android level 37

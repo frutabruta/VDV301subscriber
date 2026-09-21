@@ -1,5 +1,8 @@
 #include "remotecontrolsubscriber.h"
 
+Q_LOGGING_CATEGORY(RemoteControlSubscriberLog, "RemoteControlSubscriber")
+
+
 RemoteControlSubscriber::RemoteControlSubscriber(QString serviceName,QString structureName,QString version,QString serviceType, int portNumber, QString replyPath)
     : IbisIpSubscriberOnePublisher(serviceName,structureName,version, serviceType, portNumber, replyPath)
 {
@@ -13,9 +16,15 @@ void RemoteControlSubscriber::slotHandleMessage(QString data)
     Vdv301Enumerations::RemoteControlMessageTypeEnumeration messageType;
     QDomDocument document;
     document.setContent(data);
-    parser.parseStateChange(document,messageType,messageParameter);
+    QString parentName=document.firstChildElement().nodeName();
 
-    emit signalMessageType(messageType);
+    if(parentName=="RemoteControlService.GetAllDataResponse")
+    {
+        parser.parseStateChange(document,messageType,messageParameter);
+        emit signalMessageType(messageType);
+    }
+    else
+    {
+        qCWarning(RemoteControlSubscriberLog)<<" unexpected element: "<<parentName;
+    }
 }
-
-
