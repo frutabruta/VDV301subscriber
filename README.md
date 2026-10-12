@@ -6,6 +6,10 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20261012_2250
+    - HttpServerSubscriber::listen
+        - changed port related messaged to qCCritical
+        
 - 20260921
     - RemoteControlSubscriber
         - added check for empty message

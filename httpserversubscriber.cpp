@@ -178,15 +178,14 @@ int HttpServerSubscriber::listen()
 
     if (!isListening)
     {
-        qCDebug(HttpServerSubscriberLog) << QCoreApplication::translate(
-            "QHttpServerExample", "Server failed to listen on a port.");
+        qCCritical(HttpServerSubscriberLog) << "Server failed to listen on a port. "<<mPortNumber;
         return 0;
     }
 
 
     if (!httpServer.bind(tcpServer.get()))
     {
-        qCDebug(HttpServerSubscriberLog) << QCoreApplication::translate(
+        qCCritical(HttpServerSubscriberLog) << QCoreApplication::translate(
             "QHttpServerExample", "Server failed to bind the HTTP server to the TCP server.");
         return 0;
     }
@@ -209,7 +208,7 @@ int HttpServerSubscriber::listen()
         const auto port = httpServer.listen(QHostAddress::Any,mPortNumber);
         if (!port)
         {
-            qCDebug(HttpServerSubscriberLog) << QCoreApplication::translate(
+            qCCritical(HttpServerSubscriberLog) << QCoreApplication::translate(
                 "QHttpServerExample", "Server failed to listen on a port.");
 
         }
@@ -225,7 +224,7 @@ int HttpServerSubscriber::listen()
         /* automatic port selection */
         const auto port = httpServer.listen(QHostAddress::Any);
         if (!port) {
-            qCDebug(HttpServerSubscriberLog) << QCoreApplication::translate(
+            qCCritical(HttpServerSubscriberLog) << QCoreApplication::translate(
                 "QHttpServerExample", "Server failed to listen on a port.");
 
         }
