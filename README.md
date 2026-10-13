@@ -6,6 +6,9 @@ Qt C++ library to be used in VDV301 subscriber devices
 - DeviceManagementService (1.0)
 
 # Changelog
+- 20261013_2055
+    - fixed submodule QZeroconf to HelloOO7 version
+
 - 20261012_2250
     - HttpServerSubscriber::listen
         - changed port related messaged to qCCritical
